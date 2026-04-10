@@ -143,6 +143,104 @@ html, body {
 	border-radius: 8px;
 }
 
+/* Hide raw code blocks until syntax-js upgrades them */
+pre > code[class*="language-"] {
+	opacity: 0;
+}
+
+pre > syntax-code {
+	opacity: 1;
+	transition: opacity 0.15s ease-in;
+}
+
+/* Translation template */
+.translation-template {
+	text-align: center;
+	gap: 2rem;
+}
+
+.translation-template .slide-title {
+	font-size: 3rem;
+	font-weight: 700;
+}
+
+.translation-template .slide-title p {
+	margin: 0;
+}
+
+.translation-template .slide-translation {
+	font-size: 2rem;
+	opacity: 0.7;
+}
+
+.translation-template .slide-translation p {
+	margin: 0;
+}
+
+/* Code template */
+.code-template {
+	padding: 2rem 3rem;
+	align-items: stretch;
+}
+
+.code-template .code-title {
+	font-size: 1.6rem;
+	font-weight: 600;
+	margin-bottom: 1rem;
+}
+
+.code-template .code-title p {
+	margin: 0;
+}
+
+.code-viewport {
+	position: relative;
+	flex: 1;
+	overflow: hidden;
+	border-radius: 8px;
+	background: rgba(0, 0, 0, 0.3);
+}
+
+.code-scroll {
+	transition: transform 0.6s ease-in-out;
+	padding: 1rem;
+}
+
+.code-scroll pre {
+	margin: 0;
+	background: none;
+	padding: 0;
+	line-height: 1.6;
+}
+
+.code-scroll code {
+	background: none;
+	padding: 0;
+	font-size: 1.1rem;
+}
+
+/* Dim overlays */
+.code-dim {
+	position: absolute;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	transition: all 0.6s ease-in-out;
+	z-index: 1;
+}
+
+.code-dim-top {
+	top: 0;
+	height: 0;
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.code-dim-bottom {
+	bottom: 0;
+	height: 0;
+	background: rgba(0, 0, 0, 0.7);
+}
+
 /* ========================
    DISPLAY VIEW (audience)
    ======================== */
@@ -330,6 +428,8 @@ html, body {
 	font-size: 0.9rem;
 	font-family: var(--font-sans);
 	transition: background 0.2s;
+	line-height: 1;
+	min-width: 6rem;
 }
 
 .timing-info .pause-button:hover {

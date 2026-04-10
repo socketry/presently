@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Lua Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+	<body>
+	<header>
+		<h1>Lua Examples</h1>
+		<p class="subtitle">Lua syntax highlighting</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+	</nav>
+	
+<h1>Lua Code Example</h1>
+		
+		<p>Lua is a lightweight, embeddable scripting language with simple syntax and powerful features.</p>
+		
+		<div class="example">
+		<h2>Basic Syntax</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Single-line comment
+
+--[[
+	Multi-line comment
+	can span multiple lines
+]]--
+
+-- Variables (global by default)
+x = 10
+name = "Alice"
+
+-- Local variables
+local y = 20
+local greeting = "Hello"
+
+-- Print to console
+print("Hello, World!")
+print(x, y, name)
+</code></pre>
+
+		<div class="example">
+		<h2>Data Types</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- nil (represents no value)
+local nothing = nil
+
+-- Boolean
+local flag = true
+local check = false
+
+-- Numbers (all numbers are floats)
+local integer = 42
+local decimal = 3.14
+local scientific = 1.5e10
+local hex = 0xFF
+
+-- Strings
+local str1 = "double quotes"
+local str2 = 'single quotes'
+local multiline = [[
+	Multi-line string
+	preserves whitespace
+]]
+
+-- Check type
+print(type(42))        -- number
+print(type("hello"))   -- string
+print(type(true))      -- boolean
+print(type(nil))       -- nil
+</code></pre>
+
+		<div class="example">
+		<h2>Operators</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Arithmetic
+a = 10 + 5    -- 15
+b = 10 - 5    -- 5
+c = 10 * 5    -- 50
+d = 10 / 5    -- 2
+e = 10 % 3    -- 1 (modulo)
+f = 2 ^ 8     -- 256 (exponentiation)
+g = -5        -- unary minus
+
+-- Comparison
+10 == 10      -- true (equal)
+10 ~= 5       -- true (not equal)
+10 < 20       -- true
+10 > 5        -- true
+10 <= 10      -- true
+10 >= 5       -- true
+
+-- Logical
+true and false   -- false
+true or false    -- true
+not true         -- false
+
+-- String concatenation
+s = "Hello" .. " " .. "World"  -- "Hello World"
+
+-- Length operator
+len = #"Hello"        -- 5
+len = #{1, 2, 3}      -- 3
+</code></pre>
+
+		<div class="example">
+		<h2>Control Structures</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- if-then-else
+x = 10
+if x > 0 then
+	print("positive")
+elseif x < 0 then
+	print("negative")
+else
+	print("zero")
+end
+
+-- while loop
+i = 0
+while i < 5 do
+	print(i)
+	i = i + 1
+end
+
+-- repeat-until loop (like do-while)
+i = 0
+repeat
+	print(i)
+	i = i + 1
+until i >= 5
+
+-- for loop (numeric)
+for i = 1, 10 do
+	print(i)
+end
+
+-- for loop with step
+for i = 0, 100, 10 do
+	print(i)  -- 0, 10, 20, ..., 100
+end
+
+-- for loop (generic - iterate over collection)
+for i, v in ipairs({10, 20, 30}) do
+	print(i, v)
+end
+
+-- break
+for i = 1, 10 do
+	if i == 5 then
+		break
+	end
+	print(i)
+end
+</code></pre>
+
+		<div class="example">
+		<h2>Functions</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Function definition
+function greet(name)
+	print("Hello, " .. name .. "!")
+end
+
+greet("Alice")
+
+-- Function with return value
+function add(a, b)
+	return a + b
+end
+
+result = add(3, 4)  -- 7
+
+-- Multiple return values
+function minmax(a, b)
+	if a < b then
+		return a, b
+	else
+		return b, a
+	end
+end
+
+min, max = minmax(10, 5)  -- min=5, max=10
+
+-- Variable number of arguments
+function sum(...)
+	local total = 0
+	for _, v in ipairs({...}) do
+		total = total + v
+	end
+	return total
+end
+
+print(sum(1, 2, 3, 4, 5))  -- 15
+
+-- Anonymous functions
+square = function(x)
+	return x * x
+end
+
+-- Local function
+local function factorial(n)
+	if n <= 1 then
+		return 1
+	else
+		return n * factorial(n - 1)
+	end
+end
+
+print(factorial(5))  -- 120
+</code></pre>
+
+		<div class="example">
+		<h2>Tables (Arrays and Dictionaries)</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Array (1-indexed)
+local fruits = {"apple", "banana", "cherry"}
+print(fruits[1])  -- "apple"
+print(fruits[2])  -- "banana"
+
+-- Table length
+print(#fruits)  -- 3
+
+-- Add element
+fruits[4] = "date"
+table.insert(fruits, "elderberry")
+
+-- Remove element
+table.remove(fruits, 2)  -- removes "banana"
+
+-- Iterate over array
+for i, fruit in ipairs(fruits) do
+	print(i, fruit)
+end
+
+-- Dictionary (key-value pairs)
+local person = {
+	name = "Alice",
+	age = 30,
+	city = "NYC"
+}
+
+print(person.name)     -- "Alice"
+print(person["age"])   -- 30
+
+-- Add/modify field
+person.email = "alice@example.com"
+person["phone"] = "555-1234"
+
+-- Iterate over dictionary
+for key, value in pairs(person) do
+	print(key, value)
+end
+
+-- Mixed table
+local mixed = {
+	"first",           -- [1]
+	"second",          -- [2]
+	name = "Alice",
+	age = 30
+}
+
+print(mixed[1])        -- "first"
+print(mixed.name)      -- "Alice"
+
+-- Nested tables
+local matrix = {
+	{1, 2, 3},
+	{4, 5, 6},
+	{7, 8, 9}
+}
+
+print(matrix[2][3])  -- 6
+</code></pre>
+
+		<div class="example">
+		<h2>Table Library Functions</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">local numbers = {3, 1, 4, 1, 5, 9, 2, 6}
+
+-- Insert element
+table.insert(numbers, 7)         -- append to end
+table.insert(numbers, 1, 0)      -- insert at position 1
+
+-- Remove element
+table.remove(numbers)            -- remove last element
+table.remove(numbers, 1)         -- remove at position 1
+
+-- Sort
+table.sort(numbers)
+for i, v in ipairs(numbers) do
+	print(v)
+end
+
+-- Sort with custom comparator
+table.sort(numbers, function(a, b)
+	return a > b  -- descending order
+end)
+
+-- Concatenate array elements
+local words = {"Hello", "World", "from", "Lua"}
+local sentence = table.concat(words, " ")
+print(sentence)  -- "Hello World from Lua"
+</code></pre>
+
+		<div class="example">
+		<h2>String Library</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">local text = "Hello, World!"
+
+-- Length
+print(#text)               -- 13
+print(string.len(text))    -- 13
+
+-- Uppercase/lowercase
+print(string.upper(text))  -- "HELLO, WORLD!"
+print(string.lower(text))  -- "hello, world!"
+
+-- Substring
+print(string.sub(text, 1, 5))   -- "Hello"
+print(string.sub(text, 8))      -- "World!"
+
+-- Find pattern
+start, finish = string.find(text, "World")
+print(start, finish)  -- 8, 12
+
+-- Replace
+result = string.gsub(text, "World", "Lua")
+print(result)  -- "Hello, Lua!"
+
+-- Split string (manual)
+function split(str, delimiter)
+	local result = {}
+	for match in (str..delimiter):gmatch("(.-)"..delimiter) do
+		table.insert(result, match)
+	end
+	return result
+end
+
+parts = split("one,two,three", ",")
+
+-- Format string
+formatted = string.format("Name: %s, Age: %d", "Alice", 30)
+print(formatted)
+
+-- Repeat
+print(string.rep("Ha", 3))  -- "HaHaHa"
+
+-- Reverse
+print(string.reverse("Hello"))  -- "olleH"
+
+-- Character code
+print(string.byte("A"))      -- 65
+print(string.char(65))       -- "A"
+</code></pre>
+
+		<div class="example">
+		<h2>Pattern Matching</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Find pattern
+text = "The price is $42.99"
+number = string.match(text, "%d+%.%d+")
+print(number)  -- "42.99"
+
+-- Match all occurrences
+text = "one two three"
+for word in string.gmatch(text, "%w+") do
+	print(word)
+end
+
+-- Pattern classes
+-- %a - letters
+-- %d - digits
+-- %w - alphanumeric
+-- %s - whitespace
+-- %p - punctuation
+
+-- Replace with pattern
+text = "Phone: 123-456-7890"
+result = string.gsub(text, "(%d+)-(%d+)-(%d+)", "(%1) %2-%3")
+print(result)  -- "Phone: (123) 456-7890"
+</code></pre>
+
+		<div class="example">
+		<h2>Metatables and Metamethods</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Create a table
+local vector = {x = 10, y = 20}
+
+-- Create metatable
+local mt = {
+	__add = function(v1, v2)
+		return {x = v1.x + v2.x, y = v1.y + v2.y}
+	end,
+	__tostring = function(v)
+		return "(" .. v.x .. ", " .. v.y .. ")"
+	end
+}
+
+-- Set metatable
+setmetatable(vector, mt)
+
+-- Use metamethods
+local v1 = {x = 1, y = 2}
+local v2 = {x = 3, y = 4}
+setmetatable(v1, mt)
+setmetatable(v2, mt)
+
+local v3 = v1 + v2  -- calls __add
+print(v3.x, v3.y)   -- 4, 6
+
+-- __index metamethod
+local defaults = {color = "red", size = 10}
+local mt = {__index = defaults}
+
+local obj = {}
+setmetatable(obj, mt)
+
+print(obj.color)  -- "red" (from defaults)
+obj.color = "blue"
+print(obj.color)  -- "blue" (from obj)
+</code></pre>
+
+		<div class="example">
+		<h2>Object-Oriented Programming</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Define a class
+Person = {}
+Person.__index = Person
+
+-- Constructor
+function Person:new(name, age)
+	local obj = {
+		name = name,
+		age = age
+	}
+	setmetatable(obj, self)
+	return obj
+end
+
+-- Methods
+function Person:greet()
+	print("Hello, my name is " .. self.name)
+end
+
+function Person:getAge()
+	return self.age
+end
+
+function Person:haveBirthday()
+	self.age = self.age + 1
+end
+
+-- Create instance
+local alice = Person:new("Alice", 30)
+alice:greet()           -- "Hello, my name is Alice"
+print(alice:getAge())   -- 30
+alice:haveBirthday()
+print(alice:getAge())   -- 31
+
+-- Inheritance
+Student = Person:new()  -- Student inherits from Person
+
+function Student:new(name, age, grade)
+	local obj = Person:new(name, age)
+	obj.grade = grade
+	setmetatable(obj, self)
+	self.__index = self
+	return obj
+end
+
+function Student:study()
+	print(self.name .. " is studying")
+end
+
+local bob = Student:new("Bob", 20, "A")
+bob:greet()    -- Inherited method
+bob:study()    -- Student-specific method
+</code></pre>
+
+		<div class="example">
+		<h2>Modules</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Define a module (in mymodule.lua)
+local M = {}
+
+function M.greet(name)
+	print("Hello, " .. name)
+end
+
+function M.add(a, b)
+	return a + b
+end
+
+return M
+
+-- Use the module (in another file)
+local mymodule = require("mymodule")
+mymodule.greet("Alice")
+local sum = mymodule.add(3, 4)
+
+-- Alternative: import specific functions
+local greet = require("mymodule").greet
+greet("Bob")
+</code></pre>
+
+		<div class="example">
+		<h2>Coroutines</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Create a coroutine
+co = coroutine.create(function()
+	for i = 1, 3 do
+		print("Coroutine step " .. i)
+		coroutine.yield()
+	end
+end)
+
+-- Resume coroutine
+coroutine.resume(co)  -- prints "Coroutine step 1"
+coroutine.resume(co)  -- prints "Coroutine step 2"
+coroutine.resume(co)  -- prints "Coroutine step 3"
+
+-- Check status
+print(coroutine.status(co))  -- "dead"
+
+-- Producer-consumer pattern
+function producer()
+	return coroutine.create(function()
+		for i = 1, 5 do
+			coroutine.yield(i)
+		end
+	end)
+end
+
+function consumer(prod)
+	while true do
+		local status, value = coroutine.resume(prod)
+		if not status then break end
+		print("Received: " .. value)
+	end
+end
+
+consumer(producer())
+</code></pre>
+
+		<div class="example">
+		<h2>Error Handling</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- pcall (protected call)
+function divide(a, b)
+	if b == 0 then
+		error("Cannot divide by zero")
+	end
+	return a / b
+end
+
+local status, result = pcall(divide, 10, 2)
+if status then
+	print("Result: " .. result)  -- 5
+else
+	print("Error: " .. result)
+end
+
+local status, result = pcall(divide, 10, 0)
+if status then
+	print("Result: " .. result)
+else
+	print("Error: " .. result)  -- "Cannot divide by zero"
+end
+
+-- assert
+function validateAge(age)
+	assert(age >= 0 and age <= 150, "Invalid age")
+	return age
+end
+
+age = validateAge(30)   -- OK
+-- age = validateAge(-5)  -- Error: Invalid age
+</code></pre>
+
+		<div class="example">
+		<h2>File I/O</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Write to file
+file = io.open("output.txt", "w")
+file:write("Hello, World!\n")
+file:write("Line 2\n")
+file:close()
+
+-- Read entire file
+file = io.open("input.txt", "r")
+if file then
+	local content = file:read("*all")
+	print(content)
+	file:close()
+end
+
+-- Read line by line
+file = io.open("input.txt", "r")
+if file then
+	for line in file:lines() do
+		print(line)
+	end
+	file:close()
+end
+
+-- Append to file
+file = io.open("log.txt", "a")
+file:write("Log entry\n")
+file:close()
+
+-- Check if file exists
+function fileExists(filename)
+	local file = io.open(filename, "r")
+	if file then
+		file:close()
+		return true
+	else
+		return false
+	end
+end
+</code></pre>
+
+		<div class="example">
+		<h2>Advanced Examples</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-lua">-- Fibonacci with memoization
+local fib_cache = {}
+
+function fibonacci(n)
+	if fib_cache[n] then
+		return fib_cache[n]
+	end
+	
+	local result
+	if n <= 1 then
+		result = n
+	else
+		result = fibonacci(n - 1) + fibonacci(n - 2)
+	end
+	
+	fib_cache[n] = result
+	return result
+end
+
+print(fibonacci(10))  -- 55
+
+-- Quicksort
+function quicksort(t)
+	if #t < 2 then
+		return t
+	end
+	
+	local pivot = t[1]
+	local less, greater = {}, {}
+	
+	for i = 2, #t do
+		if t[i] <= pivot then
+			table.insert(less, t[i])
+		else
+			table.insert(greater, t[i])
+		end
+	end
+	
+	local result = {}
+	for _, v in ipairs(quicksort(less)) do
+		table.insert(result, v)
+	end
+	table.insert(result, pivot)
+	for _, v in ipairs(quicksort(greater)) do
+		table.insert(result, v)
+	end
+	
+	return result
+end
+
+local unsorted = {3, 1, 4, 1, 5, 9, 2, 6}
+local sorted = quicksort(unsorted)
+for _, v in ipairs(sorted) do
+	print(v)
+end
+
+-- Map, filter, reduce
+function map(t, fn)
+	local result = {}
+	for i, v in ipairs(t) do
+		result[i] = fn(v)
+	end
+	return result
+end
+
+function filter(t, predicate)
+	local result = {}
+	for _, v in ipairs(t) do
+		if predicate(v) then
+			table.insert(result, v)
+		end
+	end
+	return result
+end
+
+function reduce(t, fn, initial)
+	local acc = initial
+	for _, v in ipairs(t) do
+		acc = fn(acc, v)
+	end
+	return acc
+end
+
+numbers = {1, 2, 3, 4, 5}
+squared = map(numbers, function(x) return x * x end)
+evens = filter(numbers, function(x) return x % 2 == 0 end)
+sum = reduce(numbers, function(a, b) return a + b end, 0)
+</code></pre>
+
+	</body>
+</html>

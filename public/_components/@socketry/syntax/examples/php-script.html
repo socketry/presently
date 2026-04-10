@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>PHP Script Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>PHP Script Examples</h1>
+		<p class="subtitle">PHP Script syntax highlighting</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+	</nav>
+	
+<h1>PHP-Script Syntax Highlighting</h1>
+	
+	<syntax-code language="php-script">
+// Simple function
+function fibonacci($n) {
+    $a = 0;
+    $b = 1;
+    $result = array();
+    
+    for ($i = 0; $i < $n; $i++) {
+        $result[] = $a;
+        $temp = $a;
+        $a = $b;
+        $b = $temp + $b;
+    }
+    
+    return $result;
+}
+
+/**
+ * A simple calculator class
+ */
+class Calculator {
+    private $name;
+    protected $_history;
+    public $version = "1.0";
+    
+    public function __construct($name) {
+        $this->name = $name;
+        $this->_history = array();
+    }
+    
+    public function add($x, $y) {
+        $result = $x + $y;
+        $this->_history[] = "$x + $y = $result";
+        return $result;
+    }
+    
+    public function multiply() {
+        $args = func_get_args();
+        $result = 1;
+        foreach ($args as $num) {
+            $result *= $num;
+        }
+        return $result;
+    }
+    
+    static function create($name) {
+        return new Calculator($name);
+    }
+}
+
+# Example usage
+$calc = new Calculator("MyCalc");
+echo $calc->add(5, 3);
+echo $calc->multiply(2, 3, 4);
+
+// Control structures
+if ($calc->version == "1.0") {
+    echo "Version 1.0";
+} elseif ($calc->version > "1.0") {
+    echo "Newer version";
+} else {
+    echo "Old version";
+}
+
+// Switch statement
+switch ($calc->version) {
+    case "1.0":
+        echo "Version 1.0";
+        break;
+    default:
+        echo "Unknown version";
+        break;
+}
+
+// While loop
+$i = 0;
+while ($i < 10) {
+    $i++;
+}
+
+// Do-while loop
+do {
+    $i--;
+} while ($i > 0);
+
+// String operations
+$greeting = 'Hello';
+$name = "World";
+echo "$greeting, $name!";
+
+// Array operations
+$numbers = array(1, 2, 3, 4, 5);
+$assoc = array(
+    'key1' => 'value1',
+    'key2' => 'value2'
+);
+
+// Operators and constants
+$a = 1 + 2 * 3 / 4 - 5 % 2;
+$b = $a & 0xFF | 0x10;
+$c = ~$b;
+$d = $a < $b ? true : false;
+$e = !$d;
+
+// Access modifiers in interfaces
+interface Drawable {
+    public function draw();
+}
+
+abstract class Shape implements Drawable {
+    abstract protected function calculateArea();
+}
+	</syntax-code>
+	</div>
+	
+	<script type="module">
+		import Syntax from '../Syntax.js';
+		
+		await Syntax.highlight({ autoUpgrade: true });
+	</script>
+</body>
+</html>

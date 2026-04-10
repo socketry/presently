@@ -1,0 +1,216 @@
+/* Shared styles for all example pages */
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
+	background: #ffffff;
+	color: #24292e;
+	line-height: 1.6;
+}
+
+/* Header */
+header {
+	border-bottom: 3px solid #0366d6;
+	padding-bottom: 1rem;
+	margin-bottom: 2rem;
+}
+
+h1 {
+	color: #0366d6;
+	margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+	color: #586069;
+	font-size: 1.1rem;
+	margin: 0;
+}
+
+/* Navigation */
+nav {
+	background: #f6f8fa;
+	padding: 1rem;
+	border-radius: 6px;
+	margin-bottom: 2rem;
+	border: 1px solid #e1e4e8;
+}
+
+nav a {
+	color: #0366d6;
+	text-decoration: none;
+	margin-right: 1.5rem;
+	transition: color 0.2s;
+}
+
+nav a:hover {
+	color: #0366d6;
+	text-decoration: underline;
+}
+
+nav a:first-child::before {
+	content: '← ';
+}
+
+/* Section headings */
+h2 {
+	color: #0366d6;
+	margin-top: 2.5rem;
+	margin-bottom: 1rem;
+	border-bottom: 1px solid #e1e4e8;
+	padding-bottom: 0.3rem;
+}
+
+/* Example containers */
+.example {
+	margin: 2rem 0 3rem;
+}
+
+.description {
+	margin-bottom: 1rem;
+	color: #586069;
+	font-size: 0.95rem;
+}
+
+/* Code blocks */
+pre {
+	background: #f6f8fa;
+	border: 1px solid #e1e4e8;
+	border-radius: 6px;
+	padding: 1rem;
+	overflow: auto;
+	margin: 1rem 0;
+}
+
+syntax-code {
+	display: block;
+	margin: 1rem 0;
+}
+
+/* Feature boxes (for index page) */
+.feature-list {
+	background: #f6f8fa;
+	padding: 1.5rem;
+	border-radius: 8px;
+	border-left: 4px solid #0366d6;
+	margin: 1.5rem 0;
+}
+
+.feature-list ul {
+	margin: 0;
+	padding-left: 1.5rem;
+}
+
+.feature-list li {
+	margin: 0.5rem 0;
+	color: #24292e;
+}
+
+.feature-list code {
+	background: #ffffff;
+	padding: 2px 6px;
+	border-radius: 3px;
+	color: #e36209;
+	border: 1px solid #e1e4e8;
+	font-size: 0.9em;
+}
+
+/* Language grid (for index page) */
+.language-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 0.5rem;
+	margin: 1rem 0 2rem;
+}
+
+.language-grid a {
+	background: #f6f8fa;
+	padding: 0.75rem 1rem;
+	border-radius: 6px;
+	color: #0366d6;
+	text-decoration: none;
+	transition: all 0.2s;
+	border: 1px solid #e1e4e8;
+	text-align: center;
+}
+
+.language-grid a:hover {
+	background: #0366d6;
+	color: #ffffff;
+	border-color: #0366d6;
+	transform: translateY(-2px);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+	body {
+		background: #0d1117;
+		color: #c9d1d9;
+	}
+	
+	header {
+		border-bottom-color: #58a6ff;
+	}
+	
+	h1 {
+		color: #58a6ff;
+	}
+	
+	.subtitle {
+		color: #8b949e;
+	}
+	
+	h2 {
+		color: #58a6ff;
+		border-bottom-color: #21262d;
+	}
+	
+	nav {
+		background: #161b22;
+		border-color: #30363d;
+	}
+	
+	nav a {
+		color: #58a6ff;
+	}
+	
+	.description {
+		color: #8b949e;
+	}
+	
+	pre {
+		background: #161b22;
+		border-color: #30363d;
+	}
+	
+	.feature-list {
+		background: #161b22;
+		border-left-color: #58a6ff;
+	}
+	
+	.feature-list li {
+		color: #c9d1d9;
+	}
+	
+	.feature-list code {
+		background: #0d1117;
+		color: #f0883e;
+		border-color: #30363d;
+	}
+	
+	.language-grid a {
+		background: #161b22;
+		color: #58a6ff;
+		border-color: #30363d;
+	}
+	
+	.language-grid a:hover {
+		background: #21262d;
+		border-color: #58a6ff;
+	}
+}

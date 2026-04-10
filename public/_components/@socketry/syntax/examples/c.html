@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>C/C++ Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>C/C++/Objective-C Examples</h1>
+		<p class="subtitle">Syntax highlighting for C, C++, and Objective-C</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+		<a href="java.html">Java</a>
+		<a href="csharp.html">C#</a>
+	</nav>
+	
+	<div class="example">
+		<h2>C Example</h2>
+		<p class="description">Classic C with structs, pointers, and memory management:</p>
+		
+		<syntax-code language="c">
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+#define MAX_SIZE 100
+#define PI 3.14159
+
+typedef struct {
+    char name[50];
+    int age;
+    float salary;
+} Employee;
+
+// Function to calculate circle area
+float calculate_area(float radius) {
+    return PI * radius * radius;
+}
+
+int main(int argc, char *argv[]) {
+    Employee emp;
+    int numbers[MAX_SIZE];
+    
+    // Initialize employee
+    strcpy(emp.name, "John Doe");
+    emp.age = 30;
+    emp.salary = 50000.00;
+    
+    printf("Employee: %s\n", emp.name);
+    printf("Age: %d\n", emp.age);
+    printf("Salary: %.2f\n", emp.salary);
+    
+    // Array operations
+    for (int i = 0; i &lt; 10; i++) {
+        numbers[i] = i * 2;
+    }
+    
+    // Pointer example
+    int *ptr = numbers;
+    printf("First element: %d\n", *ptr);
+    
+    // Dynamic memory
+    int *dynamic = (int*)malloc(sizeof(int) * 10);
+    if (dynamic != NULL) {
+        dynamic[0] = 42;
+        free(dynamic);
+    }
+    
+    return 0;
+}
+	</syntax-code>
+	</div>
+	
+	<div class="example">
+		<h2>C++ Example</h2>
+		<p class="description">Modern C++ with classes, templates, and STL:</p>
+		
+		<syntax-code language="cpp">
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+
+class Calculator {
+private:
+    std::vector&lt;double&gt; history;
+    
+public:
+    Calculator() : history() {}
+    
+    double add(double a, double b) {
+        double result = a + b;
+        history.push_back(result);
+        return result;
+    }
+    
+    double multiply(double a, double b) {
+        return a * b;
+    }
+    
+    void printHistory() const {
+        std::cout &lt;&lt; "History:" &lt;&lt; std::endl;
+        for (const auto& value : history) {
+            std::cout &lt;&lt; value &lt;&lt; std::endl;
+        }
+    }
+};
+
+template&lt;typename T&gt;
+T max(T a, T b) {
+    return (a > b) ? a : b;
+}
+
+int main() {
+    Calculator calc;
+
+    std::cout &lt;&lt; "Sum: " &lt;&lt; calc.add(5, 3) &lt;&lt; std::endl;
+    std::cout &lt;&lt; "Product: " &lt;&lt; calc.multiply(4, 7) &lt;&lt; std::endl;
+
+    calc.printHistory();
+    
+    // STL example
+    std::vector&lt;int&gt; numbers = {5, 2, 8, 1, 9};
+    std::sort(numbers.begin(), numbers.end());
+    
+    return 0;
+}
+	</syntax-code>
+	</div>
+	
+	<script type="module">
+		import Syntax from '../Syntax.js';
+		
+		await Syntax.highlight({ autoUpgrade: true });
+	</script>
+</body>
+</html>

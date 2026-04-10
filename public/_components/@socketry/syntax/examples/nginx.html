@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Nginx Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+	<body>
+	<header>
+		<h1>Nginx Examples</h1>
+		<p class="subtitle">Nginx syntax highlighting</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+	</nav>
+	
+<h1>Nginx Configuration Example</h1>
+		
+		<p>Nginx is a high-performance web server and reverse proxy. These examples demonstrate common nginx configuration patterns.</p>
+		
+		<div class="example">
+		<h2>Basic Server Block</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx"># Basic HTTP server
+server {
+	listen 80;
+	listen [::]:80;
+	
+	server_name example.com www.example.com;
+	
+	root /var/www/example.com;
+	index index.html index.htm;
+	
+	# Access and error logs
+	access_log /var/log/nginx/example.access.log;
+	error_log /var/log/nginx/example.error.log;
+	
+	# Serve static files
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>HTTPS/SSL Configuration</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx"># HTTPS server with SSL
+server {
+	listen 443 ssl http2;
+	listen [::]:443 ssl http2;
+	
+	server_name example.com;
+	
+	# SSL certificates
+	ssl_certificate /etc/nginx/ssl/example.com.crt;
+	ssl_certificate_key /etc/nginx/ssl/example.com.key;
+	
+	# SSL protocols and ciphers
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_ciphers HIGH:!aNULL:!MD5;
+	ssl_prefer_server_ciphers on;
+	
+	# SSL session cache
+	ssl_session_cache shared:SSL:10m;
+	ssl_session_timeout 10m;
+	
+	# HSTS (HTTP Strict Transport Security)
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+	
+	root /var/www/example.com;
+	index index.html;
+	
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
+
+# Redirect HTTP to HTTPS
+server {
+	listen 80;
+	listen [::]:80;
+	
+	server_name example.com www.example.com;
+	
+	# Redirect all HTTP requests to HTTPS
+	return 301 https://$host$request_uri;
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Reverse Proxy</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx"># Reverse proxy to backend application
+upstream backend {
+	server 127.0.0.1:8080;
+	server 127.0.0.1:8081;
+	server 127.0.0.1:8082;
+	
+	# Load balancing method
+	least_conn;
+	
+	# Health check
+	keepalive 32;
+}
+
+server {
+	listen 80;
+	server_name api.example.com;
+	
+	location / {
+		# Proxy headers
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		
+		# Proxy pass to upstream
+		proxy_pass http://backend;
+		
+		# Timeouts
+		proxy_connect_timeout 60s;
+		proxy_send_timeout 60s;
+		proxy_read_timeout 60s;
+		
+		# Buffering
+		proxy_buffering on;
+		proxy_buffer_size 4k;
+		proxy_buffers 8 4k;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Static File Serving with Caching</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	server_name static.example.com;
+	
+	root /var/www/static;
+	
+	# Gzip compression
+	gzip on;
+	gzip_vary on;
+	gzip_proxied any;
+	gzip_comp_level 6;
+	gzip_types text/plain text/css text/xml text/javascript 
+	           application/json application/javascript application/xml+rss 
+	           application/rss+xml font/truetype font/opentype 
+	           application/vnd.ms-fontobject image/svg+xml;
+	
+	# Cache static assets
+	location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg|woff|woff2|ttf|eot)$ {
+		expires 1y;
+		add_header Cache-Control "public, immutable";
+		access_log off;
+	}
+	
+	# Disable access to hidden files
+	location ~ /\. {
+		deny all;
+		access_log off;
+		log_not_found off;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>PHP-FPM Configuration</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	server_name php.example.com;
+	
+	root /var/www/php-app;
+	index index.php index.html;
+	
+	# PHP files
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		include fastcgi_params;
+	}
+	
+	# Deny access to .htaccess files
+	location ~ /\.ht {
+		deny all;
+	}
+	
+	# Try files or pass to index.php
+	location / {
+		try_files $uri $uri/ /index.php?$query_string;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>WebSocket Proxy</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	server_name ws.example.com;
+	
+	location /ws {
+		proxy_pass http://localhost:3000;
+		
+		# WebSocket headers
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		
+		# Standard proxy headers
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		
+		# Disable buffering for WebSocket
+		proxy_buffering off;
+		
+		# Timeouts for long-lived connections
+		proxy_read_timeout 86400;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Rate Limiting</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx"># Define rate limit zones (in http context)
+# This would typically go in nginx.conf
+# limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+# limit_req_zone $binary_remote_addr zone=login_limit:10m rate=5r/m;
+
+server {
+	listen 80;
+	server_name api.example.com;
+	
+	# API rate limiting
+	location /api/ {
+		limit_req zone=api_limit burst=20 nodelay;
+		limit_req_status 429;
+		
+		proxy_pass http://backend;
+		proxy_set_header Host $host;
+	}
+	
+	# Login rate limiting
+	location /login {
+		limit_req zone=login_limit burst=5 nodelay;
+		
+		proxy_pass http://backend;
+		proxy_set_header Host $host;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>URL Rewriting and Redirects</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	server_name example.com;
+	
+	# Redirect old URLs to new ones
+	rewrite ^/old-path(.*)$ /new-path$1 permanent;
+	
+	# Redirect blog section
+	rewrite ^/blog/(.*)$ https://blog.example.com/$1 permanent;
+	
+	# Remove trailing slash
+	rewrite ^/(.*)/$ /$1 permanent;
+	
+	# Conditional redirect
+	if ($request_uri ~* "^/admin") {
+		return 301 https://$host$request_uri;
+	}
+	
+	# Named location for error pages
+	location / {
+		try_files $uri $uri/ @backend;
+	}
+	
+	location @backend {
+		proxy_pass http://backend;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Security Headers</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 443 ssl http2;
+	server_name secure.example.com;
+	
+	# SSL configuration (certificates omitted for brevity)
+	ssl_certificate /etc/nginx/ssl/cert.pem;
+	ssl_certificate_key /etc/nginx/ssl/key.pem;
+	
+	# Security headers
+	add_header X-Frame-Options "SAMEORIGIN" always;
+	add_header X-Content-Type-Options "nosniff" always;
+	add_header X-XSS-Protection "1; mode=block" always;
+	add_header Referrer-Policy "no-referrer-when-downgrade" always;
+	add_header Content-Security-Policy "default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';" always;
+	
+	# HSTS
+	add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+	
+	root /var/www/secure;
+	index index.html;
+	
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Load Balancing Strategies</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx"># Round-robin (default)
+upstream backend_roundrobin {
+	server backend1.example.com;
+	server backend2.example.com;
+	server backend3.example.com;
+}
+
+# Least connections
+upstream backend_leastconn {
+	least_conn;
+	
+	server backend1.example.com;
+	server backend2.example.com;
+	server backend3.example.com;
+}
+
+# IP hash (session persistence)
+upstream backend_iphash {
+	ip_hash;
+	
+	server backend1.example.com;
+	server backend2.example.com;
+	server backend3.example.com;
+}
+
+# Weighted load balancing
+upstream backend_weighted {
+	server backend1.example.com weight=3;
+	server backend2.example.com weight=2;
+	server backend3.example.com weight=1;
+}
+
+# With backup and health checks
+upstream backend_advanced {
+	server backend1.example.com max_fails=3 fail_timeout=30s;
+	server backend2.example.com max_fails=3 fail_timeout=30s;
+	server backup.example.com backup;
+	
+	keepalive 32;
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Caching Proxy</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx"># Cache configuration (in http context)
+# This would typically go in nginx.conf
+# proxy_cache_path /var/cache/nginx levels=1:2 keys_zone=my_cache:10m max_size=1g inactive=60m use_temp_path=off;
+
+server {
+	listen 80;
+	server_name cache.example.com;
+	
+	location / {
+		proxy_cache my_cache;
+		proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+		proxy_cache_background_update on;
+		proxy_cache_lock on;
+		
+		# Cache control
+		proxy_cache_valid 200 60m;
+		proxy_cache_valid 404 10m;
+		
+		# Cache bypass
+		proxy_cache_bypass $http_pragma $http_authorization;
+		proxy_no_cache $http_pragma $http_authorization;
+		
+		# Cache key
+		proxy_cache_key "$scheme$request_method$host$request_uri";
+		
+		# Add cache status header
+		add_header X-Cache-Status $upstream_cache_status;
+		
+		proxy_pass http://backend;
+		proxy_set_header Host $host;
+	}
+	
+	# Cache purge endpoint
+	location ~ /purge(/.*) {
+		allow 127.0.0.1;
+		deny all;
+		proxy_cache_purge my_cache "$scheme$request_method$host$1";
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Virtual Host with Multiple Domains</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	
+	# Multiple server names
+	server_name example.com www.example.com example.net www.example.net;
+	
+	root /var/www/example;
+	index index.html index.htm;
+	
+	# Custom error pages
+	error_page 404 /404.html;
+	error_page 500 502 503 504 /50x.html;
+	
+	location = /404.html {
+		internal;
+		root /var/www/errors;
+	}
+	
+	location = /50x.html {
+		internal;
+		root /var/www/errors;
+	}
+	
+	# Favicon and robots.txt
+	location = /favicon.ico {
+		log_not_found off;
+		access_log off;
+	}
+	
+	location = /robots.txt {
+		allow all;
+		log_not_found off;
+		access_log off;
+	}
+	
+	location / {
+		try_files $uri $uri/ =404;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Geo-blocking and Access Control</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	server_name restricted.example.com;
+	
+	# Allow specific IPs
+	allow 192.168.1.0/24;
+	allow 10.0.0.0/8;
+	deny all;
+	
+	# Basic authentication
+	location /admin {
+		auth_basic "Restricted Area";
+		auth_basic_user_file /etc/nginx/.htpasswd;
+		
+		proxy_pass http://backend;
+	}
+	
+	# IP-based restrictions
+	location /api {
+		# Allow internal network
+		allow 192.168.1.0/24;
+		# Allow specific IPs
+		allow 203.0.113.0/24;
+		# Deny all others
+		deny all;
+		
+		proxy_pass http://backend;
+	}
+}
+</code></pre>
+
+		<div class="example">
+		<h2>Variables and Conditionals</h2>
+		<p class="description">Example:</p>
+		
+		<pre><code class="language-nginx">server {
+	listen 80;
+	server_name example.com;
+	
+	# Custom variables
+	set $mobile_rewrite do_not_perform;
+	
+	# Check for mobile user agents
+	if ($http_user_agent ~* "(android|iphone|ipad|mobile)") {
+		set $mobile_rewrite perform;
+	}
+	
+	# Check for specific paths
+	if ($uri ~ ^/mobile/) {
+		set $mobile_rewrite do_not_perform;
+	}
+	
+	# Redirect to mobile site
+	if ($mobile_rewrite = perform) {
+		return 301 https://m.example.com$request_uri;
+	}
+	
+	# Common nginx variables
+	location /debug {
+		# Request variables
+		add_header X-Request-URI $request_uri;
+		add_header X-Request-Method $request_method;
+		add_header X-Query-String $query_string;
+		add_header X-Remote-Addr $remote_addr;
+		add_header X-Remote-User $remote_user;
+		
+		# Server variables
+		add_header X-Server-Name $server_name;
+		add_header X-Server-Port $server_port;
+		add_header X-Server-Protocol $server_protocol;
+		
+		# HTTP headers
+		add_header X-Host $host;
+		add_header X-User-Agent $http_user_agent;
+		add_header X-Referer $http_referer;
+		
+		return 200 "Debug information in headers\n";
+	}
+}
+</code></pre>
+
+	</body>
+</html>

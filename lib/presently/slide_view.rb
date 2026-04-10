@@ -34,7 +34,8 @@ module Presently
 		end
 		
 		def render(builder)
-			slide = PRESENTATION.current_slide
+			# SlideView.render is only used standalone; normally render_slide is called directly.
+			slide = nil
 			render_slide(builder, slide)
 		end
 	end

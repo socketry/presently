@@ -34,6 +34,14 @@ module Presently
 			@frontmatter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
 		end
 		
+		# Returns [start, end] line numbers (1-based) or nil.
+		def focus
+			if range = @frontmatter&.fetch("focus", nil)
+				parts = range.to_s.split("-").map(&:to_i)
+				parts.length == 2 ? parts : nil
+			end
+		end
+		
 		# Parse the markdown file into frontmatter, content sections, and notes.
 		def parse!
 			raw = File.read(@path)

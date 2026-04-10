@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Scala Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>Scala Examples</h1>
+		<p class="subtitle">Scala syntax highlighting</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+	</nav>
+	
+<h1>Scala Example</h1>
+    <p>Minimal sample showing keywords, strings, functions, types, comments, and XML literals.</p>
+
+    <syntax-code language="scala">
+object App extends App {
+  // line comment
+  /* block comment */
+
+  def greet(name: String): String = {
+    val msg = "Hello, " + name
+    msg
+  }
+
+  val xml = &lt;note&gt;Hi {greet("World")}!&lt;/note&gt;
+
+  val multi = """This is a
+multi-line string"""
+
+  val value: MyType = MyType(42)
+}
+    </syntax-code>
+</body>
+</html>

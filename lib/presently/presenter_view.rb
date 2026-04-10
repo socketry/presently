@@ -6,9 +6,9 @@ require_relative "slide_view"
 module Presently
 	# The presenter-facing view with notes, timing, and slide previews.
 	class PresenterView < Live::View
-		def initialize(id = Live::Element.unique_id, data = {})
+		def initialize(id = Live::Element.unique_id, data = {}, presentation: nil)
 			super(id, data)
-			@presentation = PRESENTATION
+			@presentation = presentation
 			@clock_task = nil
 		end
 		
@@ -16,10 +16,10 @@ module Presently
 			super
 			@presentation.add_listener(self)
 			
-			# Update the clock every second for timing display.
+			# Update only the timing section every second.
 			@clock_task = Async do
 				while true
-					self.update!
+					update_timing!
 					sleep 1
 				end
 			end
@@ -33,6 +33,12 @@ module Presently
 		
 		def slide_changed!
 			self.update!
+		end
+		
+		def update_timing!
+			replace(".timing") do |builder|
+				render_timing(builder, @presentation.current_slide)
+			end
 		end
 		
 		def handle(event)
@@ -56,6 +62,64 @@ module Presently
 				@presentation.reset_timer!
 			when "reload"
 				@presentation.reload!
+			end
+		end
+		
+		def render_timing(builder, slide)
+			progress = (@presentation.slide_progress * 100).round(1)
+			builder.tag(:div, class: "timing", style: "--slide-progress: #{progress}%") do
+				pacing = @presentation.pacing
+				pacing_class = case pacing
+				when :behind then "behind"
+				when :ahead then "ahead"
+				else "on-time"
+				end
+				
+				builder.tag(:div, class: "timing-info #{pacing_class}") do
+					builder.tag(:button,
+						class: "pause-button",
+						onClick: forward_event(action: "pause")
+					) do
+						label = if !@presentation.clock.started?
+							"▶ Start"
+						elsif @presentation.clock.paused?
+							"▶ Resume"
+						else
+							"⏸ Pause"
+						end
+						builder.text(label)
+					end
+					
+					builder.tag(:button,
+						class: "pause-button",
+						onClick: forward_event(action: "reset")
+					) do
+						builder.text("↺ Reset")
+					end
+					
+					builder.tag(:span, class: "elapsed") do
+						builder.text("Elapsed: #{format_duration(@presentation.clock.elapsed)}")
+					end
+					
+					builder.tag(:span, class: "remaining") do
+						builder.text("Remaining: #{format_duration(@presentation.time_remaining)}")
+					end
+					
+					builder.tag(:span, class: "pacing-indicator") do
+						indicator = case pacing
+						when :behind then "⏩ Speed up"
+						when :ahead then "⏪ Slow down"
+						else "✓ On time"
+						end
+						builder.text(indicator)
+					end
+					
+					if slide
+						builder.tag(:span, class: "slide-duration") do
+							builder.text("Slide: #{format_duration(slide.duration)}")
+						end
+					end
+				end
 			end
 		end
 		
@@ -127,61 +191,7 @@ module Presently
 				end
 				
 				# Timing
-				progress = (@presentation.slide_progress * 100).round(1)
-				builder.tag(:div, class: "timing", style: "--slide-progress: #{progress}%") do
-					pacing = @presentation.pacing
-					pacing_class = case pacing
-					when :behind then "behind"
-					when :ahead then "ahead"
-					else "on-time"
-					end
-					
-					builder.tag(:div, class: "timing-info #{pacing_class}") do
-						builder.tag(:button,
-							class: "pause-button",
-							onClick: forward_event(action: "pause")
-						) do
-							label = if !@presentation.clock.started?
-								"▶ Start"
-							elsif @presentation.clock.paused?
-								"▶ Resume"
-							else
-								"⏸ Pause"
-							end
-							builder.text(label)
-						end
-						
-						builder.tag(:button,
-							class: "pause-button",
-							onClick: forward_event(action: "reset")
-						) do
-							builder.text("↺ Reset")
-						end
-						
-						builder.tag(:span, class: "elapsed") do
-							builder.text("Elapsed: #{format_duration(@presentation.clock.elapsed)}")
-						end
-						
-						builder.tag(:span, class: "remaining") do
-							builder.text("Remaining: #{format_duration(@presentation.time_remaining)}")
-						end
-						
-						builder.tag(:span, class: "pacing-indicator") do
-							indicator = case pacing
-							when :behind then "⏩ Speed up"
-							when :ahead then "⏪ Slow down"
-							else "✓ On time"
-							end
-							builder.text(indicator)
-						end
-						
-						if slide
-							builder.tag(:span, class: "slide-duration") do
-								builder.text("Slide: #{format_duration(slide.duration)}")
-							end
-						end
-					end
-				end
+				render_timing(builder, slide)
 				
 				# Presenter notes
 				builder.tag(:div, class: "notes") do

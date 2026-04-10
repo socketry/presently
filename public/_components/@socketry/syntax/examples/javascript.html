@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>JavaScript Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>JavaScript Examples</h1>
+		<p class="subtitle">Modern ES6+ features and syntax patterns</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+		<a href="html.html">HTML</a>
+		<a href="mixed.html">Mixed Content</a>
+	</nav>
+	
+	<div class="example">
+		<h2>ES6+ Features</h2>
+		<p class="description">Modern JavaScript with classes, async/await, and arrow functions:</p>
+		
+		<syntax-code language="javascript">
+// Modern JavaScript class
+class EventEmitter {
+	#listeners = new Map();
+	
+	constructor() {
+		this.maxListeners = 10;
+	}
+	
+	on(event, callback) {
+		if (!this.#listeners.has(event)) {
+			this.#listeners.set(event, []);
+		}
+		
+		this.#listeners.get(event).push(callback);
+		return this;
+	}
+	
+	emit(event, ...args) {
+		const callbacks = this.#listeners.get(event);
+		if (!callbacks) return false;
+		
+		callbacks.forEach(cb => cb(...args));
+		return true;
+	}
+	
+	off(event, callback) {
+		const callbacks = this.#listeners.get(event);
+		if (!callbacks) return this;
+		
+		const index = callbacks.indexOf(callback);
+		if (index !== -1) {
+			callbacks.splice(index, 1);
+		}
+		return this;
+	}
+}
+
+// Async/await example
+async function fetchUserData(userId) {
+	try {
+		const response = await fetch(`/api/users/${userId}`);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('Failed to fetch user data:', error);
+		return null;
+	}
+}
+		</syntax-code>
+	</div>
+	
+	<div class="example">
+		<h2>Template Literals</h2>
+		<p class="description">Template strings with expressions:</p>
+		
+		<syntax-code language="javascript">
+const name = 'World';
+const greeting = `Hello, ${name}!`;
+
+const multiline = `
+	This is a multi-line
+	template literal with ${greeting}
+	and expressions: ${2 + 2}
+`;
+
+// Tagged template
+function highlight(strings, ...values) {
+	return strings.reduce((result, str, i) => {
+		return result + str + (values[i] ? `<mark>${values[i]}</mark>` : '');
+	}, '');
+}
+
+const emphasized = highlight`The answer is ${42}!`;
+		</syntax-code>
+	</div>
+	
+	<div class="example">
+		<h2>Regular Expressions</h2>
+		<p class="description">Pattern matching and text processing:</p>
+		
+		<syntax-code language="javascript">
+// Email validation
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const isValidEmail = email => emailRegex.test(email);
+
+// URL parsing
+const urlPattern = /^(https?):\/\/([^\/]+)(\/.*)?$/;
+const match = 'https://example.com/path'.match(urlPattern);
+
+// Replace with function
+const text = 'Hello world, hello universe';
+const replaced = text.replace(/hello/gi, match => {
+	return match.toUpperCase();
+});
+
+// Named capture groups (ES2018)
+const dateRegex = /(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})/;
+const { groups } = '2025-10-26'.match(dateRegex);
+console.log(groups.year, groups.month, groups.day);
+		</syntax-code>
+	</div>
+	
+	<div class="example">
+		<h2>Array Methods</h2>
+		<p class="description">Functional programming with arrays:</p>
+		
+		<syntax-code language="javascript">
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// Map, filter, reduce
+const doubled = numbers.map(n => n * 2);
+const evens = numbers.filter(n => n % 2 === 0);
+const sum = numbers.reduce((acc, n) => acc + n, 0);
+
+// Find and includes
+const firstEven = numbers.find(n => n % 2 === 0);
+const hasThree = numbers.includes(3);
+
+// Some and every
+const hasLarge = numbers.some(n => n > 5);
+const allPositive = numbers.every(n => n > 0);
+
+// FlatMap (ES2019)
+const nested = [[1, 2], [3, 4], [5]];
+const flat = nested.flatMap(arr => arr.map(n => n * 2));
+		</syntax-code>
+	</div>
+	
+	<div class="example">
+		<h2>Comments</h2>
+		<p class="description">Different comment styles:</p>
+		
+		<syntax-code language="javascript">
+// Single-line comment
+let x = 42; // Inline comment
+
+/*
+ * Multi-line comment
+ * spanning multiple lines
+ */
+function calculate(a, b) {
+	return a + b; /* inline block comment */
+}
+
+/**
+ * JSDoc documentation comment
+ * @param {string} name - The user's name
+ * @param {number} age - The user's age
+ * @returns {Object} User object
+ */
+function createUser(name, age) {
+	return { name, age };
+}
+		</syntax-code>
+	</div>
+	
+	<script type="module">
+		import Syntax from '../Syntax.js';
+		import registerJavaScript from '../Syntax/Language/javascript.js';
+		
+		// Register the JavaScript language
+		registerJavaScript(Syntax.default);
+		
+		// Initialize highlighting
+		await Syntax.highlight({
+			autoUpgrade: true,
+			syntax: Syntax.default
+		});
+	</script>
+</body>
+</html>

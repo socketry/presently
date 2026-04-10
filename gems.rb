@@ -4,6 +4,8 @@ source "https://rubygems.org"
 
 gem "lively"
 gem "markly"
+
+gem "sus"
 gem "io-watch"
 
 gem "sus"

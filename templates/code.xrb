@@ -1,0 +1,12 @@
+<div class="slide-inner code-template">
+	<?r if title = self.slide.title and !title.empty? ?>
+		<div class="code-title"><p>#{title}</p></div>
+	<?r end ?>
+	<div class="code-viewport" data-focus-start="#{self.slide.focus&.first}" data-focus-end="#{self.slide.focus&.last}">
+		<div class="code-scroll">
+			#{self.section("body")}
+		</div>
+		<div class="code-dim code-dim-top"></div>
+		<div class="code-dim code-dim-bottom"></div>
+	</div>
+</div>

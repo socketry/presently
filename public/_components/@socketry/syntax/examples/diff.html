@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Diff/Patch Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>Diff/Patch Examples</h1>
+		<p class="subtitle">Diff/Patch syntax highlighting</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+	</nav>
+	
+<h1>Diff/Patch Syntax Highlighting</h1>
+	
+	<div class="example">
+		<h2>Git Diff Example</h2>
+		<p class="description">Example:</p>
+		
+		<syntax-code language="diff">
+diff --git a/src/server.js b/src/server.js
+index 1234567..abcdefg 100644
+--- a/src/server.js
++++ b/src/server.js
+@@ -1,10 +1,12 @@
+ import express from 'express';
+ import database from './database.js';
++import logger from './logger.js';
+ 
+ const app = express();
+ const PORT = 3000;
+ 
+ async function initialize() {
++  logger.init();
+   await database.connect();
+   app.listen(PORT, () => {
+     console.log(`Server running on port ${PORT}`);
+	</syntax-code>
+
+	<div class="example">
+		<h2>File Modification</h2>
+		<p class="description">Example:</p>
+		
+		<syntax-code language="patch">
+--- a/README.md
++++ b/README.md
+@@ -15,6 +15,7 @@ Installation
+ npm install syntax-js
+ ```
+ 
++Make sure you have Node.js 18 or higher installed.
++
+ ## Usage
+ 
+ Import and use the syntax highlighter:
+	</syntax-code>
+
+	<div class="example">
+		<h2>Multiple Chunks</h2>
+		<p class="description">Example:</p>
+		
+		<syntax-code language="diff">
+diff --git a/config.json b/config.json
+--- a/config.json
++++ b/config.json
+@@ -1,8 +1,9 @@
+ {
+   "name": "my-app",
+-  "version": "1.0.0",
++  "version": "1.1.0",
+   "description": "A sample application",
++  "author": "John Doe",
+   "main": "index.js",
+   "scripts": {
+     "test": "node --test"
+@@ -15,5 +16,6 @@
+   "dependencies": {
+     "express": "^4.18.0",
+-    "lodash": "^4.17.0"
++    "lodash": "^4.17.21",
++    "axios": "^1.6.0"
+   }
+ }
+	</syntax-code>
+
+	<div class="example">
+		<h2>Code Refactoring</h2>
+		<p class="description">Example:</p>
+		
+		<syntax-code language="diff">
+--- a/utils/helpers.js
++++ b/utils/helpers.js
+@@ -10,15 +10,18 @@ export function processData(data) {
+   }
+   
+-  // Old implementation
+-  const result = data.map(item => {
+-    return item.value * 2;
+-  });
++  // New implementation with error handling
++  const result = data.map(item => {
++    if (typeof item.value !== 'number') {
++      throw new TypeError('Item value must be a number');
++    }
++    return item.value * 2;
++  });
+   
+   return result;
+ }
+ 
+ export function formatDate(date) {
+-  return date.toISOString();
++  // Use locale-aware formatting
++  return new Intl.DateTimeFormat('en-US').format(date);
+ }
+	</syntax-code>
+
+	<div class="example">
+		<h2>Bug Fix</h2>
+		<p class="description">Example:</p>
+		
+		<syntax-code language="patch">
+diff --git a/src/validator.js b/src/validator.js
+index abc123..def456 100644
+--- a/src/validator.js
++++ b/src/validator.js
+@@ -5,7 +5,7 @@ export function validateEmail(email) {
+     return false;
+   }
+   
+-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
++  const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+   return regex.test(email);
+ }
+	</syntax-code>
+</body>
+</html>

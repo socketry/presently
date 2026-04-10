@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>C# Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>C# Examples</h1>
+		<p class="subtitle">C# syntax highlighting</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+	</nav>
+	
+<h1>C# Syntax Highlighting</h1>
+	
+	<syntax-code language="csharp">
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ExampleApp
+{
+    /// <summary>
+    /// Represents a person with basic information
+    /// </summary>
+    public class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; private set; }
+        
+        private readonly List<string> _hobbies;
+        
+        public Person(string name, int age)
+        {
+            Name = name;
+            Age = age;
+            _hobbies = new List<string>();
+        }
+        
+        public void AddHobby(string hobby)
+        {
+            if (!string.IsNullOrEmpty(hobby))
+            {
+                _hobbies.Add(hobby);
+            }
+        }
+        
+        public override string ToString()
+        {
+            return $"{Name} ({Age} years old)";
+        }
+    }
+    
+    public class Calculator
+    {
+        public static double Add(double a, double b) => a + b;
+        
+        public static double Multiply(params double[] numbers)
+        {
+            return numbers.Aggregate(1.0, (acc, n) => acc * n);
+        }
+    }
+    
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            // Create person
+            var person = new Person("John Doe", 30);
+            person.AddHobby("Reading");
+            person.AddHobby("Gaming");
+            
+            Console.WriteLine(person);
+            
+            // LINQ example
+            var numbers = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var evenNumbers = numbers.Where(n => n % 2 == 0)
+                                    .Select(n => n * n);
+            
+            foreach (var num in evenNumbers)
+            {
+                Console.WriteLine($"Square: {num}");
+            }
+            
+            // Async/await pattern
+            ProcessDataAsync().Wait();
+        }
+        
+        static async Task ProcessDataAsync()
+        {
+            await Task.Delay(1000);
+            Console.WriteLine("Data processed!");
+        }
+    }
+}
+	</syntax-code>
+	</div>
+	
+	<script type="module">
+		import Syntax from '../Syntax.js';
+		
+		await Syntax.highlight({ autoUpgrade: true });
+	</script>
+</body>
+</html>

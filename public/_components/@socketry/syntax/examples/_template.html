@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>[Language] Examples - @socketry/syntax</title>
+	<link rel="stylesheet" href="examples.css">
+</head>
+<body>
+	<header>
+		<h1>[Language] Examples</h1>
+		<p class="subtitle">[Brief description of the language or focus]</p>
+	</header>
+	
+	<nav>
+		<a href="index.html">Back to Examples</a>
+		<a href="[related].html">[Related Language]</a>
+		<a href="[related2].html">[Another Related]</a>
+	</nav>
+	
+	<div class="example">
+		<h2>[Feature Name]</h2>
+		<p class="description">[Brief description of what this example demonstrates]</p>
+		
+		<syntax-code language="[language-id]">
+[code example here]
+		</syntax-code>
+	</div>
+	
+	<div class="example">
+		<h2>[Another Feature]</h2>
+		<p class="description">[Description]</p>
+		
+		<syntax-code language="[language-id]">
+[code example here]
+		</syntax-code>
+	</div>
+	
+	<script type="module">
+		import Syntax from '../Syntax.js';
+		import register[Language] from '../Syntax/Language/[language].js';
+		
+		// Register the language (if needed - some are auto-registered)
+		register[Language](Syntax.default);
+		
+		// Initialize highlighting
+		await Syntax.highlight({
+			autoUpgrade: true,
+			syntax: Syntax.default
+		});
+	</script>
+</body>
+</html>
