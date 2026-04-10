@@ -1,20 +1,32 @@
 # frozen_string_literal: true
 
+# Released under the MIT License.
+# Copyright, 2026, by Samuel Williams.
+
 require "live"
 require_relative "slide_view"
 
 module Presently
 	# The presenter-facing view with notes, timing, and slide previews.
+	#
+	# Shows the current slide, next slide preview, presenter notes, timing controls,
+	# and pacing indicators. Updates the timing display every second via a background task.
 	class PresenterView < Live::View
-		def initialize(id = Live::Element.unique_id, data = {}, presentation: nil)
+		# Initialize a new presenter view.
+		# @parameter id [String] The unique element identifier.
+		# @parameter data [Hash] The element data attributes.
+		# @parameter controller [PresentationController | Nil] The shared presentation controller.
+		def initialize(id = Live::Element.unique_id, data = {}, controller: nil)
 			super(id, data)
-			@presentation = presentation
+			@controller = controller
 			@clock_task = nil
 		end
 		
+		# Bind this view to a page and start the timing update loop.
+		# @parameter page [Live::Page] The page this view is bound to.
 		def bind(page)
 			super
-			@presentation.add_listener(self)
+			@controller.add_listener(self)
 			
 			# Update only the timing section every second.
 			@clock_task = Async do
@@ -25,50 +37,57 @@ module Presently
 			end
 		end
 		
+		# Close this view and stop the timing update loop.
 		def close
 			@clock_task&.stop
-			@presentation.remove_listener(self)
+			@controller.remove_listener(self)
 			super
 		end
 		
+		# Called by the controller when the slide changes.
 		def slide_changed!
 			self.update!
 		end
 		
+		# Push an update to just the timing section.
 		def update_timing!
 			replace(".timing") do |builder|
-				render_timing(builder, @presentation.current_slide)
+				render_timing(builder, @controller.current_slide)
 			end
 		end
 		
+		# Handle an event from the client.
+		# @parameter event [Hash] The event data with `:detail` containing the action.
 		def handle(event)
-			Console.info(self, "Presenter handle event", event: event)
 			action = event.dig(:detail, :action)
 			
 			case action
 			when "next"
-				@presentation.advance!
+				@controller.advance!
 			when "previous"
-				@presentation.retreat!
+				@controller.retreat!
 			when "pause"
-				if !@presentation.clock.started?
-					@presentation.clock.start!
-				elsif @presentation.clock.paused?
-					@presentation.clock.resume!
+				if !@controller.clock.started?
+					@controller.clock.start!
+				elsif @controller.clock.paused?
+					@controller.clock.resume!
 				else
-					@presentation.clock.pause!
+					@controller.clock.pause!
 				end
 			when "reset"
-				@presentation.reset_timer!
+				@controller.reset_timer!
 			when "reload"
-				@presentation.reload!
+				@controller.reload!
 			end
 		end
 		
+		# Render the timing bar with controls, elapsed/remaining time, and pacing.
+		# @parameter builder [XRB::Builder] The HTML builder.
+		# @parameter slide [Slide | Nil] The current slide.
 		def render_timing(builder, slide)
-			progress = (@presentation.slide_progress * 100).round(1)
+			progress = (@controller.slide_progress * 100).round(1)
 			builder.tag(:div, class: "timing", style: "--slide-progress: #{progress}%") do
-				pacing = @presentation.pacing
+				pacing = @controller.pacing
 				pacing_class = case pacing
 				when :behind then "behind"
 				when :ahead then "ahead"
@@ -80,9 +99,9 @@ module Presently
 						class: "pause-button",
 						onClick: forward_event(action: "pause")
 					) do
-						label = if !@presentation.clock.started?
+						label = if !@controller.clock.started?
 							"▶ Start"
-						elsif @presentation.clock.paused?
+						elsif @controller.clock.paused?
 							"▶ Resume"
 						else
 							"⏸ Pause"
@@ -98,11 +117,11 @@ module Presently
 					end
 					
 					builder.tag(:span, class: "elapsed") do
-						builder.text("Elapsed: #{format_duration(@presentation.clock.elapsed)}")
+						builder.text("Elapsed: #{format_duration(@controller.clock.elapsed)}")
 					end
 					
 					builder.tag(:span, class: "remaining") do
-						builder.text("Remaining: #{format_duration(@presentation.time_remaining)}")
+						builder.text("Remaining: #{format_duration(@controller.time_remaining)}")
 					end
 					
 					builder.tag(:span, class: "pacing-indicator") do
@@ -123,6 +142,9 @@ module Presently
 			end
 		end
 		
+		# Format a duration in seconds as `M:SS`.
+		# @parameter seconds [Numeric] The duration in seconds.
+		# @returns [String] The formatted duration string.
 		def format_duration(seconds)
 			seconds = seconds.to_i
 			minutes = seconds / 60
@@ -130,9 +152,11 @@ module Presently
 			format("%d:%02d", minutes, secs)
 		end
 		
+		# Render the full presenter view.
+		# @parameter builder [XRB::Builder] The HTML builder.
 		def render(builder)
-			slide = @presentation.current_slide
-			next_slide = @presentation.next_slide
+			slide = @controller.current_slide
+			next_slide = @controller.next_slide
 			
 			builder.tag(:div, class: "presenter") do
 				# Controls bar
@@ -144,7 +168,7 @@ module Presently
 					end
 					
 					builder.tag(:span, class: "slide-info") do
-						builder.text("Slide #{@presentation.current_index + 1} of #{@presentation.slide_count}")
+						builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
 					end
 					
 					builder.tag(:button,
@@ -168,7 +192,7 @@ module Presently
 						builder.tag(:h3){builder.text("Current")}
 						builder.tag(:div, class: "preview-frame") do
 							if slide
-								renderer = SlideView.new(css_class: "slide preview-slide", templates_directory: @templates_directory)
+								renderer = SlideView.new(css_class: "slide preview-slide", controller: @controller)
 								renderer.render_slide(builder, slide)
 							end
 						end
@@ -179,7 +203,7 @@ module Presently
 						builder.tag(:h3){builder.text("Next")}
 						builder.tag(:div, class: "preview-frame") do
 							if next_slide
-								renderer = SlideView.new(css_class: "slide preview-slide", templates_directory: @templates_directory)
+								renderer = SlideView.new(css_class: "slide preview-slide", controller: @controller)
 								renderer.render_slide(builder, next_slide)
 							else
 								builder.tag(:div, class: "no-slide") do

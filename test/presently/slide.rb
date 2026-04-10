@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-require "presently/presentation"
+# Released under the MIT License.
+# Copyright, 2026, by Samuel Williams.
+
+require "presently/slide"
 require "tmpdir"
 require "fileutils"
 

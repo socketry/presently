@@ -1,4 +1,7 @@
 # frozen_string_literal: true
 
-require_relative "../lib/presently/presentation"
-require_relative "../lib/presently/clock"
+# Released under the MIT License.
+# Copyright, 2026, by Samuel Williams.
+
+require "covered/sus"
+include Covered::Sus

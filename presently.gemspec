@@ -12,10 +12,15 @@ Gem::Specification.new do |spec|
 	
 	spec.homepage = "https://github.com/socketry/presently"
 	
-	spec.files = Dir["{context,bin,lib,public,templates}/**/*", "readme.md", "license.md"]
+	spec.metadata = {
+		"source_code_uri" => "https://github.com/socketry/presently.git",
+	}
+	
+	spec.files = Dir["{bin,lib,public,templates}/**/*", "*.md", base: __dir__]
+	
 	spec.executables = ["presently"]
 	
-	spec.required_ruby_version = ">= 3.1"
+	spec.required_ruby_version = ">= 3.3"
 	
 	spec.add_dependency "lively", "~> 0.16"
 	spec.add_dependency "markly", "~> 0.15"

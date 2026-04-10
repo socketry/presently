@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-# @namespace
+# Released under the MIT License.
+# Copyright, 2026, by Samuel Williams.
+
 module Presently
-	VERSION = "0.0.0"
+	# The current version of the gem.
+	VERSION = "0.1.0"
 end

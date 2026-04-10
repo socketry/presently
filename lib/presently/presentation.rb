@@ -1,232 +1,71 @@
 # frozen_string_literal: true
 
-require "yaml"
-require "markly"
+# Released under the MIT License.
+# Copyright, 2026, by Samuel Williams.
 
-require_relative "clock"
+require_relative "slide"
 
 module Presently
-	# Represents a single slide parsed from a markdown file.
-	class Slide
-		def initialize(path)
-			@path = path
-			@frontmatter = nil
-			@content = nil
-			@notes = nil
-			
-			parse!
-		end
-		
-		attr :path
-		attr :frontmatter
-		attr :content
-		attr :notes
-		
-		def template
-			@frontmatter&.fetch("template", "default") || "default"
-		end
-		
-		def duration
-			@frontmatter&.fetch("duration", 60) || 60
-		end
-		
-		def title
-			@frontmatter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
-		end
-		
-		# Returns [start, end] line numbers (1-based) or nil.
-		def focus
-			if range = @frontmatter&.fetch("focus", nil)
-				parts = range.to_s.split("-").map(&:to_i)
-				parts.length == 2 ? parts : nil
-			end
-		end
-		
-		# Parse the markdown file into frontmatter, content sections, and notes.
-		def parse!
-			raw = File.read(@path)
-			
-			# Extract YAML frontmatter
-			if raw.start_with?("---\n")
-				parts = raw.split("---\n", 3)
-				if parts.length >= 3
-					@frontmatter = YAML.safe_load(parts[1])
-					body = parts[2]
-				else
-					body = raw
-				end
-			else
-				body = raw
-			end
-			
-			# Split content and presenter notes (notes come after "---" on its own line)
-			if body.include?("\n---\n")
-				content_part, notes_part = body.split("\n---\n", 2)
-				@content = parse_sections(content_part.strip)
-				@notes = render_markdown(notes_part.strip)
-			else
-				@content = parse_sections(body.strip)
-				@notes = nil
-			end
-		end
-		
-		# Parse content into sections based on headings.
-		# Each heading becomes a named field for the template.
-		def parse_sections(text)
-			sections = {}
-			current_key = "body"
-			current_content = []
-			
-			text.each_line do |line|
-				if line.match?(/\A#+\s+/)
-					# Save previous section
-					unless current_content.empty?
-						sections[current_key] = render_markdown(current_content.join)
-					end
-					
-					# Extract heading text as the key
-					heading_text = line.sub(/\A#+\s+/, "").strip.downcase.gsub(/\s+/, "_")
-					current_key = heading_text
-					current_content = []
-				else
-					current_content << line
-				end
-			end
-			
-			# Save last section
-			unless current_content.empty?
-				sections[current_key] = render_markdown(current_content.join)
-			end
-			
-			sections
-		end
-		
-		def render_markdown(text)
-			return "" if text.nil? || text.empty?
-			Markly.render_html(text)
-		end
-	end
-	
-	# Manages the collection of slides and shared presentation state.
+	# An immutable collection of slides with configuration.
+	#
+	# Use {.load} to create a presentation from a directory of Markdown files,
+	# or initialize directly with an array of {Slide} instances.
 	class Presentation
-		def initialize(slides_directory = "slides")
-			@slides_directory = slides_directory
-			@slides = []
-			@current_index = 0
-			@clock = Clock.new
-			@listeners = []
+		# Load a presentation from a directory of Markdown slide files.
+		# @parameter slides_root [String] The directory containing `.md` slide files.
+		# @parameter options [Hash] Additional options passed to {#initialize}.
+		# @returns [Presentation] A new presentation with slides loaded from the directory.
+		def self.load(slides_root = "slides", **options)
+			pattern = File.join(slides_root, "*.md")
+			slides = Dir.glob(pattern).sort.map{|path| Slide.new(path)}
 			
-			load_slides!
+			new(slides, slides_root: slides_root, **options)
 		end
 		
+		# Initialize a new presentation.
+		# @parameter slides [Array(Slide)] The ordered list of slides.
+		# @parameter slides_root [String | Nil] The directory slides were loaded from, used by {#reload!}.
+		# @parameter templates_root [String | Nil] The directory containing custom `.xrb` templates.
+		def initialize(slides = [], slides_root: nil, templates_root: nil)
+			@slides = slides
+			@slides_root = slides_root
+			@templates_root = templates_root
+		end
+		
+		# @attribute [Array(Slide)] The ordered list of slides.
 		attr :slides
-		attr :current_index
-		attr :clock
 		
-		def current_slide
-			@slides[@current_index]
-		end
+		# @attribute [String | Nil] The directory slides were loaded from.
+		attr :slides_root
 		
-		def next_slide
-			@slides[@current_index + 1]
-		end
+		# @attribute [String | Nil] The directory containing custom templates.
+		attr :templates_root
 		
-		def previous_slide
-			@slides[@current_index - 1] if @current_index > 0
-		end
-		
+		# The number of slides in the presentation.
+		# @returns [Integer] The slide count.
 		def slide_count
 			@slides.length
 		end
 		
+		# The total expected duration of the presentation in seconds.
+		# @returns [Numeric] The sum of all slide durations.
 		def total_duration
 			@slides.sum(&:duration)
 		end
 		
-		# Calculate elapsed time for slides up to the given index.
+		# Calculate the expected elapsed time for slides up to the given index.
+		# @parameter index [Integer] The slide index (exclusive).
+		# @returns [Numeric] The sum of durations for slides before the given index.
 		def expected_time_at(index)
 			@slides[0...index].sum(&:duration)
 		end
 		
-		# Returns 0.0 to 1.0 representing progress through the current slide's time.
-		def slide_progress
-			return 0.0 unless @clock.started?
-			
-			slide = current_slide
-			return 0.0 unless slide
-			
-			time_into_slide = @clock.elapsed - expected_time_at(@current_index)
-			(time_into_slide / slide.duration).clamp(0.0, 1.0)
-		end
-		
-		def reset_timer!
-			@clock.reset!(expected_time_at(@current_index))
-			notify_listeners!
-		end
-		
-		# Returns :on_time, :ahead, or :behind
-		def pacing
-			return :on_time unless @clock.started?
-			
-			elapsed = @clock.elapsed
-			slide_start = expected_time_at(@current_index)
-			slide_end = expected_time_at(@current_index + 1)
-			
-			if elapsed > slide_end
-				:behind
-			elsif elapsed < slide_start
-				:ahead
-			else
-				:on_time
-			end
-		end
-		
-		def time_remaining
-			return total_duration unless @clock.started?
-			
-			expected_remaining = expected_time_at(slide_count) - @clock.elapsed
-			
-			[expected_remaining, 0].max
-		end
-		
-		def go_to(index)
-			return if index < 0 || index >= @slides.length
-			
-			@current_index = index
-			notify_listeners!
-		end
-		
-		def advance!
-			go_to(@current_index + 1)
-		end
-		
-		def retreat!
-			go_to(@current_index - 1)
-		end
-		
-		def add_listener(listener)
-			@listeners << listener
-		end
-		
-		def remove_listener(listener)
-			@listeners.delete(listener)
-		end
-		
+		# Reload slides from the original directory.
+		# Only works if the presentation was created with {.load}.
 		def reload!
-			load_slides!
-			notify_listeners!
-		end
-		
-		private
-		
-		def load_slides!
-			pattern = File.join(@slides_directory, "*.md")
-			@slides = Dir.glob(pattern).sort.map{|path| Slide.new(path)}
-		end
-		
-		def notify_listeners!
-			@listeners.each do |listener|
-				listener.slide_changed! rescue nil
+			if @slides_root
+				pattern = File.join(@slides_root, "*.md")
+				@slides = Dir.glob(pattern).sort.map{|path| Slide.new(path)}
 			end
 		end
 	end
