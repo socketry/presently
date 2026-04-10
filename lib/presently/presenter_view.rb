@@ -168,7 +168,7 @@ module Presently
 						builder.tag(:h3){builder.text("Current")}
 						builder.tag(:div, class: "preview-frame") do
 							if slide
-								renderer = SlideView.new(css_class: "slide preview-slide")
+								renderer = SlideView.new(css_class: "slide preview-slide", templates_directory: @templates_directory)
 								renderer.render_slide(builder, slide)
 							end
 						end
@@ -179,7 +179,7 @@ module Presently
 						builder.tag(:h3){builder.text("Next")}
 						builder.tag(:div, class: "preview-frame") do
 							if next_slide
-								renderer = SlideView.new(css_class: "slide preview-slide")
+								renderer = SlideView.new(css_class: "slide preview-slide", templates_directory: @templates_directory)
 								renderer.render_slide(builder, next_slide)
 							else
 								builder.tag(:div, class: "no-slide") do

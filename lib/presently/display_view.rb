@@ -6,10 +6,10 @@ require_relative "slide_view"
 module Presently
 	# The audience-facing display view (full screen presentation).
 	class DisplayView < Live::View
-		def initialize(id = Live::Element.unique_id, data = {}, presentation: nil)
+		def initialize(id = Live::Element.unique_id, data = {}, presentation: nil, templates_directory: nil)
 			super(id, data)
 			@presentation = presentation
-			@slide_renderer = SlideView.new(css_class: "slide current")
+			@slide_renderer = SlideView.new(css_class: "slide current", templates_directory: templates_directory)
 		end
 		
 		def bind(page)

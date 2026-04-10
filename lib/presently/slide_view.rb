@@ -6,16 +6,19 @@ require "xrb/markup"
 
 module Presently
 	# Renders a single slide using its template.
+	DEFAULT_TEMPLATES_DIRECTORY = File.expand_path("../../templates", __dir__)
+	
 	class SlideView < Live::View
-		def initialize(id = Live::Element.unique_id, data = {}, css_class: "slide")
+		def initialize(id = Live::Element.unique_id, data = {}, css_class: "slide", templates_directory: nil)
 			super(id, data)
 			@css_class = css_class
+			@templates_directory = templates_directory || DEFAULT_TEMPLATES_DIRECTORY
 			@templates = {}
 		end
 		
 		def template_for(name)
 			@templates[name] ||= begin
-				path = File.expand_path("../../templates/#{name}.xrb", __dir__)
+				path = File.join(@templates_directory, "#{name}.xrb")
 				XRB::Template.load_file(path)
 			end
 		end

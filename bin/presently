@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "async/service"
+require_relative "../lib/presently/environment/application"
+
+configuration = Async::Service::Configuration.build do
+	service "presently" do
+		include Presently::Environment::Application
+	end
+end
+
+Async::Service::Controller.run(configuration)
