@@ -1,0 +1,409 @@
+/* Reset & Base */
+*, *::before, *::after {
+	box-sizing: border-box;
+}
+
+:root {
+	--slide-bg: #1a1a2e;
+	--slide-text: #eee;
+	--accent: #e94560;
+	--accent-light: #ff6b81;
+	--surface: #16213e;
+	--surface-light: #0f3460;
+	--on-time: #2ed573;
+	--behind: #ff4757;
+	--ahead: #ffa502;
+	--font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+	--font-mono: "JetBrains Mono", "Fira Code", monospace;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-sans);
+	background: #0a0a1a;
+	color: var(--slide-text);
+	height: 100%;
+	overflow: hidden;
+}
+
+/* ========================
+   SLIDE STYLES (shared)
+   ======================== */
+
+.slide {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.slide-inner {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 4rem;
+}
+
+/* Default template */
+.default-template .slide-body {
+	font-size: 1.8rem;
+	line-height: 1.6;
+	max-width: 80%;
+}
+
+.default-template .slide-body ul,
+.default-template .slide-body ol {
+	text-align: left;
+}
+
+.default-template .slide-body li {
+	margin-bottom: 0.5em;
+}
+
+/* Title template */
+.title-template {
+	text-align: center;
+}
+
+.title-template .slide-title {
+	font-size: 3.5rem;
+	font-weight: 700;
+	margin-bottom: 1rem;
+}
+
+.title-template .slide-title p {
+	margin: 0;
+}
+
+.title-template .slide-subtitle {
+	font-size: 1.8rem;
+	opacity: 0.7;
+}
+
+.title-template .slide-subtitle p {
+	margin: 0;
+}
+
+/* Section template */
+.section-template {
+	background: linear-gradient(135deg, var(--accent), var(--surface-light));
+	text-align: center;
+}
+
+.section-template .slide-heading {
+	font-size: 3rem;
+	font-weight: 700;
+}
+
+.section-template .slide-heading p {
+	margin: 0;
+}
+
+/* Two column template */
+.two-column-template {
+	flex-direction: row;
+	gap: 3rem;
+	padding: 3rem 4rem;
+}
+
+.two-column-template .column {
+	flex: 1;
+	font-size: 1.4rem;
+	line-height: 1.6;
+}
+
+.two-column-template .column ul {
+	padding-left: 1.5em;
+}
+
+.two-column-template .column li {
+	margin-bottom: 0.4em;
+}
+
+/* Image template */
+.image-template .slide-caption {
+	font-size: 1.6rem;
+	margin-bottom: 2rem;
+	text-align: center;
+}
+
+.image-template .slide-image {
+	max-width: 80%;
+	text-align: center;
+}
+
+.image-template .slide-image img {
+	max-width: 100%;
+	max-height: 60vh;
+	border-radius: 8px;
+}
+
+/* ========================
+   DISPLAY VIEW (audience)
+   ======================== */
+
+.display {
+	width: 100vw;
+	height: 100vh;
+	background: var(--slide-bg);
+	position: relative;
+	outline: none;
+}
+
+.display .slide-container {
+	width: 100%;
+	height: 100%;
+	position: relative;
+}
+
+.display .slide {
+	animation: slide-in 0.4s ease-out;
+}
+
+.display .slide-counter {
+	position: absolute;
+	bottom: 1rem;
+	right: 1.5rem;
+	font-size: 0.9rem;
+	opacity: 0.4;
+}
+
+/* Slide transition animations */
+@keyframes slide-in {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* ========================
+   PRESENTER VIEW
+   ======================== */
+
+.presenter {
+	width: 100vw;
+	height: 100vh;
+	display: grid;
+	grid-template-rows: auto 1fr auto auto;
+	background: #0d0d1a;
+	gap: 0.5rem;
+	padding: 0.5rem;
+}
+
+/* Controls */
+.controls {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 0.5rem 1rem;
+	background: var(--surface);
+	border-radius: 8px;
+}
+
+.controls button {
+	background: var(--surface-light);
+	color: var(--slide-text);
+	border: 1px solid rgba(255,255,255,0.1);
+	padding: 0.5rem 1rem;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-family: var(--font-sans);
+	transition: background 0.2s;
+}
+
+.controls button:hover {
+	background: var(--accent);
+}
+
+.controls button.reload {
+	margin-left: auto;
+}
+
+.controls .slide-info {
+	font-size: 1rem;
+	opacity: 0.8;
+}
+
+/* Slide previews */
+.previews {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem;
+	min-height: 0;
+}
+
+.preview {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.preview h3 {
+	margin: 0 0 0.3rem 0;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	opacity: 0.6;
+}
+
+.preview-frame {
+	flex: 1;
+	background: var(--slide-bg);
+	border-radius: 8px;
+	overflow: hidden;
+	position: relative;
+	min-height: 0;
+}
+
+.preview-frame .slide {
+	zoom: 0.75;
+}
+
+.preview-frame .no-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	opacity: 0.4;
+	font-size: 1.2rem;
+}
+
+.current-preview .preview-frame {
+	border: 2px solid var(--accent);
+}
+
+/* Timing */
+.timing {
+	background: linear-gradient(
+		to right,
+		rgba(233, 69, 96, 0.25) var(--slide-progress, 0%),
+		var(--surface) var(--slide-progress, 0%)
+	);
+	border-radius: 8px;
+	padding: 0.5rem 1rem;
+	transition: background 1s linear;
+}
+
+.timing-info {
+	display: flex;
+	gap: 2rem;
+	align-items: center;
+	font-size: 1rem;
+}
+
+.timing-info.on-time .pacing-indicator {
+	color: var(--on-time);
+}
+
+.timing-info.behind .pacing-indicator {
+	color: var(--behind);
+	font-weight: 700;
+	animation: pulse 1s infinite;
+}
+
+.timing-info.ahead .pacing-indicator {
+	color: var(--ahead);
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.5; }
+}
+
+.timing-info .pause-button {
+	background: var(--surface-light);
+	color: var(--slide-text);
+	border: 1px solid rgba(255,255,255,0.1);
+	padding: 0.3rem 0.75rem;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-family: var(--font-sans);
+	transition: background 0.2s;
+}
+
+.timing-info .pause-button:hover {
+	background: var(--accent);
+}
+
+.timing-info .elapsed {
+	font-variant-numeric: tabular-nums;
+}
+
+.timing-info .remaining {
+	font-variant-numeric: tabular-nums;
+}
+
+.timing-info .slide-duration {
+	opacity: 0.6;
+	margin-left: auto;
+}
+
+/* Notes */
+.notes {
+	background: var(--surface);
+	border-radius: 8px;
+	padding: 0.75rem 1rem;
+	max-height: 30vh;
+	overflow-y: auto;
+}
+
+.notes h3 {
+	margin: 0 0 0.3rem 0;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	opacity: 0.6;
+}
+
+.notes-content {
+	font-size: 1.1rem;
+	line-height: 1.5;
+}
+
+.notes-content p {
+	margin: 0.3em 0;
+}
+
+.notes .no-notes {
+	opacity: 0.4;
+	font-style: italic;
+}
+
+/* ========================
+   GLOBAL TYPOGRAPHY
+   ======================== */
+
+strong, b {
+	color: var(--accent-light);
+}
+
+code {
+	font-family: var(--font-mono);
+	background: rgba(255,255,255,0.1);
+	padding: 0.15em 0.4em;
+	border-radius: 4px;
+	font-size: 0.9em;
+}
+
+pre {
+	background: rgba(0,0,0,0.3);
+	padding: 1rem;
+	border-radius: 8px;
+	overflow-x: auto;
+}
+
+pre code {
+	background: none;
+	padding: 0;
+}

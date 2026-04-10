@@ -1,0 +1,8 @@
+<div class="slide-inner title-template">
+	<div class="slide-title">
+		#{self.section("title")}
+	</div>
+	<div class="slide-subtitle">
+		#{self.section("subtitle")}
+	</div>
+</div>

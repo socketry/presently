@@ -1,0 +1,8 @@
+<div class="slide-inner two-column-template">
+	<div class="column left-column">
+		#{self.section("left")}
+	</div>
+	<div class="column right-column">
+		#{self.section("right")}
+	</div>
+</div>

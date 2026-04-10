@@ -1,0 +1,8 @@
+<div class="slide-inner image-template">
+	<div class="slide-caption">
+		#{self.section("caption")}
+	</div>
+	<div class="slide-image">
+		#{self.section("image")}
+	</div>
+</div>
