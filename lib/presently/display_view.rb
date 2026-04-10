@@ -59,7 +59,7 @@ module Presently
 			slide = @controller.current_slide
 			return unless slide
 			
-			builder.tag(:div, class: "display") do
+			builder.tag(:div, class: "display", data: {transition: slide.transition}) do
 				builder.tag(:div, class: "slide-container") do
 					@slide_renderer.render_slide(builder, slide)
 				end

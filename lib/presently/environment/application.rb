@@ -25,7 +25,7 @@ module Presently
 			# Defaults to the gem's bundled templates.
 			# @returns [String] Absolute path to the templates root.
 			def templates_root
-				File.expand_path("../../templates", __dir__)
+				File.expand_path("../../../templates", __dir__)
 			end
 			
 			# The application class to use.

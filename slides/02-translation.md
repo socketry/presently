@@ -1,11 +1,12 @@
 ---
 template: translation
 duration: 30
+transition: magic-move
 ---
 
 # Title
 
-The best way to predict the future is to create it.
+<div style="view-transition-name: welcome-title">The best way to predict the future is to create it.</div>
 
 # Translation
 

@@ -5,7 +5,7 @@ duration: 30
 
 # Title
 
-Welcome to Presently
+<div style="view-transition-name: welcome-title">Welcome to Presently</div>
 
 # Subtitle
 

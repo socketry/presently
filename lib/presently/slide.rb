@@ -53,6 +53,12 @@ module Presently
 			@frontmatter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
 		end
 		
+		# The transition type for animating into this slide.
+		# @returns [String | Nil] The transition name (e.g. `"fade"`, `"slide-left"`, `"magic-move"`), or `nil` for instant swap.
+		def transition
+			@frontmatter&.fetch("transition", nil)
+		end
+		
 		# The line range to focus on for code slides.
 		# @returns [Array(Integer, Integer) | Nil] The `[start, end]` line numbers (1-based), or `nil`.
 		def focus
@@ -130,7 +136,7 @@ module Presently
 		# @returns [String] The rendered HTML.
 		def render_markdown(text)
 			return "" if text.nil? || text.empty?
-			Markly.render_html(text)
+			Markly.render_html(text, flags: Markly::UNSAFE)
 		end
 	end
 end

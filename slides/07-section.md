@@ -1,6 +1,7 @@
 ---
 template: section
 duration: 15
+transition: slide-left
 ---
 
 # Heading

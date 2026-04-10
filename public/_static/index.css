@@ -259,10 +259,6 @@ pre > syntax-code {
 	position: relative;
 }
 
-.display .slide {
-	animation: slide-in 0.4s ease-out;
-}
-
 .display .slide-counter {
 	position: absolute;
 	bottom: 1rem;
@@ -271,16 +267,88 @@ pre > syntax-code {
 	opacity: 0.4;
 }
 
-/* Slide transition animations */
-@keyframes slide-in {
-	from {
-		opacity: 0;
-		transform: translateX(30px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
+/* ========================
+   VIEW TRANSITIONS
+   ======================== */
+
+/* Give the live-view element the transition name — there's only ever one */
+live-view:has(.display) {
+	view-transition-name: slide-container;
+}
+
+/* Default: no animation for the container (instant swap) */
+::view-transition-old(slide-container),
+::view-transition-new(slide-container) {
+	animation: none;
+}
+
+/* Fade */
+html[data-transition="fade"]::view-transition-old(slide-container) {
+	animation: vt-fade-out 0.4s ease-in-out;
+}
+
+html[data-transition="fade"]::view-transition-new(slide-container) {
+	animation: vt-fade-in 0.4s ease-in-out;
+}
+
+/* Slide left */
+html[data-transition="slide-left"]::view-transition-old(slide-container) {
+	animation: vt-slide-out-left 0.4s ease-in-out;
+}
+
+html[data-transition="slide-left"]::view-transition-new(slide-container) {
+	animation: vt-slide-in-right 0.4s ease-in-out;
+}
+
+/* Slide right */
+html[data-transition="slide-right"]::view-transition-old(slide-container) {
+	animation: vt-slide-out-right 0.4s ease-in-out;
+}
+
+html[data-transition="slide-right"]::view-transition-new(slide-container) {
+	animation: vt-slide-in-left 0.4s ease-in-out;
+}
+
+/* Magic move — the browser interpolates position/size for matched
+   view-transition-name elements. No cross-fade on the container
+   to avoid background dimming. */
+html[data-transition="magic-move"]::view-transition-old(slide-container) {
+	animation: none;
+	opacity: 0;
+}
+
+html[data-transition="magic-move"]::view-transition-new(slide-container) {
+	animation: none;
+}
+
+@keyframes vt-fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes vt-slide-out-left {
+	from { transform: translateX(0); opacity: 1; }
+	to { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes vt-slide-in-right {
+	from { transform: translateX(100%); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes vt-slide-out-right {
+	from { transform: translateX(0); opacity: 1; }
+	to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes vt-slide-in-left {
+	from { transform: translateX(-100%); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
 }
 
 /* ========================

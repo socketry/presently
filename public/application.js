@@ -13,7 +13,6 @@ function applyCodeFocus() {
 		const focusEnd = parseInt(viewport.dataset.focusEnd);
 		
 		if (!focusStart || !focusEnd) {
-			// No focus specified - reset
 			const scroll = viewport.querySelector('.code-scroll');
 			const dimTop = viewport.querySelector('.code-dim-top');
 			const dimBottom = viewport.querySelector('.code-dim-bottom');
@@ -28,13 +27,10 @@ function applyCodeFocus() {
 		const dimBottom = viewport.querySelector('.code-dim-bottom');
 		if (!scroll) return;
 		
-		// Wait for content to render, then calculate positions
 		requestAnimationFrame(() => {
-			// Find the pre element and measure line height
 			const pre = scroll.querySelector('pre');
 			if (!pre) return;
 			
-			// Get computed line height from the code content
 			const code = pre.querySelector('code, syntax-code') || pre;
 			const style = getComputedStyle(code);
 			const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.6;
@@ -42,19 +38,16 @@ function applyCodeFocus() {
 			const padding = parseFloat(getComputedStyle(scroll).paddingTop) || 16;
 			const viewportHeight = viewport.clientHeight;
 			
-			// Calculate pixel positions for focus region
 			const focusTopPx = padding + (focusStart - 1) * lineHeight;
 			const focusBottomPx = padding + focusEnd * lineHeight;
 			const focusHeight = focusBottomPx - focusTopPx;
 			
-			// Center the focus region in the viewport
 			const targetCenter = focusTopPx + focusHeight / 2;
 			const viewportCenter = viewportHeight / 2;
 			const translateY = Math.min(0, viewportCenter - targetCenter);
 			
 			scroll.style.transform = `translateY(${translateY}px)`;
 			
-			// Position the dim overlays
 			const dimTopHeight = Math.max(0, focusTopPx + translateY);
 			const dimBottomHeight = Math.max(0, viewportHeight - (focusBottomPx + translateY));
 			
@@ -64,8 +57,44 @@ function applyCodeFocus() {
 	});
 }
 
-// Re-highlight and apply focus after Live DOM updates:
+// Detect the transition type from the incoming HTML before morphdom applies it.
+function detectTransition(html) {
+	const match = html.match(/data-transition="([^"]+)"/);
+	return match ? match[1] : null;
+}
+
+// Track the active view transition so we can skip overlapping ones.
+let activeTransition = null;
+
+// Wrap Live's update method to support view transitions.
+const originalUpdate = live.update.bind(live);
+live.update = function(id, html, options) {
+	// Only apply transitions on the display view, not the presenter:
+	const transition = document.querySelector('.display') ? detectTransition(html) : null;
+	
+	if (transition && document.startViewTransition && !activeTransition) {
+		document.documentElement.dataset.transition = transition;
+		
+		activeTransition = document.startViewTransition(() => {
+			originalUpdate(id, html, options);
+		});
+		
+		activeTransition.finished.finally(() => {
+			delete document.documentElement.dataset.transition;
+			activeTransition = null;
+			Syntax.highlight();
+			applyCodeFocus();
+		});
+	} else {
+		originalUpdate(id, html, options);
+		Syntax.highlight();
+		applyCodeFocus();
+	}
+};
+
+// Re-highlight and apply focus after non-update DOM mutations (e.g. replace):
 const observer = new MutationObserver(() => {
+	if (activeTransition) return;
 	Syntax.highlight();
 	applyCodeFocus();
 });
