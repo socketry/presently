@@ -31,9 +31,15 @@ function applyCodeFocus() {
 			const pre = scroll.querySelector('pre');
 			if (!pre) return;
 			
-			const code = pre.querySelector('code, syntax-code') || pre;
-			const style = getComputedStyle(code);
-			const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.6;
+			// Measure actual line height by rendering a single line and measuring it:
+			const probe = document.createElement('span');
+			probe.textContent = 'X';
+			probe.style.visibility = 'hidden';
+			probe.style.position = 'absolute';
+			pre.appendChild(probe);
+			const singleHeight = probe.getBoundingClientRect().height;
+			pre.removeChild(probe);
+			const lineHeight = singleHeight;
 			
 			const padding = parseFloat(getComputedStyle(scroll).paddingTop) || 16;
 			const viewportHeight = viewport.clientHeight;
