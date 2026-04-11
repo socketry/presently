@@ -78,6 +78,10 @@ module Presently
 				@controller.reset_timer!
 			when "reload"
 				@controller.reload!
+			when "jump"
+				if index = event.dig(:detail, :index)
+					@controller.go_to(index.to_i)
+				end
 			end
 		end
 		
@@ -175,6 +179,31 @@ module Presently
 						onClick: forward_event(action: "next")
 					) do
 						builder.text("Next →")
+					end
+					
+					# Jump-to dropdown for marked slides
+					markers = []
+					@controller.slides.each_with_index do |s, i|
+						if s.marker
+							markers << [i, s.marker]
+						end
+					end
+					
+					unless markers.empty?
+						builder.tag(:select,
+							class: "jump-to",
+							onChange: "live.forwardEvent(#{JSON.dump(@id)}, event, {action: 'jump', index: parseInt(this.value)}); this.value = '';"
+						) do
+							builder.tag(:option, value: "", disabled: true, selected: true) do
+								builder.text("Jump to…")
+							end
+							
+							markers.each do |index, label|
+								builder.tag(:option, value: index) do
+									builder.text(label)
+								end
+							end
+						end
 					end
 					
 					builder.tag(:button,

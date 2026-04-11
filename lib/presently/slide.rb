@@ -53,6 +53,12 @@ module Presently
 			@frontmatter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
 		end
 		
+		# The navigation marker for this slide, used in the presenter's jump-to dropdown.
+		# @returns [String | Nil] The marker label, or `nil` if not marked.
+		def marker
+			@frontmatter&.fetch("marker", nil)
+		end
+		
 		# The transition type for animating into this slide.
 		# @returns [String | Nil] The transition name (e.g. `"fade"`, `"slide-left"`, `"magic-move"`), or `nil` for instant swap.
 		def transition
