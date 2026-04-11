@@ -17,13 +17,15 @@ A web-based presentation tool built with [Lively](https://github.com/socketry/li
 
 ## Usage
 
-Please see the [project documentation](https://socketry.github.io/presently/) for more details.
+Please see the [project documentation](https://github.com/socketry/presently) for more details.
 
-  - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
+  - [Getting Started](https://github.com/socketry/presentlyguides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
 
 ## Releases
 
-There are no documented releases.
+Please see the [project releases](https://github.com/socketry/presentlyreleases/index) for all releases.
+
+### v0.2.0
 
 ## See Also
 
