@@ -6,5 +6,4 @@
 /.covered.db
 /external
 
-/.github/workflows/test-external.yaml
-/examples/*/*.sqlite3*
+.presently.json

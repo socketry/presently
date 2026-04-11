@@ -12,53 +12,50 @@ function applyCodeFocus() {
 		const focusStart = parseInt(viewport.dataset.focusStart);
 		const focusEnd = parseInt(viewport.dataset.focusEnd);
 		
-		if (!focusStart || !focusEnd) {
-			const scroll = viewport.querySelector('.code-scroll');
-			const dimTop = viewport.querySelector('.code-dim-top');
-			const dimBottom = viewport.querySelector('.code-dim-bottom');
-			if (scroll) scroll.style.transform = '';
-			if (dimTop) dimTop.style.height = '0';
-			if (dimBottom) dimBottom.style.height = '0';
-			return;
-		}
-		
 		const scroll = viewport.querySelector('.code-scroll');
 		const dimTop = viewport.querySelector('.code-dim-top');
 		const dimBottom = viewport.querySelector('.code-dim-bottom');
 		if (!scroll) return;
 		
-		requestAnimationFrame(() => {
-			const pre = scroll.querySelector('pre');
-			if (!pre) return;
+		if (!focusStart || !focusEnd) {
+			scroll.style.transform = '';
+			if (dimTop) dimTop.style.height = '0';
+			if (dimBottom) dimBottom.style.height = '0';
+			return;
+		}
+		
+		requestAnimationFrame(async () => {
+			const code = scroll.querySelector('syntax-code');
+			if (!code) return;
 			
-			// Measure actual line height by rendering a single line and measuring it:
-			const probe = document.createElement('span');
-			probe.textContent = 'X';
-			probe.style.visibility = 'hidden';
-			probe.style.position = 'absolute';
-			pre.appendChild(probe);
-			const singleHeight = probe.getBoundingClientRect().height;
-			pre.removeChild(probe);
-			const lineHeight = singleHeight;
+			await code.ready;
 			
-			const padding = parseFloat(getComputedStyle(scroll).paddingTop) || 16;
-			const viewportHeight = viewport.clientHeight;
+			// Get the bounding rects of the focus region:
+			const firstLineRect = code.getLineBoundingClientRect(focusStart);
+			const lastLineRect = code.getLineBoundingClientRect(focusEnd);
+			if (!firstLineRect || !lastLineRect) return;
 			
-			const focusTopPx = padding + (focusStart - 1) * lineHeight;
-			const focusBottomPx = padding + focusEnd * lineHeight;
+			// Calculate positions relative to the scroll container:
+			const scrollRect = scroll.getBoundingClientRect();
+			const focusTopPx = firstLineRect.top - scrollRect.top;
+			const focusBottomPx = lastLineRect.bottom - scrollRect.top;
 			const focusHeight = focusBottomPx - focusTopPx;
 			
+			const viewportHeight = viewport.clientHeight;
+			
+			// Center the focus region in the viewport:
 			const targetCenter = focusTopPx + focusHeight / 2;
 			const viewportCenter = viewportHeight / 2;
 			const translateY = Math.min(0, viewportCenter - targetCenter);
 			
 			scroll.style.transform = `translateY(${translateY}px)`;
 			
+			// Position the dim overlays:
 			const dimTopHeight = Math.max(0, focusTopPx + translateY);
 			const dimBottomHeight = Math.max(0, viewportHeight - (focusBottomPx + translateY));
 			
-			dimTop.style.height = `${dimTopHeight}px`;
-			dimBottom.style.height = `${dimBottomHeight}px`;
+			if (dimTop) dimTop.style.height = `${dimTopHeight}px`;
+			if (dimBottom) dimBottom.style.height = `${dimBottomHeight}px`;
 		});
 	});
 }

@@ -8,6 +8,7 @@ require "lively"
 
 require_relative "presentation"
 require_relative "presentation_controller"
+require_relative "state"
 require_relative "display_view"
 require_relative "presenter_view"
 require_relative "page"
@@ -53,8 +54,10 @@ module Presently
 		def initialize(delegate, slides_root: "slides", templates_root: nil, **options)
 			presentation = Presentation.load(slides_root, templates_root: templates_root)
 			
+			state = State.new
+			
 			resolver = Resolver.new(
-				controller: PresentationController.new(presentation),
+				controller: PresentationController.new(presentation, state: state),
 			).tap do |resolver|
 				resolver.allow(DisplayView, PresenterView)
 			end

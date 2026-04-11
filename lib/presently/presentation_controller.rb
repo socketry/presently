@@ -5,6 +5,7 @@
 
 require_relative "clock"
 require_relative "presentation"
+require_relative "state"
 
 module Presently
 	# Manages the mutable state of a presentation: current slide, clock, and listeners.
@@ -14,11 +15,15 @@ module Presently
 	class PresentationController
 		# Initialize a new controller for the given presentation.
 		# @parameter presentation [Presentation] The presentation to control.
-		def initialize(presentation)
+		# @parameter state [State | Nil] The state persistence object. If provided, state is saved on changes and restored on initialization.
+		def initialize(presentation, state: nil)
 			@presentation = presentation
 			@current_index = 0
 			@clock = Clock.new
 			@listeners = []
+			@state = state
+			
+			@state&.load(self)
 		end
 		
 		# @attribute [Presentation] The underlying presentation data.
@@ -157,10 +162,17 @@ module Presently
 			notify_listeners!
 		end
 		
+		# Persist the current state to disk.
+		def save_state!
+			@state&.save(self)
+		end
+		
 		private
 		
-		# Notify all registered listeners that the slide has changed.
+		# Notify all registered listeners that the slide has changed, and persist state.
 		def notify_listeners!
+			@state&.save(self)
+			
 			@listeners.each do |listener|
 				listener.slide_changed! rescue nil
 			end

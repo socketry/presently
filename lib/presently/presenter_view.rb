@@ -74,6 +74,7 @@ module Presently
 				else
 					@controller.clock.pause!
 				end
+				@controller.save_state!
 			when "reset"
 				@controller.reset_timer!
 			when "reload"

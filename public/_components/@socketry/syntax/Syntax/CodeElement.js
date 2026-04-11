@@ -20,9 +20,19 @@ export class CodeElement extends HTMLElement {
 	#shadow;
 	#adoptedHrefs = new Set();
 	#highlighted = false;
+	#readyResolve = null;
 
 	constructor() {
 		super();
+		
+		/**
+		 * A promise that resolves when the element has been fully rendered.
+		 * Use this to ensure line measurement APIs return valid results.
+		 * @type {Promise<void>}
+		 */
+		this.ready = new Promise(resolve => {
+			this.#readyResolve = resolve;
+		});
 	}
 
 	get syntax() {
@@ -76,6 +86,36 @@ export class CodeElement extends HTMLElement {
 		}
 	}
 
+	/**
+	 * Get the bounding client rect of a specific line (1-based).
+	 * @param {number} lineNumber - The 1-based line number.
+	 * @returns {DOMRect|null} The bounding rect, or null if not found.
+	 */
+	getLineBoundingClientRect(lineNumber) {
+		if (!this.#shadow) return null;
+		
+		const code = this.#shadow.querySelector('code');
+		if (!code) return null;
+		
+		const lines = code.children;
+		if (lineNumber < 1 || lineNumber > lines.length) return null;
+		
+		return lines[lineNumber - 1].getBoundingClientRect();
+	}
+	
+	/**
+	 * Get the total number of rendered lines.
+	 * @returns {number} The line count, or 0 if not yet rendered.
+	 */
+	get lineCount() {
+		if (!this.#shadow) return 0;
+		
+		const code = this.#shadow.querySelector('code');
+		if (!code) return 0;
+		
+		return code.children.length;
+	}
+	
 	connectedCallback() {
 		// Detect if we're inside a <pre> element and set wrap attribute
 		if (this.parentElement?.tagName === 'PRE') {
@@ -104,8 +144,11 @@ export class CodeElement extends HTMLElement {
 			this.isConnected &&
 			this.#shadow
 		) {
-			// Reset highlighted flag to allow re-rendering
+			// Reset highlighted flag and ready promise to allow re-rendering
 			this.#highlighted = false;
+			this.ready = new Promise(resolve => {
+				this.#readyResolve = resolve;
+			});
 			this.#adoptedHrefs.clear();
 			this.#render();
 		}
@@ -232,6 +275,7 @@ export class CodeElement extends HTMLElement {
 			this.textContent = '';
 
 			this.#highlighted = true;
+			this.#readyResolve?.();
 		} catch (error) {
 			console.warn('<syntax-code> render failed:', error);
 		}
