@@ -1,26 +1,19 @@
 ---
-template: two_column
+template: default
 duration: 90
+marker: Architecture
+transition: fade
 ---
 
-# Left
-
-**Server Side**
-
-- Ruby + Lively framework
-- Shared presentation state
-- WebSocket connections
-- Slide parsing & rendering
-
-# Right
-
-**Client Side**
-
-- Live DOM updates
-- CSS animations
-- Keyboard navigation
-- Full-screen support
+```mermaid
+graph LR
+    Browser1[Display View] -->|WebSocket| Server
+    Browser2[Presenter View] -->|WebSocket| Server
+    Server --> Controller[Presentation Controller]
+    Controller --> Presentation
+    Presentation --> Slides[(Markdown Files)]
+```
 
 ---
 
-Explain the architecture. The server holds all state and pushes updates to all connected clients via WebSockets.
+Walk through the architecture diagram. The server holds all state, and both browser views connect via WebSockets. The controller manages navigation and timing, while the presentation loads slides from disk.

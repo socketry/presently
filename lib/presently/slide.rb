@@ -6,6 +6,8 @@
 require "yaml"
 require "markly"
 
+require_relative "renderer"
+
 module Presently
 	# A single slide parsed from a Markdown file.
 	#
@@ -140,9 +142,14 @@ module Presently
 		# Render Markdown text to HTML.
 		# @parameter text [String] The Markdown text.
 		# @returns [String] The rendered HTML.
+		# The Markly extensions to enable for slide rendering.
+		EXTENSIONS = [:table, :tasklist, :strikethrough, :autolink]
+		
 		def render_markdown(text)
 			return "" if text.nil? || text.empty?
-			Markly.render_html(text, flags: Markly::UNSAFE)
+			
+			document = Markly.parse(text, flags: Markly::UNSAFE, extensions: EXTENSIONS)
+			Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(document)
 		end
 	end
 end

@@ -46,7 +46,7 @@ module Presently
 					# Serve assets from the user's public directory:
 					builder.use Lively::Assets, root: File.expand_path("public", root)
 					
-					# Serve Presently's bundled assets (syntax-js, CSS, etc.):
+					# Serve Presently's bundled assets (CSS, JS, components, etc.):
 					builder.use Lively::Assets, root: File.expand_path("../../../public", __dir__)
 					
 					# Serve Lively's built-in assets (Live.js, morphdom, etc.):

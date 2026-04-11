@@ -17,11 +17,13 @@
 				"live": "/_components/@socketry/live/Live.js",
 				"live-audio": "/_components/@socketry/live-audio/Live/Audio.js",
 				"morphdom": "/_components/morphdom/morphdom-esm.js",
-				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
+				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js",
+				"mermaid": "/_components/mermaid/mermaid.esm.min.mjs"
 			}
 		}
 		</script>
 		
+		<script type="module" src="/mermaid-diagram.js"></script>
 		<script type="module" src="/application.js"></script>
 	</head>
 	

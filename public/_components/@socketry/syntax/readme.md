@@ -118,6 +118,28 @@ const code = "This will scroll horizontally";
 </syntax-code></pre>
 ```
 
+## Line Measurement API
+
+The `<syntax-code>` element exposes a `ready` promise and methods for measuring rendered line positions, useful for building code focus/highlight overlays:
+
+```javascript
+const code = document.querySelector('syntax-code');
+
+// Wait for rendering to complete:
+await code.ready;
+
+// Get the number of rendered lines:
+console.log(code.lineCount); // 42
+
+// Get the bounding rect of a specific line (1-based):
+const rect = code.getLineBoundingClientRect(5);
+console.log(rect.top, rect.bottom, rect.height);
+```
+
+- **`ready`** — A `Promise` that resolves when the element has been fully rendered. Await this before calling measurement methods to ensure valid results.
+- **`lineCount`** — Returns the total number of rendered lines, or `0` if not yet highlighted.
+- **`getLineBoundingClientRect(lineNumber)`** — Returns a `DOMRect` for the given 1-based line number, or `null` if the line doesn't exist. Coordinates are relative to the viewport, just like `Element.getBoundingClientRect()`.
+
 ## Command Line Tool
 
 A simple CLI tool is included to inspect the AST (Abstract Syntax Tree) of parsed code:

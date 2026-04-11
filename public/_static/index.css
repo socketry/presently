@@ -53,7 +53,7 @@ html, body {
 .default-template .slide-body {
 	font-size: 1.8rem;
 	line-height: 1.6;
-	max-width: 80%;
+	width: 100%;
 }
 
 .default-template .slide-body ul,
@@ -175,6 +175,14 @@ pre > syntax-code {
 
 .translation-template .slide-translation p {
 	margin: 0;
+}
+
+/* Mermaid diagrams */
+mermaid-diagram {
+	display: block;
+	width: 100%;
+	text-align: center;
+	color: transparent;
 }
 
 /* Code template */

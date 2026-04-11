@@ -1,0 +1,8 @@
+{
+	"name": "@socketry/presently",
+	"private": true,
+	"dependencies": {
+		"@socketry/syntax": "socketry/syntax-js",
+		"mermaid": "^11"
+	}
+}
