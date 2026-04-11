@@ -30,17 +30,22 @@ function applyCodeFocus() {
 			
 			await code.ready;
 			
-			// Get the bounding rects of the focus region:
+			// Get line positions via getBoundingClientRect (screen pixels),
+			// and convert to CSS pixels using the scroll container's own rect
+			// as the reference frame:
 			const firstLineRect = code.getLineBoundingClientRect(focusStart);
 			const lastLineRect = code.getLineBoundingClientRect(focusEnd);
 			if (!firstLineRect || !lastLineRect) return;
 			
-			// Calculate positions relative to the scroll container:
 			const scrollRect = scroll.getBoundingClientRect();
-			const focusTopPx = firstLineRect.top - scrollRect.top;
-			const focusBottomPx = lastLineRect.bottom - scrollRect.top;
-			const focusHeight = focusBottomPx - focusTopPx;
 			
+			// Both rects are in screen pixels. Compute the ratio between
+			// the scroll container's screen size and CSS size to convert:
+			const scale = scroll.clientHeight / scrollRect.height;
+			
+			const focusTopPx = (firstLineRect.top - scrollRect.top) * scale;
+			const focusBottomPx = (lastLineRect.bottom - scrollRect.top) * scale;
+			const focusHeight = focusBottomPx - focusTopPx;
 			const viewportHeight = viewport.clientHeight;
 			
 			// Center the focus region in the viewport:
