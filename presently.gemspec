@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
 		"source_code_uri" => "https://github.com/socketry/presently.git",
 	}
 	
-	spec.files = Dir["{bin,lib,public,templates}/**/*", "*.md", base: __dir__]
+	spec.files = Dir["{bake,bin,lib,public,templates}/**/*", "*.md", base: __dir__]
 	
 	spec.executables = ["presently"]
 	

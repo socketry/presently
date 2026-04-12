@@ -17,14 +17,14 @@ describe Presently::State do
 		FileUtils.remove_entry(dir)
 	end
 	
-	with "#save and #load" do
+	with "#save and #restore" do
 		it "persists the current slide index" do
 			controller = Presently::PresentationController.new(presentation)
 			controller.go_to(3)
 			state.save(controller)
 			
 			restored = Presently::PresentationController.new(presentation)
-			state.load(restored)
+			state.restore(restored)
 			expect(restored.current_index).to be == 3
 		end
 		
@@ -36,7 +36,7 @@ describe Presently::State do
 			state.save(controller)
 			
 			restored = Presently::PresentationController.new(presentation)
-			state.load(restored)
+			state.restore(restored)
 			expect(restored.clock.elapsed).to be_within(0.1).of(120.0)
 		end
 		
@@ -47,7 +47,7 @@ describe Presently::State do
 			state.save(controller)
 			
 			restored = Presently::PresentationController.new(presentation)
-			state.load(restored)
+			state.restore(restored)
 			expect(restored.clock).to be(:paused?)
 		end
 		
@@ -58,14 +58,14 @@ describe Presently::State do
 			state.save(controller)
 			
 			restored = Presently::PresentationController.new(presentation)
-			state.load(restored)
+			state.restore(restored)
 			expect(restored.clock).to be(:running?)
 			expect(restored.clock.elapsed).to be >= 60.0
 		end
 		
 		it "handles missing state file gracefully" do
 			controller = Presently::PresentationController.new(presentation)
-			state.load(controller)
+			state.restore(controller)
 			expect(controller.current_index).to be == 0
 		end
 	end

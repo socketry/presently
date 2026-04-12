@@ -23,7 +23,7 @@ module Presently
 			@listeners = []
 			@state = state
 			
-			@state&.load(self)
+			@state&.restore(self)
 		end
 		
 		# @attribute [Presentation] The underlying presentation data.
@@ -35,10 +35,10 @@ module Presently
 		# @attribute [Clock] The presentation timer.
 		attr :clock
 		
-		# The templates root directory, delegated to the presentation.
-		# @returns [String | Nil] The templates root path.
-		def templates_root
-			@presentation.templates_root
+		# The template resolver, delegated to the presentation.
+		# @returns [Templates] The templates instance.
+		def templates
+			@presentation.templates
 		end
 		
 		# The ordered list of slides, delegated to the presentation.
@@ -158,7 +158,7 @@ module Presently
 		
 		# Reload slides from disk and notify listeners.
 		def reload!
-			@presentation.reload!
+			@presentation = @presentation.reload
 			notify_listeners!
 		end
 		
@@ -174,7 +174,9 @@ module Presently
 			@state&.save(self)
 			
 			@listeners.each do |listener|
-				listener.slide_changed! rescue nil
+				listener.slide_changed!
+			rescue => error
+				Console.warn(self, "Listener notification failed", exception: error)
 			end
 		end
 	end

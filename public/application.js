@@ -111,6 +111,16 @@ observer.observe(document.body, { childList: true, subtree: true });
 // Initial focus application:
 applyCodeFocus();
 
+// Jump-to select: forward the selected slide index to the presenter view.
+document.addEventListener('change', (event) => {
+	const select = event.target.closest('select.jump-to');
+	if (!select) return;
+	const liveId = select.dataset.liveId;
+	if (!liveId) return;
+	live.forwardEvent(liveId, event, {action: 'jump', index: parseInt(select.value)});
+	select.value = '';
+});
+
 // Keyboard navigation
 document.addEventListener('keydown', (event) => {
 	const liveView = document.querySelector('live-view');

@@ -43,10 +43,11 @@ describe Presently::Presentation do
 		end
 	end
 	
-	with "#reload!" do
-		it "reloads slides from disk" do
-			presentation.reload!
-			expect(presentation.slides).not.to be(:empty?)
+	with "#reload" do
+		it "returns a new presentation with slides loaded from disk" do
+			reloaded = presentation.reload
+			expect(reloaded).not.to be == presentation
+			expect(reloaded.slides).not.to be(:empty?)
 		end
 	end
 end

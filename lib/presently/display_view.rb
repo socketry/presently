@@ -4,7 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "live"
-require_relative "slide_view"
+require_relative "slide_renderer"
 
 module Presently
 	# The audience-facing display view that renders the current slide full-screen.
@@ -19,7 +19,7 @@ module Presently
 		def initialize(id = Live::Element.unique_id, data = {}, controller: nil)
 			super(id, data)
 			@controller = controller
-			@slide_renderer = SlideView.new(css_class: "slide current", controller: controller)
+			@slide_renderer = SlideRenderer.new(css_class: "slide current", templates: controller&.templates)
 		end
 		
 		# Bind this view to a page and register as a listener.
@@ -61,7 +61,7 @@ module Presently
 			
 			builder.tag(:div, class: "display", data: {transition: slide.transition}) do
 				builder.tag(:div, class: "slide-container") do
-					@slide_renderer.render_slide(builder, slide)
+					@slide_renderer.render(builder, slide)
 				end
 				
 				builder.tag(:div, class: "slide-counter") do

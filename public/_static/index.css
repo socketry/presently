@@ -153,27 +153,35 @@ pre > syntax-code {
 	transition: opacity 0.15s ease-in;
 }
 
-/* Translation template */
-.translation-template {
+/* Statement template */
+.statement-template {
 	text-align: center;
 	gap: 2rem;
 }
 
-.translation-template .slide-title {
-	font-size: 3rem;
-	font-weight: 700;
+.statement-template .slide-statement {
+	font-size: 2.5rem;
+	font-weight: 600;
+	line-height: 1.4;
+	width: 100%;
 }
 
-.translation-template .slide-title p {
+.statement-template .slide-statement mermaid-diagram {
+	font-weight: normal;
+}
+
+.statement-template .slide-statement p {
 	margin: 0;
 }
 
-.translation-template .slide-translation {
-	font-size: 2rem;
+/* Shared translation style — works in any template */
+.slide-translation {
+	font-size: 1.6rem;
 	opacity: 0.7;
+	margin-top: 1rem;
 }
 
-.translation-template .slide-translation p {
+.slide-translation p {
 	margin: 0;
 }
 
@@ -183,6 +191,31 @@ mermaid-diagram {
 	width: 100%;
 	text-align: center;
 	color: transparent;
+}
+
+/* Fullscreen template */
+.fill-template {
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.fill-template .slide-content {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fill-template .slide-content img,
+.fill-template .slide-content iframe,
+.fill-template .slide-content svg,
+.fill-template .slide-content video {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border: none;
 }
 
 /* Code template */
@@ -424,6 +457,22 @@ html[data-transition="magic-move"]::view-transition-new(slide-container) {
 	opacity: 0.8;
 }
 
+.controls .slide-path {
+	font-size: 0.8rem;
+	opacity: 0.6;
+}
+
+.controls .edit-link {
+	margin-left: 0.3rem;
+	text-decoration: none;
+	opacity: 0.6;
+	transition: opacity 0.2s;
+}
+
+.controls .edit-link:hover {
+	opacity: 1;
+}
+
 /* Slide previews */
 .previews {
 	display: grid;
@@ -546,6 +595,7 @@ html[data-transition="magic-move"]::view-transition-new(slide-container) {
 	background: var(--surface);
 	border-radius: 8px;
 	padding: 0.75rem 1rem;
+	min-height: 25vh;
 	max-height: 30vh;
 	overflow-y: auto;
 }

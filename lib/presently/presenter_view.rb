@@ -4,7 +4,8 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "live"
-require_relative "slide_view"
+require_relative "slide_renderer"
+require_relative "editor"
 
 module Presently
 	# The presenter-facing view with notes, timing, and slide previews.
@@ -20,6 +21,7 @@ module Presently
 			super(id, data)
 			@controller = controller
 			@clock_task = nil
+			@preview_renderer = SlideRenderer.new(css_class: "slide preview-slide", templates: controller&.templates)
 		end
 		
 		# Bind this view to a page and start the timing update loop.
@@ -84,6 +86,14 @@ module Presently
 					@controller.go_to(index.to_i)
 				end
 			end
+		end
+		
+		# Generate an editor URL for the given file path.
+		# @parameter path [String] The file path.
+		# @parameter line [Integer] The line number.
+		# @returns [String | Nil] The editor URL, or `nil`.
+		def editor_url_for(path, line = 1)
+			Editor.url_for(path, line)
 		end
 		
 		# Render the timing bar with controls, elapsed/remaining time, and pacing.
@@ -174,6 +184,19 @@ module Presently
 					
 					builder.tag(:span, class: "slide-info") do
 						builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
+						
+						if slide
+							builder.text(" · ")
+							builder.tag(:code, class: "slide-path") do
+								builder.text(File.basename(slide.path))
+							end
+							
+							if editor_url = editor_url_for(slide.path)
+								builder.tag(:a, href: editor_url, class: "edit-link") do
+									builder.text("✎")
+								end
+							end
+						end
 					end
 					
 					builder.tag(:button,
@@ -193,7 +216,7 @@ module Presently
 					unless markers.empty?
 						builder.tag(:select,
 							class: "jump-to",
-							onChange: "live.forwardEvent(#{JSON.dump(@id)}, event, {action: 'jump', index: parseInt(this.value)}); this.value = '';"
+							data: {live_id: @id}
 						) do
 							builder.tag(:option, value: "", disabled: true, selected: true) do
 								builder.text("Jump to…")
@@ -221,10 +244,7 @@ module Presently
 					builder.tag(:div, class: "preview current-preview") do
 						builder.tag(:h3){builder.text("Current")}
 						builder.tag(:div, class: "preview-frame") do
-							if slide
-								renderer = SlideView.new(css_class: "slide preview-slide", controller: @controller)
-								renderer.render_slide(builder, slide)
-							end
+							@preview_renderer.render(builder, slide)
 						end
 					end
 					
@@ -233,8 +253,7 @@ module Presently
 						builder.tag(:h3){builder.text("Next")}
 						builder.tag(:div, class: "preview-frame") do
 							if next_slide
-								renderer = SlideView.new(css_class: "slide preview-slide", controller: @controller)
-								renderer.render_slide(builder, next_slide)
+								@preview_renderer.render(builder, next_slide)
 							else
 								builder.tag(:div, class: "no-slide") do
 									builder.text("End of presentation")

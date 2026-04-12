@@ -1,10 +1,8 @@
 ---
-template: translation
+template: statement
 duration: 30
 transition: magic-move
 ---
-
-# Title
 
 <div style="view-transition-name: welcome-title">The best way to predict the future is to create it.</div>
 

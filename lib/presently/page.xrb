@@ -9,6 +9,7 @@
 		<link rel="icon" type="image/png" href="/_static/icon.png" />
 		<link rel="stylesheet" href="/_static/site.css" type="text/css" media="screen" />
 		<link rel="stylesheet" href="/_static/index.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/_static/custom.css" type="text/css" media="screen" />
 		<link rel="stylesheet" href="/_components/@socketry/syntax/themes/base/syntax.css" type="text/css" media="screen" />
 		
 		<script type="importmap">

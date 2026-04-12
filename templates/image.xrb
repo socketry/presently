@@ -2,7 +2,12 @@
 	<div class="slide-image">
 		#{self.section("body")}
 	</div>
-	<?r if caption = self.section("caption") and !caption.empty? ?>
-		<div class="slide-caption">#{caption}</div>
+	<?r if self.section?("caption") ?>
+		<div class="slide-caption">#{self.section("caption")}</div>
+	<?r end ?>
+	<?r if self.section?("translation") ?>
+		<div class="slide-translation">
+			#{self.section("translation")}
+		</div>
 	<?r end ?>
 </div>

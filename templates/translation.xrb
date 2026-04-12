@@ -1,8 +1,0 @@
-<div class="slide-inner translation-template">
-	<div class="slide-title">
-		#{self.section("title")}
-	</div>
-	<div class="slide-translation">
-		#{self.section("translation")}
-	</div>
-</div>

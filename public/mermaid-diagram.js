@@ -3,8 +3,7 @@ import mermaid from 'mermaid';
 mermaid.initialize({
 	startOnLoad: false,
 	theme: 'dark',
-	flowchart: {useMaxWidth: true},
-	sequence: {useMaxWidth: true},
+	flowchart: {useMaxWidth: false},
 });
 
 let diagramId = 0;
@@ -37,6 +36,7 @@ export class MermaidDiagram extends HTMLElement {
 				</style>
 				${svg}
 			`;
+			
 			this.#rendered = true;
 			
 			// Clear light DOM source text:

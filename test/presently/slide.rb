@@ -8,8 +8,8 @@ require "tmpdir"
 require "fileutils"
 
 describe Presently::Slide do
-	let(:slide_path) {File.expand_path("../../slides/01-welcome.md", __dir__)}
-	let(:slide) {subject.new(slide_path)}
+	let(:slide_path) {File.expand_path("../../slides/010-welcome.md", __dir__)}
+	let(:slide) {subject.load(slide_path)}
 	
 	with "#template" do
 		it "reads template from frontmatter" do
@@ -51,7 +51,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.new(path)}
+		let(:slide) {Presently::Slide.load(path)}
 		
 		it "uses default template" do
 			expect(slide.template).to be == "default"
@@ -83,7 +83,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.new(path)}
+		let(:slide) {Presently::Slide.load(path)}
 		
 		it "separates content from notes" do
 			expect(slide.content["body"]).to be(:include?, "Content here")

@@ -3,49 +3,33 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "live"
 require "xrb/template"
 require "xrb/markup"
 
+require_relative "templates"
+
 module Presently
-	# The default directory containing bundled slide templates.
-	DEFAULT_TEMPLATES_ROOT = File.expand_path("../../templates", __dir__)
-	
 	# Renders a single slide using its XRB template.
 	#
-	# Loads templates from the configured templates root and renders slides
-	# by passing their content sections to the template via {TemplateScope}.
-	class SlideView < Live::View
-		# Initialize a new slide view.
-		# @parameter id [String] The unique element identifier.
-		# @parameter data [Hash] The element data attributes.
-		# @parameter css_class [String] The CSS class for the slide container.
-		# @parameter controller [PresentationController | Nil] The controller to get the templates root from.
-		def initialize(id = Live::Element.unique_id, data = {}, css_class: "slide", controller: nil)
-			super(id, data)
+	# A plain Ruby object (not a Live view) that resolves templates via a
+	# {Templates} instance and produces HTML for a given {Slide}.
+	class SlideRenderer
+		# Initialize a new slide renderer.
+		# @parameter css_class [String] The CSS class for the slide container element.
+		# @parameter templates [Templates] The template resolver to use.
+		def initialize(css_class: "slide", templates: Templates.for)
 			@css_class = css_class
-			@templates_root = controller&.templates_root || DEFAULT_TEMPLATES_ROOT
-			@templates = {}
+			@templates = templates
 		end
 		
-		# Load and cache a template by name.
-		# @parameter name [String] The template name (without extension).
-		# @returns [XRB::Template] The loaded template.
-		def template_for(name)
-			@templates[name] ||= begin
-				path = File.join(@templates_root, "#{name}.xrb")
-				XRB::Template.load_file(path)
-			end
-		end
-		
-		# Render a slide using its template into the builder.
+		# Render a slide into the given builder.
 		# @parameter builder [XRB::Builder] The HTML builder.
 		# @parameter slide [Slide] The slide to render.
 		# @parameter extra_class [String | Nil] An additional CSS class for the container.
-		def render_slide(builder, slide, extra_class: nil)
+		def render(builder, slide, extra_class: nil)
 			return unless slide
 			
-			template = template_for(slide.template)
+			template = @templates.resolve(slide.template)
 			scope = TemplateScope.new(slide)
 			html = template.to_string(scope)
 			
@@ -53,13 +37,6 @@ module Presently
 			builder.tag(:div, class: classes, data: {template: slide.template}) do
 				builder.raw(html)
 			end
-		end
-		
-		# Render the current slide.
-		# @parameter builder [XRB::Builder] The HTML builder.
-		def render(builder)
-			slide = nil
-			render_slide(builder, slide)
 		end
 	end
 	
@@ -80,6 +57,13 @@ module Presently
 		# @returns [Hash(String, String)] Sections keyed by heading name.
 		def content
 			@slide.content
+		end
+		
+		# Whether the named content section exists and has content.
+		# @parameter name [String] The section name (derived from the Markdown heading).
+		# @returns [Boolean]
+		def section?(name)
+			!(@slide.content[name] || "").empty?
 		end
 		
 		# Get a named content section as raw HTML markup.

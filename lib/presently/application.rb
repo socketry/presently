@@ -3,44 +3,17 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "live"
 require "lively"
 
 require_relative "presentation"
 require_relative "presentation_controller"
-require_relative "state"
 require_relative "display_view"
 require_relative "presenter_view"
 require_relative "page"
+require_relative "state"
 
 module Presently
-	# Extends {Live::Resolver} to pass shared state to views on construction.
-	#
-	# When the browser reconnects via WebSocket, the resolver creates new view
-	# instances with the shared {PresentationController} so all clients stay in sync.
-	class Resolver < Live::Resolver
-		# Initialize a new resolver with shared state.
-		# @parameter state [Hash] Key-value pairs to pass to view constructors.
-		def initialize(**state)
-			super()
-			@state = state
-		end
-		
-		# @attribute [Hash] The shared state passed to view constructors.
-		attr :state
-		
-		# Resolve a client-side element to a server-side instance with shared state.
-		# @parameter id [String] The unique element identifier.
-		# @parameter data [Hash] The element data attributes.
-		# @returns [Live::Element | Nil] The resolved element, or `nil`.
-		def call(id, data)
-			if klass = @allowed[data[:class]]
-				return klass.new(id, data, **@state)
-			end
-		end
-	end
-	
-	# The main Presently application middleware.
+	# Represents the main Presently application middleware.
 	#
 	# Handles routing for the display view (`/`), presenter view (`/presenter`),
 	# and WebSocket connections (`/live`). Creates a shared {PresentationController}
@@ -49,26 +22,35 @@ module Presently
 		# Initialize a new Presently application.
 		# @parameter delegate [Protocol::HTTP::Middleware] The next middleware in the chain.
 		# @parameter slides_root [String] The directory containing slide files.
-		# @parameter templates_root [String | Nil] The directory containing custom templates.
-		# @parameter options [Hash] Additional options passed to the parent.
-		def initialize(delegate, slides_root: "slides", templates_root: nil, **options)
-			presentation = Presentation.load(slides_root, templates_root: templates_root)
+		# @parameter templates_roots [Array(String)] Additional directories to search for templates.
+		def initialize(delegate, slides_root: "slides", templates_roots: [])
+			@slides_root = slides_root
+			@templates_roots = templates_roots
 			
-			state = State.new
-			
-			resolver = Resolver.new(
-				controller: PresentationController.new(presentation, state: state),
-			).tap do |resolver|
-				resolver.allow(DisplayView, PresenterView)
-			end
-			
-			super(delegate, resolver: resolver, **options)
+			super(delegate)
+		end
+		
+		# The view classes that this application allows.
+		# @returns [Array(Class)] The allowed view classes.
+		def allowed_views
+			[DisplayView, PresenterView]
+		end
+		
+		# The shared state passed to all views via the resolver.
+		# @returns [Hash] The controller as keyword state.
+		def state
+			{controller: controller}
 		end
 		
 		# The shared presentation controller.
 		# @returns [PresentationController] The controller instance.
 		def controller
-			resolver.state[:controller]
+			@controller ||= begin
+				templates = Templates.for(@templates_roots)
+				presentation = Presentation.load(@slides_root, templates: templates)
+				
+				PresentationController.new(presentation, state: State.new)
+			end
 		end
 		
 		# The application title shown in the browser.

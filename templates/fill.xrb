@@ -1,0 +1,5 @@
+<div class="slide-inner fill-template">
+	<div class="slide-content">
+		#{self.section("body")}
+	</div>
+</div>

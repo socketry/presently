@@ -11,7 +11,7 @@ module Presently
 		# The environment configuration for a Presently application server.
 		#
 		# Extends the Lively environment with Presently-specific middleware and configuration.
-		# Override {#slides_root} and {#templates_root} to customize paths.
+		# Override {#slides_root} and {#templates_roots} to customize paths.
 		module Application
 			include Lively::Environment::Application
 			
@@ -21,11 +21,12 @@ module Presently
 				File.expand_path("slides", self.root)
 			end
 			
-			# The root directory containing slide templates.
-			# Defaults to the gem's bundled templates.
-			# @returns [String] Absolute path to the templates root.
-			def templates_root
-				File.expand_path("../../../templates", __dir__)
+			# Additional directories to search for slide templates.
+			# These are searched before the gem's bundled templates,
+			# allowing selective overrides without duplicating all templates.
+			# @returns [Array(String)] Ordered list of template directories.
+			def templates_roots
+				[File.expand_path("templates", self.root)].select{|d| File.directory?(d)}
 			end
 			
 			# The application class to use.
@@ -39,7 +40,7 @@ module Presently
 			def middleware
 				application = self.application
 				slides_root = self.slides_root
-				templates_root = self.templates_root
+				templates_roots = self.templates_roots
 				root = self.root
 				
 				::Protocol::HTTP::Middleware.build do |builder|
@@ -54,7 +55,7 @@ module Presently
 					
 					builder.use application,
 						slides_root: slides_root,
-						templates_root: templates_root
+						templates_roots: templates_roots
 				end
 			end
 		end

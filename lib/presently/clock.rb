@@ -11,6 +11,7 @@ module Presently
 		# Initialize a new clock in the stopped state.
 		def initialize
 			@elapsed = 0
+			@started = false
 			@running = false
 			@last_tick = nil
 		end
@@ -18,7 +19,7 @@ module Presently
 		# Whether the clock has been started at least once.
 		# @returns [Boolean]
 		def started?
-			!@last_tick.nil?
+			@started
 		end
 		
 		# Whether the clock is currently running and accumulating time.
@@ -46,8 +47,19 @@ module Presently
 		
 		# Start the clock. Begins accumulating time from now.
 		def start!
+			@started = true
 			@running = true
 			@last_tick = Time.now
+		end
+		
+		# Directly restore the clock to a previously persisted state.
+		# @parameter elapsed [Numeric] The elapsed time to restore.
+		# @parameter running [Boolean] Whether the clock should resume running.
+		def restore!(elapsed, running:)
+			@started = true
+			@elapsed = elapsed
+			@running = running
+			@last_tick = running ? Time.now : nil
 		end
 		
 		# Pause the clock. Freezes the elapsed time at the current value.

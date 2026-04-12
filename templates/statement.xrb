@@ -1,6 +1,6 @@
-<div class="slide-inner section-template">
-	<div class="slide-heading">
-		#{self.section("heading")}
+<div class="slide-inner statement-template">
+	<div class="slide-statement">
+		#{self.section("body")}
 	</div>
 	<?r if self.section?("translation") ?>
 		<div class="slide-translation">

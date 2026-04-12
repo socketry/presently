@@ -35,12 +35,12 @@ module Presently
 			
 			File.write(@path, JSON.pretty_generate(data))
 		rescue => error
-			Console.warn(self, "Failed to save state", error: error)
+			Console.warn(self, "Failed to save state", exception: error)
 		end
 		
-		# Restore state into the given controller.
+		# Restore persisted state into the given controller.
 		# @parameter controller [PresentationController] The controller to restore into.
-		def load(controller)
+		def restore(controller)
 			return unless File.exist?(@path)
 			
 			data = JSON.parse(File.read(@path), symbolize_names: true)
@@ -52,15 +52,10 @@ module Presently
 			
 			# Restore clock state:
 			if data[:started]
-				controller.clock.start!
-				controller.clock.reset!(data[:elapsed].to_f)
-				
-				unless data[:running]
-					controller.clock.pause!
-				end
+				controller.clock.restore!(data[:elapsed].to_f, running: data[:running])
 			end
 		rescue => error
-			Console.warn(self, "Failed to load state", error: error)
+			Console.warn(self, "Failed to restore state", exception: error)
 		end
 	end
 end

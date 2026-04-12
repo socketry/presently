@@ -14,15 +14,117 @@ module Presently
 	# Each slide has YAML frontmatter for metadata (template, duration, focus), content sections
 	# split by Markdown headings, and optional presenter notes separated by `---`.
 	class Slide
-		# Initialize a new slide by parsing the given Markdown file.
-		# @parameter path [String] The file path to the Markdown slide.
-		def initialize(path)
-			@path = path
-			@frontmatter = nil
-			@content = nil
-			@notes = nil
+		# Parses a Markdown slide file into structured data for {Slide}.
+		#
+		# Handles YAML frontmatter extraction, presenter note separation, and
+		# Markdown-to-HTML rendering using the Markly AST.
+		module Parser
+			# Markly extensions enabled for all slide Markdown rendering.
+			EXTENSIONS = [:table, :tasklist, :strikethrough, :autolink]
 			
-			parse!
+			module_function
+			
+			# Parse the file and return a {Slide}.
+			# @parameter path [String] The file path to parse.
+			# @returns [Slide]
+			def load(path)
+				raw = File.read(path)
+				frontmatter, body = extract_frontmatter(raw)
+				content, notes = extract_body(body)
+				Slide.new(path, frontmatter: frontmatter, content: content, notes: notes)
+			end
+			
+			# Split raw file content into frontmatter and body.
+			# @parameter raw [String] The raw file content.
+			# @returns [Array(Hash | Nil, String)] The parsed frontmatter and remaining body.
+			def extract_frontmatter(raw)
+				if raw.start_with?("---\n")
+					parts = raw.split("---\n", 3)
+					if parts.length >= 3
+						return [YAML.safe_load(parts[1]), parts[2]]
+					end
+				end
+				
+				[nil, raw]
+			end
+			
+			# Split the body into content sections and optional presenter notes.
+			# @parameter body [String] The slide body after frontmatter.
+			# @returns [Array(Hash, String | Nil)] The content sections and rendered notes HTML.
+			def extract_body(body)
+				if body.include?("\n---\n")
+					content_part, notes_part = body.split("\n---\n", 2)
+					[parse_sections(content_part.strip), render_markdown(notes_part.strip)]
+				else
+					[parse_sections(body.strip), nil]
+				end
+			end
+			
+			# Parse content into sections based on top-level Markdown headings.
+			# Each heading becomes a named key; content before the first heading
+			# is collected under `"body"`. Headings inside code blocks are invisible
+			# to this method as they never appear as top-level AST nodes.
+			# @parameter text [String] The Markdown content to parse.
+			# @returns [Hash(String, String)] Sections keyed by heading name, with rendered HTML values.
+			def parse_sections(text)
+				document = Markly.parse(text, flags: Markly::UNSAFE, extensions: EXTENSIONS)
+				
+				sections = {}
+				current_key = "body"
+				current_nodes = []
+				
+				document.each do |node|
+					if node.type == :header
+						sections[current_key] = render_nodes(current_nodes) unless current_nodes.empty?
+						current_key = node.to_plaintext.strip.downcase.gsub(/\s+/, "_")
+						current_nodes = []
+					else
+						current_nodes << node
+					end
+				end
+				
+				sections[current_key] = render_nodes(current_nodes) unless current_nodes.empty?
+				
+				sections
+			end
+			
+			# Render a list of AST nodes to HTML via a temporary document.
+			# @parameter nodes [Array(Markly::Node)] The nodes to render.
+			# @returns [String] The rendered HTML.
+			def render_nodes(nodes)
+				doc = Markly::Node.new(:document)
+				nodes.each{|node| doc.append_child(node.dup)}
+				Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(doc)
+			end
+			
+			# Render a Markdown string to HTML.
+			# @parameter text [String] The Markdown text.
+			# @returns [String] The rendered HTML.
+			def render_markdown(text)
+				return "" if text.nil? || text.empty?
+				
+				document = Markly.parse(text, flags: Markly::UNSAFE, extensions: EXTENSIONS)
+				Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(document)
+			end
+		end
+		
+		# Load and parse a slide from a Markdown file.
+		# @parameter path [String] The file path to the Markdown slide.
+		# @returns [Slide]
+		def self.load(path)
+			Parser.load(path)
+		end
+		
+		# Initialize a slide with pre-parsed data.
+		# @parameter path [String] The file path of the slide.
+		# @parameter frontmatter [Hash | Nil] The parsed YAML frontmatter.
+		# @parameter content [Hash(String, String)] Content sections keyed by heading name.
+		# @parameter notes [String | Nil] The rendered HTML presenter notes.
+		def initialize(path, frontmatter: nil, content: {}, notes: nil)
+			@path = path
+			@frontmatter = frontmatter
+			@content = content
+			@notes = notes
 		end
 		
 		# @attribute [String] The file path of the slide.
@@ -55,6 +157,12 @@ module Presently
 			@frontmatter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
 		end
 		
+		# Whether this slide should be skipped in the presentation.
+		# @returns [Boolean]
+		def skip?
+			@frontmatter&.fetch("skip", false) || false
+		end
+		
 		# The navigation marker for this slide, used in the presenter's jump-to dropdown.
 		# @returns [String | Nil] The marker label, or `nil` if not marked.
 		def marker
@@ -74,82 +182,6 @@ module Presently
 				parts = range.to_s.split("-").map(&:to_i)
 				parts.length == 2 ? parts : nil
 			end
-		end
-		
-		private
-		
-		# Parse the Markdown file into frontmatter, content sections, and notes.
-		def parse!
-			raw = File.read(@path)
-			
-			# Extract YAML frontmatter:
-			if raw.start_with?("---\n")
-				parts = raw.split("---\n", 3)
-				if parts.length >= 3
-					@frontmatter = YAML.safe_load(parts[1])
-					body = parts[2]
-				else
-					body = raw
-				end
-			else
-				body = raw
-			end
-			
-			# Split content and presenter notes (notes come after "---" on its own line):
-			if body.include?("\n---\n")
-				content_part, notes_part = body.split("\n---\n", 2)
-				@content = parse_sections(content_part.strip)
-				@notes = render_markdown(notes_part.strip)
-			else
-				@content = parse_sections(body.strip)
-				@notes = nil
-			end
-		end
-		
-		# Parse content into sections based on Markdown headings.
-		# Each heading becomes a named key for the template.
-		# @parameter text [String] The Markdown content to parse.
-		# @returns [Hash(String, String)] Sections keyed by heading name, with rendered HTML values.
-		def parse_sections(text)
-			sections = {}
-			current_key = "body"
-			current_content = []
-			
-			text.each_line do |line|
-				if line.match?(/\A#+\s+/)
-					# Save previous section:
-					unless current_content.empty?
-						sections[current_key] = render_markdown(current_content.join)
-					end
-					
-					# Extract heading text as the key:
-					heading_text = line.sub(/\A#+\s+/, "").strip.downcase.gsub(/\s+/, "_")
-					current_key = heading_text
-					current_content = []
-				else
-					current_content << line
-				end
-			end
-			
-			# Save last section:
-			unless current_content.empty?
-				sections[current_key] = render_markdown(current_content.join)
-			end
-			
-			sections
-		end
-		
-		# Render Markdown text to HTML.
-		# @parameter text [String] The Markdown text.
-		# @returns [String] The rendered HTML.
-		# The Markly extensions to enable for slide rendering.
-		EXTENSIONS = [:table, :tasklist, :strikethrough, :autolink]
-		
-		def render_markdown(text)
-			return "" if text.nil? || text.empty?
-			
-			document = Markly.parse(text, flags: Markly::UNSAFE, extensions: EXTENSIONS)
-			Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(document)
 		end
 	end
 end
