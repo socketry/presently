@@ -36,6 +36,11 @@ module Presently
 			classes = [@css_class, extra_class].compact.join(" ")
 			builder.tag(:div, class: classes, data: {template: slide.template}) do
 				builder.raw(html)
+				if slide.script
+					builder.tag(:script, type: "text/slide-script") do
+						builder.raw(slide.script)
+					end
+				end
 			end
 		end
 	end

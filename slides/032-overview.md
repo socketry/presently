@@ -12,10 +12,8 @@ transition: morph
 
 ---
 
-Presently has a few key features. Let's walk through them.
-
-The foundation is real-time sync — the display and presenter views both connect to the server over a WebSocket, so when you advance a slide, the audience sees it immediately. No refresh, no polling.
+There are several built-in layouts — title, statement, code, two-column, image, and the default bullet list you're looking at now. Each one is an XRB template, so they're easy to customise or add to.
 
 ```javascript
-slide.find("li").build(0, {group: "bullet"})
+slide.find("li").build(2, {group: "bullet"})
 ```

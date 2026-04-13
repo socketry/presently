@@ -224,6 +224,63 @@ duration: 30
 System architecture overview
 ```
 
+### Diagram
+
+A free-form layout slide with a `position: relative` container. Direct `<div>` children are `position: absolute` by default, so you can place elements precisely using inline styles. Use this for custom diagrams, annotated layouts, or any slide that doesn't fit a standard template.
+
+``` markdown
+---
+template: diagram
+duration: 60
+---
+
+<div style="left: 10%; top: 20%; width: 35%; height: 25%;">
+  Browser
+</div>
+
+<div style="left: 55%; top: 20%; width: 35%; height: 25%;">
+  Server
+</div>
+```
+
+All other templates also support absolutely positioned overlays since the slide container is `position: relative`. This lets you add callouts, badges, or annotations on top of any template's normal content.
+
+## Transitions
+
+Slides transition instantly by default. Add a `transition` key to the frontmatter to animate between slides:
+
+``` markdown
+---
+template: default
+transition: fade
+---
+```
+
+Available transitions:
+
+| Transition | Effect |
+|---|---|
+| `fade` | Crossfade between slides |
+| `slide-left` | Current slide exits left, next enters from right |
+| `slide-right` | Current slide exits right, next enters from left |
+| `morph` | Matched elements animate between positions; everything else crossfades |
+
+The `morph` transition uses the browser's View Transitions API to smoothly animate individual elements between slides. Elements with the same `view-transition-name` across two consecutive slides are matched and interpolated. This is the basis for build animations — see the [Animating Slides](../animating-slides) guide.
+
+## Presenter Notes
+
+Presenter notes appear after a `---` separator in the slide body. They support standard Markdown including **bold** and *italic*. Italic text is styled as a stage direction — use it for cues that shouldn't be spoken aloud:
+
+``` markdown
+---
+
+*Take a breath and wait for the room to settle.*
+
+Hi everyone, thanks for being here.
+
+*Make eye contact with the front row.*
+```
+
 ## Presenter Console
 
 The presenter view at `/presenter` provides:

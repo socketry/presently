@@ -35,7 +35,7 @@ describe Presently::Slide do
 	
 	with "#notes" do
 		it "extracts presenter notes" do
-			expect(slide.notes).to be(:include?, "Welcome the audience")
+			expect(slide.notes).to be(:include?, "Presently")
 		end
 	end
 	

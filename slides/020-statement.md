@@ -1,7 +1,7 @@
 ---
 template: statement
 duration: 30
-transition: magic-move
+transition: morph
 ---
 
 <div style="view-transition-name: welcome-title">The best way to predict the future is to create it.</div>
@@ -12,4 +12,6 @@ transition: magic-move
 
 ---
 
-Let this sit for a moment. It sets the tone for the talk — we're building something new.
+*Read the quote aloud slowly, then pause.*
+
+That's a quote often attributed to Peter Drucker. I think it captures something important — the tools we choose to build shape the work we're able to do.

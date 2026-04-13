@@ -1,5 +1,6 @@
 import { Live } from 'live';
 import Syntax from '@socketry/syntax';
+import { Slide } from './slide.js';
 
 const live = Live.start();
 
@@ -65,6 +66,29 @@ function applyCodeFocus() {
 	});
 }
 
+// Run the script for a single slide element.
+// Wrapped in try/catch so syntax errors don't crash the presentation.
+function runScript(slideEl) {
+	const scriptEl = slideEl.querySelector('script[type="text/slide-script"]');
+	if (!scriptEl) return;
+
+	const container = slideEl.querySelector('.slide-body') ?? slideEl;
+	const slide = new Slide(container);
+
+	try {
+		const fn = new Function('slide', scriptEl.textContent);
+		fn(slide);
+	} catch (error) {
+		console.error('Slide script error:', error);
+	}
+}
+
+// Run scripts for all slide elements currently in the DOM.
+function runSlideScripts() {
+	document.querySelectorAll('.slide').forEach(runScript);
+}
+
+
 // Detect the transition type from the incoming HTML before morphdom applies it.
 function detectTransition(html) {
 	const match = html.match(/data-transition="([^"]+)"/);
@@ -82,11 +106,12 @@ live.update = function(id, html, options) {
 	
 	if (transition && document.startViewTransition && !activeTransition) {
 		document.documentElement.dataset.transition = transition;
-		
+
 		activeTransition = document.startViewTransition(() => {
 			originalUpdate(id, html, options);
+			runSlideScripts();
 		});
-		
+
 		activeTransition.finished.finally(() => {
 			delete document.documentElement.dataset.transition;
 			activeTransition = null;
@@ -95,6 +120,7 @@ live.update = function(id, html, options) {
 		});
 	} else {
 		originalUpdate(id, html, options);
+		runSlideScripts();
 		Syntax.highlight();
 		applyCodeFocus();
 	}
@@ -108,8 +134,9 @@ const observer = new MutationObserver(() => {
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Initial focus application:
+// Initial focus and script application:
 applyCodeFocus();
+runSlideScripts();
 
 // Jump-to select: forward the selected slide index to the presenter view.
 document.addEventListener('change', (event) => {

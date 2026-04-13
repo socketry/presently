@@ -40,6 +40,7 @@ html, body {
 }
 
 .slide-inner {
+	position: relative;
 	width: 100%;
 	height: 100%;
 	display: flex;
@@ -63,6 +64,14 @@ html, body {
 
 .default-template .slide-body li {
 	margin-bottom: 0.5em;
+	transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+@starting-style {
+	.default-template .slide-body li {
+		opacity: 0;
+		transform: translateX(-0.5em);
+	}
 }
 
 /* Title template */
@@ -123,6 +132,16 @@ html, body {
 
 .two-column-template .column li {
 	margin-bottom: 0.4em;
+}
+
+/* Diagram template */
+.diagram-template {
+	padding: 0;
+}
+
+.diagram-template .slide-body > div {
+	position: absolute;
+	box-sizing: border-box;
 }
 
 /* Image template */
@@ -353,12 +372,12 @@ html[data-transition="slide-right"]::view-transition-new(slide-container) {
 /* Magic move — the browser interpolates position/size for matched
    view-transition-name elements. No cross-fade on the container
    to avoid background dimming. */
-html[data-transition="magic-move"]::view-transition-old(slide-container) {
+html[data-transition="morph"]::view-transition-old(slide-container) {
 	animation: none;
 	opacity: 0;
 }
 
-html[data-transition="magic-move"]::view-transition-new(slide-container) {
+html[data-transition="morph"]::view-transition-new(slide-container) {
 	animation: none;
 }
 
@@ -390,6 +409,72 @@ html[data-transition="magic-move"]::view-transition-new(slide-container) {
 @keyframes vt-slide-in-left {
 	from { transform: translateX(-100%); opacity: 0; }
 	to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========================
+   BUILD EFFECTS
+   ======================== */
+
+/* Suppress both pseudo-elements for hidden build elements so they
+   neither crossfade in nor crossfade out during the transition. */
+::view-transition-old(.build-hidden),
+::view-transition-new(.build-hidden) {
+	display: none;
+}
+
+/* Fade */
+::view-transition-new(.build-fade) {
+	animation: vt-fade-in 0.4s ease;
+}
+
+/* Fly in from left */
+@keyframes build-fly-in-left {
+	from { transform: translateX(-2rem); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+::view-transition-new(.build-fly-left) {
+	animation: build-fly-in-left 0.4s ease;
+}
+
+/* Fly in from right */
+@keyframes build-fly-in-right {
+	from { transform: translateX(2rem); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+::view-transition-new(.build-fly-right) {
+	animation: build-fly-in-right 0.4s ease;
+}
+
+/* Fly in from bottom */
+@keyframes build-fly-in-up {
+	from { transform: translateY(2rem); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+
+::view-transition-new(.build-fly-up) {
+	animation: build-fly-in-up 0.4s ease;
+}
+
+/* Fly in from top */
+@keyframes build-fly-in-down {
+	from { transform: translateY(-2rem); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+
+::view-transition-new(.build-fly-down) {
+	animation: build-fly-in-down 0.4s ease;
+}
+
+/* Scale in */
+@keyframes build-scale-in {
+	from { transform: scale(0.8); opacity: 0; }
+	to { transform: scale(1); opacity: 1; }
+}
+
+::view-transition-new(.build-scale) {
+	animation: build-scale-in 0.4s ease;
 }
 
 /* ========================
@@ -615,6 +700,10 @@ html[data-transition="magic-move"]::view-transition-new(slide-container) {
 
 .notes-content p {
 	margin: 0.3em 0;
+}
+
+.notes-content em {
+	color: var(--ahead);
 }
 
 .notes .no-notes {

@@ -1,0 +1,5 @@
+<div class="slide-inner diagram-template">
+	<div class="slide-body">
+		#{self.section("body")}
+	</div>
+</div>

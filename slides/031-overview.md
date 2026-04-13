@@ -12,10 +12,8 @@ transition: morph
 
 ---
 
-Presently has a few key features. Let's walk through them.
-
-The foundation is real-time sync — the display and presenter views both connect to the server over a WebSocket, so when you advance a slide, the audience sees it immediately. No refresh, no polling.
+Slides are plain text files. You write Markdown, add a little YAML at the top to set the template and timing, and that's your whole slide. No GUI, no proprietary format.
 
 ```javascript
-slide.find("li").build(0, {group: "bullet"})
+slide.find("li").build(1, {group: "bullet"})
 ```

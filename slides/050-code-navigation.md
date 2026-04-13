@@ -25,7 +25,7 @@ class Presentation
 		@slides[@current_index + 1]
 	end
 	
-	def advance!
+	def advance! 
 		go_to(@current_index + 1)
 	end
 	
@@ -66,4 +66,8 @@ end
 
 ---
 
-Now focus on navigation. advance! and retreat! delegate to go_to which handles bounds checking. Note how go_to notifies all listeners when the slide changes — this is what keeps the display and presenter views in sync.
+Navigation is handled by advance! and retreat!, which both delegate to go_to. That method does the bounds checking — so you can't advance past the last slide or retreat before the first.
+
+*Point to the go_to method on the display screen.*
+
+The key line is at the end of go_to: notify_listeners!. Any object that has registered itself — the WebSocket connection, the timer, the presenter view — gets called immediately when the slide changes. That's what keeps everything in sync with no polling.
