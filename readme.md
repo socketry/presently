@@ -29,6 +29,11 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.4.0
+
+  - Add `bake presently:slides:notes` task to extract all presenter notes into a single Markdown document, with each slide's file path as a heading. Useful for reviewing or sharing speaker notes outside of the presentation.
+  - Presenter notes are now kept as a Markdown AST internally and rendered to HTML on demand, so the notes you write are faithfully round-tripped rather than converted to HTML at parse time.
+
 ### v0.3.0
 
   - Add `diagram` template with a `position: relative` container — direct `<div>` children are `position: absolute` by default for free-form layouts.
