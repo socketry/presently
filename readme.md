@@ -25,7 +25,7 @@ Please see the [project documentation](https://github.com/socketry/presently) fo
 
 Please see the [project releases](https://github.com/socketry/presentlyreleases/index) for all releases.
 
-### Unreleased
+### v0.2.0
 
   - Use Markly's native front matter parser (`Markly::FRONT_MATTER`) instead of manual string splitting, parsing each slide document once and extracting front matter directly from the AST.
   - Use the last `---` hrule in the AST as the presenter notes separator, so earlier `---` dividers in slide content are preserved correctly.
