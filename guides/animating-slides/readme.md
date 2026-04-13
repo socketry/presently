@@ -14,7 +14,7 @@ This is the mechanism that makes build animations possible: the same element app
 
 Any slide can include a JavaScript block at the end of its presenter notes section. The script runs in the browser immediately after the slide renders, inside the view transition callback, so DOM changes it makes are captured and animated.
 
-``` markdown
+~~~ markdown
 ---
 template: default
 duration: 30
@@ -32,7 +32,7 @@ Your presenter notes here.
 ```javascript
 slide.find("li").build(1, {group: "bullet"})
 ```
-```
+~~~
 
 The script receives a `slide` object — an instance of the `Slide` class from `slide.js` — scoped to the current slide's body.
 
@@ -71,7 +71,7 @@ Options:
 
 A build sequence is a series of consecutive slides with the same content, each revealing one more element. Because the slides are real files, each has its own duration and presenter notes — you can write exactly what to say when each element appears.
 
-``` markdown
+~~~ markdown
 <!-- 030-overview.md -->
 ---
 template: default
@@ -90,9 +90,9 @@ Let's walk through the key features.
 ```javascript
 slide.find("li").build(0, {group: "bullet"})
 ```
-```
+~~~
 
-``` markdown
+~~~ markdown
 <!-- 031-overview.md -->
 ---
 template: default
@@ -111,7 +111,7 @@ The display and presenter stay in sync over a WebSocket connection.
 ```javascript
 slide.find("li").build(1, {group: "bullet"})
 ```
-```
+~~~
 
 The `group` option must be identical across all slides in the sequence so the browser matches the same elements. Without it, each slide uses the default `"build"` prefix — which is fine as long as only one build sequence is active per slide.
 
@@ -160,15 +160,15 @@ Elements are collected in document order, so headings and list items are interle
 
 All slide templates support absolutely positioned elements since the slide container is `position: relative`. You can overlay any element on top of normal slide content:
 
-``` markdown
+~~~ markdown
 <div style="position: absolute; bottom: 2rem; right: 2rem; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: 6px;">
   Callout text
 </div>
-```
+~~~
 
 In the `diagram` template, all direct `<div>` children are `position: absolute` by default, so you can build free-form layouts without repeating the positioning declaration:
 
-``` markdown
+~~~ markdown
 ---
 template: diagram
 ---
@@ -180,7 +180,7 @@ template: diagram
 <div style="left: 55%; top: 20%; width: 35%; height: 30%; background: var(--surface-light);">
   Node B
 </div>
-```
+~~~
 
 Combine with the scripting system to animate diagram elements into place:
 

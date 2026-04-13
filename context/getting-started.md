@@ -265,7 +265,7 @@ Available transitions:
 | `slide-right` | Current slide exits right, next enters from left |
 | `morph` | Matched elements animate between positions; everything else crossfades |
 
-The `morph` transition uses the browser's View Transitions API to smoothly animate individual elements between slides. Elements with the same `view-transition-name` across two consecutive slides are matched and interpolated. This is the basis for build animations — see the [Animating Slides](../animating-slides) guide.
+The `morph` transition uses the browser's View Transitions API to smoothly animate individual elements between slides. Elements with the same `view-transition-name` across two consecutive slides are matched and interpolated.
 
 ## Presenter Notes
 
