@@ -270,8 +270,8 @@ module Presently
 				builder.tag(:div, class: "notes") do
 					builder.tag(:h3){builder.text("Notes")}
 					builder.tag(:div, class: "notes-content") do
-						if slide&.notes
-							builder.raw(slide.notes)
+						if notes = slide&.notes
+							builder.raw(notes.to_html)
 						else
 							builder.tag(:p, class: "no-notes"){builder.text("No presenter notes for this slide.")}
 						end

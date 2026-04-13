@@ -68,14 +68,15 @@ module Presently
 		# @parameter name [String] The section name (derived from the Markdown heading).
 		# @returns [Boolean]
 		def section?(name)
-			!(@slide.content[name] || "").empty?
+			fragment = @slide.content[name]
+			fragment && !fragment.empty?
 		end
 		
 		# Get a named content section as raw HTML markup.
 		# @parameter name [String] The section name (derived from the Markdown heading).
 		# @returns [XRB::MarkupString] The rendered HTML content, safe for embedding.
 		def section(name)
-			XRB::MarkupString.raw(@slide.content[name] || "")
+			XRB::MarkupString.raw(@slide.content[name]&.to_html || "")
 		end
 	end
 end

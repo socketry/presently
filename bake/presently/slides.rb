@@ -9,6 +9,30 @@ def initialize(context)
 	require "fileutils"
 end
 
+# Extract all presenter notes and print them to stdout.
+#
+# Loads every slide in the slides directory using the Presently API and
+# prints each slide's presenter notes to stdout. Each slide's notes are
+# preceded by a `##` heading with the slide file path.
+#
+# @parameter slides_root [String] The slides directory. Default: `slides`.
+def notes(slides_root: "slides")
+	require "presently"
+	
+	presentation = Presently::Presentation.load(slides_root)
+	
+	presentation.slides.each do |slide|
+		next unless slide.notes
+		
+		puts "## #{slide.path}"
+		puts
+		puts slide.notes.to_commonmark
+		puts
+	end
+	
+	return nil
+end
+
 # Renumber slide files sequentially with a consistent step size.
 #
 # Renames all `.md` files in the slides directory to have sequential

@@ -29,13 +29,17 @@ describe Presently::Slide do
 		end
 		
 		it "renders markdown to HTML" do
-			expect(slide.content["title"]).to be(:include?, "Welcome to Presently")
+			expect(slide.content["title"].to_html).to be(:include?, "Welcome to Presently")
 		end
 	end
 	
 	with "#notes" do
 		it "extracts presenter notes" do
-			expect(slide.notes).to be(:include?, "Presently")
+			expect(slide.notes.to_commonmark).to be(:include?, "Presently")
+		end
+		
+		it "renders notes to HTML" do
+			expect(slide.notes.to_html).to be(:include?, "Presently")
 		end
 	end
 	
@@ -67,7 +71,7 @@ describe Presently::Slide do
 		
 		it "puts content in body section" do
 			expect(slide.content).to have_keys("body")
-			expect(slide.content["body"]).to be(:include?, "Just some content")
+			expect(slide.content["body"].to_html).to be(:include?, "Just some content")
 		end
 	end
 	
@@ -86,8 +90,8 @@ describe Presently::Slide do
 		let(:slide) {Presently::Slide.load(path)}
 		
 		it "separates content from notes" do
-			expect(slide.content["body"]).to be(:include?, "Content here")
-			expect(slide.notes).to be(:include?, "These are notes")
+			expect(slide.content["body"].to_html).to be(:include?, "Content here")
+			expect(slide.notes.to_commonmark).to be(:include?, "These are notes")
 		end
 	end
 end

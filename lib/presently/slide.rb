@@ -14,14 +14,52 @@ module Presently
 	# Each slide has YAML front_matter for metadata (template, duration, focus), content sections
 	# split by Markdown headings, and optional presenter notes separated by `---`.
 	class Slide
-		# Parses a Markdown slide file into structured data for {Slide}.
+		# A fragment of a Markly AST document.
 		#
-		# Handles YAML front_matter extraction, presenter note separation, and
-		# Markdown-to-HTML rendering using the Markly AST.
-		module Parser
+		# Wraps a `Markly::Node` of type `:document` and provides rendering helpers.
+		# Used for both content sections and presenter notes so callers can choose
+		# their output format without the parser pre-committing to one.
+		class Fragment
 			# Markly extensions enabled for all slide Markdown rendering.
 			EXTENSIONS = [:table, :tasklist, :strikethrough, :autolink]
 			
+			# Initialize a fragment from a Markly document node.
+			# @parameter node [Markly::Node] A document node containing the fragment content.
+			def initialize(node)
+				@node = node
+			end
+			
+			# @attribute [Markly::Node] The underlying AST document node.
+			attr :node
+			
+			# Whether the fragment has no content.
+			# @returns [Boolean]
+			def empty?
+				@node.first_child.nil?
+			end
+			
+			# Render the fragment to HTML using the Presently renderer.
+			#
+			# Mermaid fenced code blocks are rendered as `<mermaid-diagram>` elements.
+			# @returns [String] The rendered HTML.
+			def to_html
+				Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(@node)
+			end
+			
+			# Render the fragment back to CommonMark Markdown.
+			# @returns [String] The CommonMark source.
+			def to_commonmark
+				@node.to_commonmark
+			end
+			
+			alias to_s to_commonmark
+		end
+		
+		# Parses a Markdown slide file into structured data for {Slide}.
+		#
+		# Handles YAML front_matter extraction, presenter note separation, and
+		# Markdown AST construction via Markly.
+		module Parser
 			module_function
 			
 			# Parse the file and return a {Slide}.
@@ -31,7 +69,7 @@ module Presently
 				raw = File.read(path)
 				
 				# Parse once, with native front matter support.
-				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: EXTENSIONS)
+				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
 				
 				# Extract front matter from the first AST node if present.
 				front_matter = nil
@@ -45,15 +83,15 @@ module Presently
 				document.each{|node| last_hrule = node if node.type == :hrule}
 				
 				if last_hrule
-					notes_fragment = Markly::Node.new(:document)
+					notes_node = Markly::Node.new(:document)
 					while child = last_hrule.next
-						notes_fragment.append_child(child)
+						notes_node.append_child(child)
 					end
 					last_hrule.delete
 					
 					# Extract the last javascript code block from the notes as the slide script.
 					script_node = nil
-					notes_fragment.each do |node|
+					notes_node.each do |node|
 						if node.type == :code_block && node.fence_info.to_s.strip == "javascript"
 							script_node = node
 						end
@@ -65,10 +103,10 @@ module Presently
 						script_node.delete
 					end
 					
-					content = parse_sections(document.each)
-					notes = render_nodes(notes_fragment.each)
+					content = parse_sections(document)
+					notes = Fragment.new(notes_node)
 				else
-					content = parse_sections(document.each)
+					content = parse_sections(document)
 					notes = nil
 					script = nil
 				end
@@ -76,39 +114,30 @@ module Presently
 				Slide.new(path, front_matter: front_matter, content: content, notes: notes, script: script)
 			end
 			
-			# Parse a list of AST nodes into sections based on top-level Markdown headings.
-			# Each heading becomes a named key; content before the first heading
-			# is collected under `"body"`. Headings inside code blocks are invisible
-			# to this method as they never appear as top-level AST nodes.
-			# @parameter nodes [Array(Markly::Node)] The nodes to parse into sections.
-			# @returns [Hash(String, String)] Sections keyed by heading name, with rendered HTML values.
-			def parse_sections(nodes)
+			# Parse a Markly document into content sections based on top-level headings.
+			#
+			# Each heading becomes a named key; content before the first heading is
+			# collected under `"body"`. Each value is a {Fragment} wrapping a document node.
+			# @parameter document [Markly::Node] The document to parse.
+			# @returns [Hash(String, Fragment)] Sections keyed by heading name.
+			def parse_sections(document)
 				sections = {}
 				current_key = "body"
-				current_nodes = []
+				current_node = Markly::Node.new(:document)
 				
-				nodes.each do |node|
+				document.each do |node|
 					if node.type == :header
-						sections[current_key] = render_nodes(current_nodes) unless current_nodes.empty?
+						sections[current_key] = Fragment.new(current_node) unless current_node.first_child.nil?
 						current_key = node.to_plaintext.strip.downcase.gsub(/\s+/, "_")
-						current_nodes = []
+						current_node = Markly::Node.new(:document)
 					else
-						current_nodes << node
+						current_node.append_child(node.dup)
 					end
 				end
 				
-				sections[current_key] = render_nodes(current_nodes) unless current_nodes.empty?
+				sections[current_key] = Fragment.new(current_node) unless current_node.first_child.nil?
 				
 				sections
-			end
-			
-			# Render a list of AST nodes to HTML via a temporary document.
-			# @parameter nodes [Array(Markly::Node)] The nodes to render.
-			# @returns [String] The rendered HTML.
-			def render_nodes(nodes)
-				doc = Markly::Node.new(:document)
-				nodes.each{|node| doc.append_child(node.dup)}
-				Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(doc)
 			end
 		end
 		
@@ -122,8 +151,8 @@ module Presently
 		# Initialize a slide with pre-parsed data.
 		# @parameter path [String] The file path of the slide.
 		# @parameter front_matter [Hash | Nil] The parsed YAML front_matter.
-		# @parameter content [Hash(String, String)] Content sections keyed by heading name.
-		# @parameter notes [String | Nil] The rendered HTML presenter notes.
+		# @parameter content [Hash(String, Fragment)] Content sections keyed by heading name.
+		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		# @parameter script [String | Nil] JavaScript to execute after the slide renders.
 		def initialize(path, front_matter: nil, content: {}, notes: nil, script: nil)
 			@path = path
@@ -139,10 +168,10 @@ module Presently
 		# @attribute [Hash | Nil] The parsed YAML front_matter.
 		attr :front_matter
 		
-		# @attribute [Hash(String, String)] The content sections keyed by heading name.
+		# @attribute [Hash(String, Fragment)] The content sections keyed by heading name.
 		attr :content
 		
-		# @attribute [String | Nil] The rendered HTML presenter notes.
+		# @attribute [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		attr :notes
 		
 		# @attribute [String | Nil] JavaScript to execute after the slide renders on the display.
