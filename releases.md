@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.3.0
 
   - Add `diagram` template with a `position: relative` container — direct `<div>` children are `position: absolute` by default for free-form layouts.
   - All slide templates now have `position: relative` on the slide inner container, allowing absolutely positioned overlays in any template.
