@@ -101,6 +101,7 @@ module Presently
 		# @parameter slide [Slide | Nil] The current slide.
 		def render_timing(builder, slide)
 			progress = (@controller.slide_progress * 100).round(1)
+			next_slide = @controller.next_slide
 			builder.tag(:div, class: "timing", style: "--slide-progress: #{progress}%") do
 				pacing = @controller.pacing
 				pacing_class = case pacing
@@ -151,6 +152,21 @@ module Presently
 					if slide
 						builder.tag(:span, class: "slide-duration") do
 							builder.text("Slide: #{format_duration(slide.duration)}")
+						end
+					end
+					
+					# Speaker display — only shown when front matter includes a `speaker` key.
+					if (current_speaker = slide&.speaker)
+						builder.tag(:span, class: "speaker-info") do
+							builder.tag(:span, class: "speaker-label"){builder.text("🎤")}
+							builder.text(" #{current_speaker}")
+							
+							# Show upcoming speaker only when they differ from the current one.
+							if (next_speaker = next_slide&.speaker) && next_speaker != current_speaker
+								builder.tag(:span, class: "next-speaker") do
+									builder.text(" → #{next_speaker}")
+								end
+							end
 						end
 					end
 				end

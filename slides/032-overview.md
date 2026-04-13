@@ -2,6 +2,7 @@
 template: default
 duration: 20
 transition: morph
+speaker: Samuel
 ---
 
 - Real-time synchronization between display and presenter

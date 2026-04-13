@@ -213,6 +213,12 @@ module Presently
 			@front_matter&.fetch("transition", nil)
 		end
 		
+		# The name of the speaker presenting this slide.
+		# @returns [String | Nil] The speaker name from front_matter, or `nil` if not specified.
+		def speaker
+			@front_matter&.fetch("speaker", nil)
+		end
+		
 		# The line range to focus on for code slides.
 		# @returns [Array(Integer, Integer) | Nil] The `[start, end]` line numbers (1-based), or `nil`.
 		def focus

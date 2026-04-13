@@ -2,6 +2,7 @@
 template: title
 duration: 30
 marker: Thanks
+speaker: Samuel
 ---
 
 # Title

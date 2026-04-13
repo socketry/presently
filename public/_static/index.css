@@ -675,6 +675,23 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 	margin-left: auto;
 }
 
+.timing-info .speaker-info {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.9rem;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 6px;
+	padding: 0.2rem 0.6rem;
+	white-space: nowrap;
+}
+
+.timing-info .next-speaker {
+	opacity: 0.6;
+	font-style: italic;
+}
+
 /* Notes */
 .notes {
 	background: var(--surface);

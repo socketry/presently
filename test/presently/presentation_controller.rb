@@ -104,6 +104,13 @@ describe Presently::PresentationController do
 			controller.go_to(3)
 			expect(controller.pacing).to be == :ahead
 		end
+		
+		it "returns behind when elapsed exceeds the current slide window" do
+			# Start, then fast-forward elapsed past the end of the first slide.
+			controller.clock.start!
+			controller.clock.reset!(controller.current_slide.duration + 1)
+			expect(controller.pacing).to be == :behind
+		end
 	end
 	
 	with "#slide_progress" do
@@ -132,6 +139,22 @@ describe Presently::PresentationController do
 			
 			expected = presentation.slides[0..1].sum(&:duration)
 			expect(controller.clock.elapsed).to be_within(0.1).of(expected)
+		end
+	end
+	
+	with "#remove_listener" do
+		it "stops notifying a removed listener" do
+			call_count = 0
+			listener = Object.new
+			listener.define_singleton_method(:slide_changed!){call_count += 1}
+			controller.add_listener(listener)
+			
+			controller.advance!
+			expect(call_count).to be == 1
+			
+			controller.remove_listener(listener)
+			controller.advance!
+			expect(call_count).to be == 1
 		end
 	end
 	

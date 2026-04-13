@@ -3,6 +3,7 @@ template: default
 duration: 90
 marker: Architecture
 transition: fade
+speaker: Samuel
 ---
 
 ```mermaid

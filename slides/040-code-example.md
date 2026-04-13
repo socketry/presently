@@ -4,6 +4,7 @@ duration: 60
 focus: 2-10
 title: Initialization
 marker: Code Walkthrough
+speaker: Samuel
 ---
 
 ```ruby

@@ -3,6 +3,7 @@ template: code
 duration: 60
 focus: 20-36
 title: Navigation
+speaker: Samuel
 ---
 
 ```ruby

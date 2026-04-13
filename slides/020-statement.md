@@ -2,6 +2,7 @@
 template: statement
 duration: 30
 transition: morph
+speaker: Samuel
 ---
 
 <div style="view-transition-name: welcome-title">The best way to predict the future is to create it.</div>
