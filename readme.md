@@ -2,6 +2,8 @@
 
 A web-based presentation tool built with [Lively](https://github.com/socketry/lively). Write your slides in Markdown, present them in the browser, and control everything from a separate presenter display.
 
+![Presenter Display](presenter.png)
+
 [![Development Status](https://github.com/socketry/presently/workflows/Test/badge.svg)](https://github.com/socketry/presently/actions?workflow=Test)
 
 ## Features
