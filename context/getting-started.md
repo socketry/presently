@@ -186,17 +186,15 @@ end
 
 Create animated walkthroughs by using multiple slides with the same code but different `focus` ranges. The transition between them smoothly scrolls and shifts the dim overlays.
 
-### Translation
+### Statement
 
-Primary text with a translation below.
+A prominent statement or quote, centered on the slide. Supports an optional `# Translation` section.
 
 ``` markdown
 ---
-template: translation
+template: statement
 duration: 30
 ---
-
-# Title
 
 The best way to predict the future is to create it.
 
@@ -204,6 +202,10 @@ The best way to predict the future is to create it.
 
 未来を予測する最善の方法は、それを創ることである。
 ```
+
+### Translations
+
+All templates support an optional `# Translation` section. When present, the translation is displayed below the main content in a lighter style. This works with `title`, `section`, `statement`, and `image` templates.
 
 ### Image
 
