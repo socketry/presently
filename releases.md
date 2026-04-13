@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.6.0
 
   - Add `bake presently:slides:speakers` task to print a timing breakdown grouped by speaker. Each speaker's slides are listed in presentation order with individual and total durations, making it easy to balance talk time in multi-speaker presentations. Slides without a `speaker` key are grouped under `(no speaker)`.
 

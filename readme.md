@@ -29,6 +29,10 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.6.0
+
+  - Add `bake presently:slides:speakers` task to print a timing breakdown grouped by speaker. Each speaker's slides are listed in presentation order with individual and total durations, making it easy to balance talk time in multi-speaker presentations. Slides without a `speaker` key are grouped under `(no speaker)`.
+
 ### v0.5.0
 
   - Add optional `speaker` front matter key to slides. When present, the current speaker's name is shown in the timing bar. If the next slide has a different speaker, a handoff indicator (e.g. `→ Next Speaker`) is shown alongside, giving presenters an at-a-glance cue for tag-team talks.
