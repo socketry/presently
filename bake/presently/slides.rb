@@ -33,6 +33,40 @@ def notes(slides_root: "slides")
 	return nil
 end
 
+# Print a timing breakdown grouped by speaker.
+#
+# Loads every slide in the slides directory and groups them by the `speaker`
+# front matter key. For each speaker, prints each of their slides with its
+# individual duration, followed by a total. Slides with no `speaker` key are
+# grouped under `(no speaker)`. Slides are listed in presentation order.
+#
+# @parameter slides_root [String] The slides directory. Default: `slides`.
+def speakers(slides_root: "slides")
+	require "presently"
+	
+	presentation = Presently::Presentation.load(slides_root)
+	
+	# Group slides by speaker, preserving presentation order within each group.
+	groups = {}
+	presentation.slides.each do |slide|
+		key = slide.speaker || "(no speaker)"
+		(groups[key] ||= []) << slide
+	end
+	
+	groups.each do |speaker, slides|
+		total_seconds = slides.sum(&:duration)
+		puts "#{speaker} — #{format_duration(total_seconds)}"
+		
+		slides.each do |slide|
+			puts "  #{format_duration(slide.duration)}  #{slide.title}  (#{File.basename(slide.path)})"
+		end
+		
+		puts
+	end
+	
+	return nil
+end
+
 # Renumber slide files sequentially with a consistent step size.
 #
 # Renames all `.md` files in the slides directory to have sequential
@@ -88,4 +122,14 @@ def renumber(slides_root: "slides", step: 10)
 	end
 	
 	puts "Renumbered #{renames.length} slides."
+end
+
+private
+
+# Format a number of seconds as `M:SS`.
+# @parameter seconds [Integer]
+# @returns [String]
+def format_duration(seconds)
+	seconds = seconds.to_i
+	"%d:%02d" % [seconds / 60, seconds % 60]
 end
