@@ -7,6 +7,7 @@ require_relative "../application"
 require "lively/environment/application"
 
 module Presently
+	# Namespace for environment mixins that configure a Presently server.
 	module Environment
 		# The environment configuration for a Presently application server.
 		#

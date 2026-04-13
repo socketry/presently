@@ -12,13 +12,13 @@ describe Presently::Slide do
 	let(:slide) {subject.load(slide_path)}
 	
 	with "#template" do
-		it "reads template from frontmatter" do
+		it "reads template from front_matter" do
 			expect(slide.template).to be == "title"
 		end
 	end
 	
 	with "#duration" do
-		it "reads duration from frontmatter" do
+		it "reads duration from front_matter" do
 			expect(slide.duration).to be == 30
 		end
 	end
@@ -39,7 +39,7 @@ describe Presently::Slide do
 		end
 	end
 	
-	with "a slide without frontmatter" do
+	with "a slide without front_matter" do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "test.md")}
 		
