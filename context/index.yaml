@@ -6,11 +6,11 @@ metadata:
   documentation_uri: https://socketry.github.io/presently/
   source_code_uri: https://github.com/socketry/presently.git
 files:
-- path: animating-slides.md
-  title: Animating Slides
-  description: This guide explains how to animate content within slides using the
-    `morph` transition and the slide scripting system.
 - path: getting-started.md
   title: Getting Started
   description: This guide explains how to use `presently` to create and deliver web-based
     presentations using Markdown slides.
+- path: animating-slides.md
+  title: Animating Slides
+  description: This guide explains how to animate content within slides using the
+    `morph` transition and the slide scripting system.

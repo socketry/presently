@@ -21,9 +21,9 @@ A web-based presentation tool built with [Lively](https://github.com/socketry/li
 
 Please see the [project documentation](https://socketry.github.io/presently/) for more details.
 
-  - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the `morph` transition and the slide scripting system.
-
   - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
+
+  - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the `morph` transition and the slide scripting system.
 
 ## Releases
 
