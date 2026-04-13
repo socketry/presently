@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.5.0
 
   - Add optional `speaker` front matter key to slides. When present, the current speaker's name is shown in the timing bar. If the next slide has a different speaker, a handoff indicator (e.g. `→ Next Speaker`) is shown alongside, giving presenters an at-a-glance cue for tag-team talks.
 
