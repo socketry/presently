@@ -2,4 +2,9 @@
 	<div class="slide-body">
 		#{self.section("body")}
 	</div>
+	<?r if self.section?("translation") ?>
+		<div class="slide-translation">
+			#{self.section("translation")}
+		</div>
+	<?r end ?>
 </div>
