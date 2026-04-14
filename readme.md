@@ -29,6 +29,10 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.8.0
+
+  - Add optional `translation` section to the `default` template.
+
 ### v0.7.0
 
   - Rework build effects to use direct CSS class animation rather than `view-transition-class`. `build-fade`, `build-fly-up`, etc. are now regular `@keyframes` classes applied to the revealed element, rather than view transition pseudo-element selectors. This decouples in-slide sequential animation from slide-level morph transitions.

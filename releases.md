@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.8.0
 
   - Add optional `translation` section to the `default` template.
 
