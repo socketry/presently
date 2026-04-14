@@ -35,12 +35,13 @@ speaker: Samuel
 Server morphs to the right. Display fades in on the left. Connection label appears.
 
 ```javascript
-slide.find(".pane").build(0, {group: "pane"})
-slide.find(".display-detail").build(0, {group: "display-detail"})
-
+const panes = slide.find(".pane").builder({group: "pane", effect: "fade"})
+const displayDetails = slide.find(".display-detail").builder({group: "display-detail", effect: "fly-up"})
+panes.show(0)
+displayDetails.show(0)
 slide
-  .after(400, () => slide.find(".pane").build(1, {group: "pane", effect: "fade"}))
-  .after(400, () => slide.find(".display-detail").build(1, {group: "display-detail", effect: "fly-up"}))
-  .after(300, () => slide.find(".display-detail").build(2, {group: "display-detail", effect: "fly-up"}))
-  .after(400, () => slide.find(".pane").build(2, {group: "pane", effect: "fade"}))
+  .after(400, () => panes.next())
+  .after(400, () => displayDetails.next())
+  .after(300, () => displayDetails.next())
+  .after(400, () => panes.next())
 ```

@@ -43,11 +43,12 @@ speaker: Samuel
 Display and Server morph smaller and move up. Presenter fades in at the bottom with details building in.
 
 ```javascript
-slide.find(".pane").build(0, {group: "pane"})
-slide.find(".presenter-detail").build(0, {group: "presenter-detail"})
-
+const panes = slide.find(".pane").builder({group: "pane", effect: "fly-up"})
+const presenterDetails = slide.find(".presenter-detail").builder({group: "presenter-detail", effect: "fly-up"})
+panes.show(0)
+presenterDetails.show(0)
 slide
-  .after(400, () => slide.find(".pane").build(1, {group: "pane", effect: "fly-up"}))
-  .after(400, () => slide.find(".presenter-detail").build(1, {group: "presenter-detail", effect: "fly-up"}))
-  .after(300, () => slide.find(".presenter-detail").build(2, {group: "presenter-detail", effect: "fly-up"}))
+  .after(400, () => panes.next())
+  .after(400, () => presenterDetails.next())
+  .after(300, () => presenterDetails.next())
 ```

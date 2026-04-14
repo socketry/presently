@@ -33,17 +33,19 @@ speaker: Samuel
 An HTML grid layout with animated step-by-step reveals using `slide.after()`.
 
 ```javascript
-slide.find(".pane").build(0, {group: "pane"})
-slide.find(".component").build(0, {group: "component"})
+const panes = slide.find(".pane").builder({group: "pane", effect: "fade"})
+const components = slide.find(".component").builder({group: "component", effect: "fly-up"})
+panes.show(0)
+components.show(0)
 slide
-  .after(400, () => slide.find(".pane").build(1, {group: "pane", effect: "fade"}))
-  .after(400, () => slide.find(".component").build(1, {group: "component", effect: "fly-up"}))
-  .after(300, () => slide.find(".component").build(2, {group: "component", effect: "fly-up"}))
-  .after(400, () => slide.find(".pane").build(2, {group: "pane", effect: "fade"}))
-  .after(300, () => slide.find(".component").build(3, {group: "component", effect: "fly-up"}))
-  .after(200, () => slide.find(".component").build(4, {group: "component", effect: "fly-up"}))
-  .after(200, () => slide.find(".component").build(5, {group: "component", effect: "fly-up"}))
-  .after(400, () => slide.find(".pane").build(3, {group: "pane", effect: "fade"}))
-  .after(300, () => slide.find(".component").build(6, {group: "component", effect: "fly-up"}))
-  .after(300, () => slide.find(".component").build(7, {group: "component", effect: "fly-up"}))
+  .after(400, () => panes.next())
+  .after(400, () => components.next())
+  .after(300, () => components.next())
+  .after(400, () => panes.next())
+  .after(300, () => components.next())
+  .after(200, () => components.next())
+  .after(200, () => components.next())
+  .after(400, () => panes.next())
+  .after(300, () => components.next())
+  .after(300, () => components.next())
 ```

@@ -21,9 +21,9 @@ speaker: Samuel
 Start with the Server box centred and large. Details build in one by one.
 
 ```javascript
-slide.find(".detail").build(0, {group: "detail"})
-
+const details = slide.find(".detail").builder({group: "detail", effect: "fly-up"})
+details.show(0)
 slide
-  .after(500, () => slide.find(".detail").build(1, {group: "detail", effect: "fly-up"}))
-  .after(400, () => slide.find(".detail").build(2, {group: "detail", effect: "fly-up"}))
+  .after(500, () => details.next())
+  .after(400, () => details.next())
 ```

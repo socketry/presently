@@ -8,11 +8,11 @@ The `morph` transition uses the browser's View Transitions API. When navigating 
 
 Elements without a matching name crossfade. The slide background stays completely still (no container animation).
 
-This is the mechanism that makes build animations possible: the same element appears on consecutive slides with the same name, so it stays pinned in place while hidden elements appear around it.
+This is the mechanism that makes build sequences possible: the same element appears on consecutive slides with the same name, so it stays pinned in place while hidden elements appear around it.
 
 ## Slide Scripts
 
-Any slide can include a JavaScript block at the end of its presenter notes section. The script runs in the browser immediately after the slide renders, inside the view transition callback, so DOM changes it makes are captured and animated.
+Any slide can include a JavaScript block at the end of its presenter notes section. The script runs in the browser immediately after the slide renders.
 
 ~~~ markdown
 ---
@@ -30,7 +30,7 @@ transition: morph
 Your presenter notes here.
 
 ```javascript
-slide.find("li").build(1, {group: "bullet"})
+slide.find("li").show(1, {group: "bullet"})
 ```
 ~~~
 
@@ -50,14 +50,14 @@ slide.find("h2, li")       // headings and list items in document order
 slide.find(".callout")     // elements with a specific class
 ```
 
-### `elements.build(n, options)`
+### `elements.show(n, options)`
 
-Shows the first `n` elements in the collection and hides the rest. Assigns `view-transition-name` to each element so the morph transition can match them across consecutive slides.
+Shows the first `n` elements in the collection and hides the rest. Assigns `view-transition-name` to each element so the morph transition can match them across consecutive slides. Returns a `Promise` that resolves when any reveal animation completes.
 
 ``` javascript
-slide.find("li").build(0)  // all hidden
-slide.find("li").build(1)  // first visible, rest hidden
-slide.find("li").build(3)  // first three visible, rest hidden
+slide.find("li").show(0)  // all hidden
+slide.find("li").show(1)  // first visible, rest hidden
+slide.find("li").show(3)  // first three visible, rest hidden
 ```
 
 Options:
@@ -66,6 +66,45 @@ Options:
 |---|---|
 | `group` | Name prefix for `view-transition-name` — must be consistent across slides for morph to match elements. Defaults to `"build"`. |
 | `effect` | Entry animation for the newly revealed element. See effects below. |
+
+### `elements.builder(options)`
+
+Creates a `SlideBuilder` with default options and a cached position. Use this instead of calling `show()` manually when you want to reveal elements one at a time from a script.
+
+``` javascript
+const bullets = slide.find("li").builder({group: "bullet", effect: "fly-up"})
+bullets.show(0)       // hide all initially
+bullets.next()        // reveal first, plays fly-up
+bullets.next()        // reveal second, plays fly-up
+bullets.finished      // true when all revealed
+```
+
+### `SlideBuilder#next(overrides)`
+
+Reveals the next element using the builder's default effect. Only touches the single newly revealed element — O(1). Returns a `Promise`. Accepts optional overrides for this step.
+
+### `SlideBuilder#show(n, overrides)`
+
+Sets the builder to an arbitrary position. Useful for initialization and jumping. Iterates all elements for correctness.
+
+### `SlideBuilder#play(interval, callback)`
+
+Reveals all remaining elements in sequence, with `interval` milliseconds between each step. An optional callback is invoked after each `next()` — return `false` to stop playback early. Requires the builder to be created via `slide.find(...).builder()` so that timeouts are tracked and cancelled when the slide changes.
+
+``` javascript
+// Play all elements at 400ms intervals:
+boxes.play(400)
+
+// Stop early based on a condition:
+boxes.play(400, () => !paused)
+
+// Inspect the builder after each step:
+boxes.play(400, (builder) => !builder.finished)
+```
+
+### `SlideBuilder#finished`
+
+Returns `true` when all elements have been revealed.
 
 ## Build Sequences
 
@@ -88,7 +127,7 @@ transition: morph
 Let's walk through the key features.
 
 ```javascript
-slide.find("li").build(0, {group: "bullet"})
+slide.find("li").show(0, {group: "bullet"})
 ```
 ~~~
 
@@ -109,7 +148,7 @@ transition: morph
 The display and presenter stay in sync over a WebSocket connection.
 
 ```javascript
-slide.find("li").build(1, {group: "bullet"})
+slide.find("li").show(1, {group: "bullet"})
 ```
 ~~~
 
@@ -119,10 +158,10 @@ Because all elements are in the DOM from the start (just hidden), the vertical l
 
 ## Build Effects
 
-Pass an `effect` option to animate the newly revealed element as it appears. The effect only applies to the element transitioning from hidden to visible — already-visible elements morph normally and hidden elements are suppressed entirely.
+Pass an `effect` option to animate the newly revealed element as it appears. The effect plays as a CSS animation on the element and is removed automatically once it completes.
 
 ``` javascript
-slide.find("li").build(2, {group: "bullet", effect: "fly-up"})
+slide.find("li").show(2, {group: "bullet", effect: "fly-up"})
 ```
 
 Available effects:
@@ -136,25 +175,36 @@ Available effects:
 | `fly-down` | Drops in from above |
 | `scale` | Scales up from 80% |
 
-Effects use `view-transition-class` and are implemented in CSS via `::view-transition-new(.build-*)` rules. They require Chromium 125 or later. In other browsers the element appears instantly — the presentation is unaffected.
-
 ## Multiple Build Groups
 
-A slide can have multiple independent build groups. Each `find().build()` call is self-contained:
+A slide can have multiple independent build groups. Each `find().show()` call is self-contained:
 
 ``` javascript
 // Reveal list items as one group, callout div as another
-slide.find("li").build(3, {group: "bullet"})
-slide.find(".callout").build(1, {group: "callout", effect: "fly-up"})
+slide.find("li").show(3, {group: "bullet"})
+slide.find(".callout").show(1, {group: "callout", effect: "fly-up"})
 ```
 
-The two groups track their own visibility independently. To interleave elements from different groups into a single sequence, use a comma-separated CSS selector:
+## In-Slide Animation with `slide.after()`
+
+For sequential reveals within a single slide (without navigating to the next slide), use `slide.after()`. Each step fires a delay in milliseconds relative to the previous step.
 
 ``` javascript
-slide.find("h2, li").build(4, {group: "item"})
+const panes = slide.find(".pane").builder({group: "pane", effect: "fade"})
+const items = slide.find(".item").builder({group: "item", effect: "fly-up"})
+panes.show(0)
+items.show(0)
+
+slide
+  .after(400, () => panes.next())
+  .after(400, () => items.next())
+  .after(300, () => items.next())
+  .after(400, () => panes.next())
 ```
 
-Elements are collected in document order, so headings and list items are interleaved as they appear in the HTML.
+All timeouts registered via `slide.after()` (and the underlying `slide.setTimeout()`) are automatically cancelled when the user navigates to another slide, so stale callbacks never fire.
+
+The global `setTimeout` in slide scripts is also automatically tracked — you can use it directly and it will be cancelled on slide change.
 
 ## Absolutely Positioned Elements
 
@@ -185,26 +235,9 @@ template: diagram
 Combine with the scripting system to animate diagram elements into place:
 
 ``` javascript
-slide.find("div").build(2, {group: "node", effect: "fade"})
+const nodes = slide.find("div").builder({group: "node", effect: "fade"})
+nodes.show(0)
+slide
+  .after(400, () => nodes.next())
+  .after(400, () => nodes.next())
 ```
-
-## Advanced Scripting
-
-The script block is plain JavaScript with full browser API access. For anything beyond sequential reveals, write it directly:
-
-``` javascript
-// Reveal elements after a delay
-setTimeout(() => {
-    document.querySelector('.annotation').style.opacity = '1';
-}, 800);
-
-// Conditional logic
-const step = 3;
-slide.find("li").build(step, {group: "bullet"});
-
-if (step >= 2) {
-    document.querySelector('.note').style.visibility = 'visible';
-}
-```
-
-The script runs inside `document.startViewTransition()`, so any synchronous DOM changes are captured and animated. Use `setTimeout` for effects that should happen after the transition settles.
