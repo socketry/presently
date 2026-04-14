@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.7.0
 
   - Rework build effects to use direct CSS class animation rather than `view-transition-class`. `build-fade`, `build-fly-up`, etc. are now regular `@keyframes` classes applied to the revealed element, rather than view transition pseudo-element selectors. This decouples in-slide sequential animation from slide-level morph transitions.
   - Rename `SlideElements#build` to `SlideElements#show` for clarity — `boxes.show(0)` / `boxes.show(3)` more clearly describes the outcome from the audience's perspective.
