@@ -18,5 +18,5 @@ And finally, transitions. These are handled with the View Transitions API and st
 *Open two browser windows side by side to demonstrate.*
 
 ```javascript
-slide.find("li").build(4, {group: "bullet"})
+slide.find("li").show(4, {group: "bullet"})
 ```

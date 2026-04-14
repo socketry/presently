@@ -16,5 +16,5 @@ speaker: Samuel
 Slides are plain text files. You write Markdown, add a little YAML at the top to set the template and timing, and that's your whole slide. No GUI, no proprietary format.
 
 ```javascript
-slide.find("li").build(1, {group: "bullet"})
+slide.find("li").show(1, {group: "bullet"})
 ```
