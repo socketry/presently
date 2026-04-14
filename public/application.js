@@ -68,23 +68,28 @@ function applyCodeFocus() {
 
 // Run the script for a single slide element.
 // Wrapped in try/catch so syntax errors don't crash the presentation.
+// Passes a tracked setTimeout so pending timeouts can be cancelled on slide change.
 function runScript(slideEl) {
 	const scriptEl = slideEl.querySelector('script[type="text/slide-script"]');
 	if (!scriptEl) return;
 
 	const container = slideEl.querySelector('.slide-body') ?? slideEl;
 	const slide = new Slide(container);
+	currentSlides.push(slide);
 
 	try {
-		const fn = new Function('slide', scriptEl.textContent);
-		fn(slide);
+		const fn = new Function('slide', 'setTimeout', scriptEl.textContent);
+		fn(slide, slide.setTimeout.bind(slide));
 	} catch (error) {
 		console.error('Slide script error:', error);
 	}
 }
 
 // Run scripts for all slide elements currently in the DOM.
+// Cancels any pending timeouts from the previous slide's scripts first.
 function runSlideScripts() {
+	currentSlides.forEach(slide => slide.cancelTimeouts());
+	currentSlides = [];
 	document.querySelectorAll('.slide').forEach(runScript);
 }
 
@@ -97,6 +102,9 @@ function detectTransition(html) {
 
 // Track the active view transition so we can skip overlapping ones.
 let activeTransition = null;
+
+// Track Slide instances from the current scripts so we can cancel their timeouts on slide change.
+let currentSlides = [];
 
 // Wrap Live's update method to support view transitions.
 const originalUpdate = live.update.bind(live);

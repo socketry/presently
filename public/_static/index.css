@@ -423,7 +423,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 }
 
 /* Fade */
-::view-transition-new(.build-fade) {
+.build-fade {
 	animation: vt-fade-in 0.4s ease;
 }
 
@@ -433,7 +433,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 	to { transform: translateX(0); opacity: 1; }
 }
 
-::view-transition-new(.build-fly-left) {
+.build-fly-left {
 	animation: build-fly-in-left 0.4s ease;
 }
 
@@ -443,7 +443,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 	to { transform: translateX(0); opacity: 1; }
 }
 
-::view-transition-new(.build-fly-right) {
+.build-fly-right {
 	animation: build-fly-in-right 0.4s ease;
 }
 
@@ -453,7 +453,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 	to { transform: translateY(0); opacity: 1; }
 }
 
-::view-transition-new(.build-fly-up) {
+.build-fly-up {
 	animation: build-fly-in-up 0.4s ease;
 }
 
@@ -463,7 +463,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 	to { transform: translateY(0); opacity: 1; }
 }
 
-::view-transition-new(.build-fly-down) {
+.build-fly-down {
 	animation: build-fly-in-down 0.4s ease;
 }
 
@@ -473,7 +473,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 	to { transform: scale(1); opacity: 1; }
 }
 
-::view-transition-new(.build-scale) {
+.build-scale {
 	animation: build-scale-in 0.4s ease;
 }
 
