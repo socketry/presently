@@ -1,5 +1,4 @@
 ---
-template: default
 duration: 30
 transition: morph
 speaker: Samuel

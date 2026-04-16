@@ -1,5 +1,4 @@
 ---
-template: default
 duration: 30
 marker: Morph + Build
 transition: morph

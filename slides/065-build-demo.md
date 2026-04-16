@@ -1,5 +1,4 @@
 ---
-template: default
 duration: 60
 marker: Build Demo
 transition: fade
