@@ -25,7 +25,12 @@ export class SlideBuilder {
 		let revealedElement = null;
 
 		this.#elements.forEach((element, index) => {
-			element.style.viewTransitionName = `${this.#prefix}-${index + 1}`;
+			// Only assign a group name if the element doesn't already have an explicit one.
+			// Preserving explicit names allows elements to participate in morph transitions
+			// to other slides while still being managed by the build system.
+			if (!element.style.viewTransitionName || element.style.viewTransitionName === 'none') {
+				element.style.viewTransitionName = `${this.#prefix}-${index + 1}`;
+			}
 
 			if (index < count) {
 				element.style.visibility = 'visible';
@@ -68,7 +73,9 @@ export class SlideBuilder {
 		const effect = overrides.effect !== undefined ? overrides.effect : this.#defaultEffect;
 		const element = this.#elements[this.#step];
 
-		element.style.viewTransitionName = `${this.#prefix}-${this.#step + 1}`;
+		if (!element.style.viewTransitionName || element.style.viewTransitionName === 'none') {
+			element.style.viewTransitionName = `${this.#prefix}-${this.#step + 1}`;
+		}
 		element.style.visibility = 'visible';
 		element.style.viewTransitionClass = '';
 
