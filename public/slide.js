@@ -168,6 +168,13 @@ export class SlideContext {
 		this.#elapsed = elapsed;
 	}
 
+	// The slide body element.
+	// Delegates to the parent Slide.
+	// @returns [HTMLElement]
+	get element() {
+		return this.#slide.element;
+	}
+
 	// Find elements within the slide matching the given CSS selector.
 	// Delegates to the parent Slide.
 	// @parameter selector [String] A CSS selector scoped to the slide body.
@@ -206,11 +213,17 @@ export class SlideContext {
 // The scripting context passed to each slide's javascript block.
 // Scopes element queries to the slide body.
 export class Slide {
-	#container;
+	#element;
 	#timeouts = [];
 
-	constructor(container) {
-		this.#container = container;
+	constructor(element) {
+		this.#element = element;
+	}
+
+	// The slide body element.
+	// @returns [HTMLElement]
+	get element() {
+		return this.#element;
 	}
 
 	// Find elements within this slide matching the given CSS selector.
@@ -218,7 +231,7 @@ export class Slide {
 	// @parameter selector [String] A CSS selector scoped to the slide body.
 	// @returns [SlideElements]
 	find(selector) {
-		const elements = Array.from(this.#container.querySelectorAll(selector));
+		const elements = Array.from(this.#element.querySelectorAll(selector));
 		return new SlideElements(this, elements);
 	}
 
