@@ -187,7 +187,7 @@ slide.find(".callout").show(1, {group: "callout", effect: "fly-up"})
 
 ## In-Slide Animation with `slide.after()`
 
-For sequential reveals within a single slide (without navigating to the next slide), use `slide.after()`. Each step fires a delay in milliseconds relative to the previous step.
+For sequential reveals within a single slide (without navigating to the next slide), use `slide.after()`. Each step fires a delay in milliseconds relative to the previous step. Returns a `SlideContext` so subsequent `.after()` calls chain naturally.
 
 ``` javascript
 const panes = slide.find(".pane").builder({group: "pane", effect: "fade"})
@@ -205,6 +205,29 @@ slide
 All timeouts registered via `slide.after()` (and the underlying `slide.setTimeout()`) are automatically cancelled when the user navigates to another slide, so stale callbacks never fire.
 
 The global `setTimeout` in slide scripts is also automatically tracked — you can use it directly and it will be cancelled on slide change.
+
+## Looping Animations with `slide.loop()`
+
+To repeat an animation indefinitely, use `slide.loop()`. The callback receives a fresh `SlideContext` each iteration and can use `after()` to schedule steps in the same way as a regular chain. The loop waits for all steps to complete and then restarts, with an optional extra pause between iterations.
+
+``` javascript
+const steps = slide.find(".step").builder({effect: "fly-up"})
+steps.show(0)
+
+slide.loop((context) => {
+  steps.show(0)  // reset at the start of each iteration
+  context
+    .after(800, () => steps.next())
+    .after(800, () => steps.next())
+    .after(800, () => steps.next())
+}, { delay: 1500 })
+```
+
+The `delay` option adds extra time after the last step before the next iteration begins — useful for giving the audience a moment to read the fully-revealed state before it resets.
+
+The callback is responsible for resetting any state (such as calling `builder.show(0)`) at the start of each iteration. This keeps the loop body self-contained and makes the reset timing explicit.
+
+All timeouts are tracked through the parent slide, so the loop stops automatically when the user navigates away — no cleanup needed.
 
 ## Absolutely Positioned Elements
 

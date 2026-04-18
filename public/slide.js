@@ -154,21 +154,52 @@ export class SlideElements {
 	}
 }
 
-// Returned by Slide#after to enable relative delay chaining.
-// Each .after(delay, callback) fires that many milliseconds after the previous step.
-class SlideChain {
+// Scoped scripting context used both for chaining after() calls and as the
+// argument passed to slide.loop() callbacks. Accumulates elapsed time across
+// after() calls so each delay is relative to the previous step. Delegates
+// find() and setTimeout() to the parent Slide so element queries are scoped
+// correctly and all timeouts are cancelled automatically on slide change.
+export class SlideContext {
 	#slide;
 	#elapsed;
 
-	constructor(slide, elapsed) {
+	constructor(slide, elapsed = 0) {
 		this.#slide = slide;
 		this.#elapsed = elapsed;
 	}
 
+	// Find elements within the slide matching the given CSS selector.
+	// Delegates to the parent Slide.
+	// @parameter selector [String] A CSS selector scoped to the slide body.
+	// @returns [SlideElements]
+	find(selector) {
+		return this.#slide.find(selector);
+	}
+
+	// Tracked setTimeout — delegates to the parent Slide so timeouts are
+	// cancelled automatically when the slide changes.
+	// @parameter callback [Function] The function to call after the delay.
+	// @parameter delay [Number] Delay in milliseconds.
+	// @returns [Number] The timeout ID.
+	setTimeout(callback, delay) {
+		return this.#slide.setTimeout(callback, delay);
+	}
+
+	// Schedule a callback relative to the previous step, accumulating elapsed time.
+	// @parameter delay [Number] Delay in milliseconds after the previous step.
+	// @parameter callback [Function] The function to call.
+	// @returns [SlideContext]
 	after(delay, callback) {
 		this.#elapsed += delay;
 		this.#slide.setTimeout(callback, this.#elapsed);
 		return this;
+	}
+
+	// Total time accumulated across all after() calls.
+	// Used by slide.loop() to know when to schedule the next iteration.
+	// @returns [Number] Elapsed time in milliseconds.
+	get elapsed() {
+		return this.#elapsed;
 	}
 }
 
@@ -202,15 +233,30 @@ export class Slide {
 		return timeoutId;
 	}
 
-	// Schedule a callback after a delay, returning a chainable object so
+	// Schedule a callback after a delay, returning a SlideContext so
 	// subsequent .after(delay) calls are relative to the previous step.
 	// All timeouts are tracked and cancelled automatically on slide change.
-	// @parameter delay [Number] Delay in milliseconds from now (or previous step).
+	// @parameter delay [Number] Delay in milliseconds from now.
 	// @parameter callback [Function] The function to call after the delay.
-	// @returns [SlideChain]
+	// @returns [SlideContext]
 	after(delay, callback) {
 		this.setTimeout(callback, delay);
-		return new SlideChain(this, delay);
+		return new SlideContext(this, delay);
+	}
+
+	// Run a callback in a loop, repeating indefinitely until the slide changes.
+	// The callback receives a SlideContext so it can use after() to schedule
+	// steps within each iteration. The loop waits for all steps to complete
+	// (ctx.elapsed) plus an optional extra delay before starting the next iteration.
+	// @parameter callback [Function] Receives a fresh SlideContext as `context` each iteration.
+	// @parameter delay [Number] Extra pause in milliseconds after the last step before restarting.
+	loop(callback, { delay = 0 } = {}) {
+		const iterate = () => {
+			const context = new SlideContext(this);
+			callback(context);
+			this.setTimeout(iterate, context.elapsed + delay);
+		};
+		iterate();
 	}
 
 	// Cancel all pending timeouts registered by this slide's script.
