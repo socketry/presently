@@ -9,4 +9,9 @@
 		<div class="code-dim code-dim-top"></div>
 		<div class="code-dim code-dim-bottom"></div>
 	</div>
+	<?r if self.section?("translation") ?>
+		<div class="slide-translation">
+			#{self.section("translation")}
+		</div>
+	<?r end ?>
 </div>

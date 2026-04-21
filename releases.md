@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add support for translation to code slide.
+
 ## v0.11.0
 
   - Add `Slide#element` and `SlideContext#element` getters — expose the slide body DOM element directly for cases where `find()` is not sufficient, such as measuring dimensions, attaching event listeners, or integrating third-party libraries.

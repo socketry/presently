@@ -66,6 +66,11 @@ class Presentation
 end
 ```
 
+# Translation
+
+これは Presently の核心部分です — `Presentation` クラス。コンストラクタはスライドのディレクトリを受け取り、初期状態を設定してから `load_slides!` を呼び出してディスク上の Markdown ファイルをすべて読み込みます。タイミングを追跡する `Clock` が作成され、リスナー配列がオブザーバーパターンのために用意されます。
+
+
 ---
 
 *Highlighted lines 2–10 should be visible — check the display before speaking.*
