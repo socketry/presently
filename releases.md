@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.12.0
 
   - Add support for translation to code slide.
 

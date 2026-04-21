@@ -29,6 +29,10 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.12.0
+
+  - Add support for translation to code slide.
+
 ### v0.11.0
 
   - Add `Slide#element` and `SlideContext#element` getters — expose the slide body DOM element directly for cases where `find()` is not sufficient, such as measuring dimensions, attaching event listeners, or integrating third-party libraries.
@@ -83,12 +87,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
   - Rename `magic-move` transition to `morph`.
   - Italic text in presenter notes is styled in amber to distinguish stage directions from spoken words.
   - Add transitions guide and animating slides guide to documentation.
-
-### v0.2.0
-
-  - Use Markly's native front matter parser (`Markly::FRONT_MATTER`) instead of manual string splitting, parsing each slide document once and extracting front matter directly from the AST.
-  - Use the last `---` hrule in the AST as the presenter notes separator, so earlier `---` dividers in slide content are preserved correctly.
-  - Add support for Mermaid diagrams in slides.
 
 ## See Also
 
