@@ -590,7 +590,7 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 }
 
 .preview-frame .slide {
-	zoom: 0.75;
+	zoom: 0.5;
 }
 
 .preview-frame .no-slide {

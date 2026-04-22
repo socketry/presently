@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Change zoom to 50% on slide preview (presenter display).
+
 ## v0.12.0
 
   - Add support for translation to code slide.
