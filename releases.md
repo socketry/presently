@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.13.0
 
   - Change zoom to 50% on slide preview (presenter display).
 
