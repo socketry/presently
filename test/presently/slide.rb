@@ -163,6 +163,88 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "a slide with an ![[include]] directive" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		let(:shared_path) {File.join(dir, "shared", "snippet.md")}
+		
+		before do
+			FileUtils.mkdir_p(File.dirname(shared_path))
+			File.write(shared_path, "# Included\n\nThis content was included.\n")
+			File.write(path, "# Before\n\nIntro text\n\n![[shared/snippet.md]]\n\n# After\n\nTrailing text\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {Presently::Slide.load(path)}
+		
+		it "expands the include into the document" do
+			expect(slide.content).to have_keys("before", "included", "after")
+		end
+		
+		it "preserves content before the include" do
+			expect(slide.content["before"].to_html).to be(:include?, "Intro text")
+		end
+		
+		it "inlines the included content" do
+			expect(slide.content["included"].to_html).to be(:include?, "This content was included")
+		end
+		
+		it "preserves content after the include" do
+			expect(slide.content["after"].to_html).to be(:include?, "Trailing text")
+		end
+	end
+	
+	with "a slide with a nested ![[include]] directive" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		let(:middle_path) {File.join(dir, "middle.md")}
+		let(:inner_path) {File.join(dir, "inner.md")}
+		
+		before do
+			File.write(inner_path, "Deeply nested content.\n")
+			File.write(middle_path, "Middle content.\n\n![[inner.md]]\n")
+			File.write(path, "![[middle.md]]\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {Presently::Slide.load(path)}
+		
+		it "recursively expands nested includes" do
+			html = slide.content["body"].to_html
+			expect(html).to be(:include?, "Middle content")
+			expect(html).to be(:include?, "Deeply nested content")
+		end
+	end
+	
+	with "an included file that has front matter" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		let(:shared_path) {File.join(dir, "snippet.md")}
+		
+		before do
+			File.write(shared_path, "---\ntitle: Ignored\n---\nShared body.\n")
+			File.write(path, "![[snippet.md]]\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {Presently::Slide.load(path)}
+		
+		it "strips front matter from the included file" do
+			html = slide.content["body"].to_html
+			expect(html).to be(:include?, "Shared body")
+			expect(html).not.to be(:include?, "Ignored")
+		end
+	end
+	
 	with "a slide with transition and focus front_matter" do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "test.md")}

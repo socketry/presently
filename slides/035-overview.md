@@ -4,11 +4,7 @@ transition: morph
 speaker: Samuel
 ---
 
-- Real-time synchronization between display and presenter
-- Markdown-based slides with YAML frontmatter
-- Multiple templates for different slide layouts
-- Presenter notes and timing information
-- HTML5 animations for smooth transitions
+![[shared/features.md]]
 
 <div class="callout" style="position: absolute; bottom: 3rem; right: 3rem; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 1rem; font-weight: 600;">You are here →</div>
 

@@ -1,0 +1,5 @@
+- Real-time synchronization between display and presenter
+- Markdown-based slides with YAML frontmatter
+- Multiple templates for different slide layouts
+- Presenter notes and timing information
+- HTML5 animations for smooth transitions

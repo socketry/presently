@@ -71,6 +71,8 @@ module Presently
 				# Parse once, with native front matter support.
 				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
 				
+				expand_includes!(document, File.dirname(path))
+				
 				# Extract front matter from the first AST node if present.
 				front_matter = nil
 				if (front_matter_node = document.first_child) && front_matter_node.type == :front_matter
@@ -112,6 +114,47 @@ module Presently
 				end
 				
 				Slide.new(path, front_matter: front_matter, content: content, notes: notes, script: script)
+			end
+			
+			# Expand `![[path/to/file.md]]` include directives in a parsed document.
+			#
+			# Scans top-level paragraph nodes for the Obsidian-style embed syntax and
+			# replaces each one with the parsed AST of the referenced file. Includes
+			# are resolved relative to `base_dir`. Front matter in included files is
+			# stripped. Nested includes are expanded recursively up to a depth of 10.
+			#
+			# @parameter document [Markly::Node] The document to expand in-place.
+			# @parameter base_dir [String] Directory used to resolve relative paths.
+			# @parameter depth [Integer] Current recursion depth (guards against cycles).
+			def expand_includes!(document, base_dir, depth: 0)
+				raise "Include depth limit exceeded" if depth > 10
+				
+				# Collect matching paragraphs first — mutating the tree while iterating is unsafe.
+				to_replace = []
+				document.each do |node|
+					next unless node.type == :paragraph
+					child = node.first_child
+					next unless child && child.next.nil? && child.type == :text
+					next unless child.string_content =~ /\A!\[\[(.+?)\]\]\z/
+					to_replace << [node, $1.strip]
+				end
+				
+				to_replace.each do |paragraph, relative_path|
+					included_path = File.expand_path(relative_path, base_dir)
+					included_raw = File.read(included_path)
+					included_document = Markly.parse(included_raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
+					
+					# Strip front matter from included file if present.
+					front_matter_node = included_document.first_child
+					if front_matter_node&.type == :front_matter
+						front_matter_node.delete
+					end
+					
+					expand_includes!(included_document, File.dirname(included_path), depth: depth + 1)
+					
+					included_document.each{|node| paragraph.insert_before(node.dup)}
+					paragraph.delete
+				end
 			end
 			
 			# Parse a Markly document into content sections based on top-level headings.
