@@ -271,12 +271,7 @@ mermaid-diagram {
 	background: none;
 	padding: 0;
 	line-height: 1.6;
-}
-
-.code-scroll code {
-	background: none;
-	padding: 0;
-	font-size: 1.1rem;
+	font-size: 1.5rem;
 }
 
 /* Dim overlays */
