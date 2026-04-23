@@ -4,6 +4,7 @@
 
   - Increase code font size by 50%.
   - Add support for includes using `![[path]]` syntax.
+  - Add `bake presently:rehearse` tasks for updating timing information.
 
 ## v0.13.0
 
