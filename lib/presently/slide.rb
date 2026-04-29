@@ -6,7 +6,7 @@
 require "yaml"
 require "markly"
 
-require_relative "renderer"
+require "markly/renderer/html"
 
 module Presently
 	# A single slide parsed from a Markdown file.
@@ -38,12 +38,10 @@ module Presently
 				@node.first_child.nil?
 			end
 			
-			# Render the fragment to HTML using the Presently renderer.
-			#
-			# Mermaid fenced code blocks are rendered as `<mermaid-diagram>` elements.
+			# Render the fragment to HTML.
 			# @returns [String] The rendered HTML.
 			def to_html
-				Renderer.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(@node)
+				Markly::Renderer::HTML.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(@node)
 			end
 			
 			# Render the fragment back to CommonMark Markdown.
