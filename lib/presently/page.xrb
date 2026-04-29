@@ -18,7 +18,7 @@
 				"live": "/_components/@socketry/live/Live.js",
 				"live-audio": "/_components/@socketry/live-audio/Live/Audio.js",
 				"morphdom": "/_components/morphdom/morphdom-esm.js",
-				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js",
+				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
 			}
 		}
 		</script>
