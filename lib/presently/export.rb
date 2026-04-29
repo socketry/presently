@@ -14,22 +14,18 @@ module Presently
 	#
 	# All slides are rendered in a single page with CSS `break-after: page`, so a single
 	# WebDriver `print()` call produces a multi-page PDF without any merging step.
-	#
-	# Page dimensions are fixed at 1280×720 px (16:9) for the slide area, with an optional
-	# 200 px notes panel below each slide. The corresponding centimetre values are used as
-	# WebDriver print page dimensions so the output is pixel-perfect at 96 dpi.
 	class Export
-		# Slide canvas dimensions in CSS pixels.
-		SLIDE_WIDTH_PX  = 1280
-		SLIDE_HEIGHT_PX = 720
+		# Holds slide canvas and notes panel dimensions, and converts between CSS pixels
+		# and centimetres for WebDriver print (96 px/inch × 2.54 cm/inch).
+		PageSize = Struct.new(:slide_width_px, :slide_height_px, :notes_height_px, keyword_init: true) do
+			PX_PER_CM = 96.0 / 2.54
+			
+			def slide_width_cm  = (slide_width_px  / PX_PER_CM).round(4)
+			def slide_height_cm = (slide_height_px / PX_PER_CM).round(4)
+			def notes_height_cm = (notes_height_px / PX_PER_CM).round(4)
+		end
 		
-		# Notes panel height in CSS pixels.
-		NOTES_HEIGHT_PX = 200
-		
-		# Slide dimensions in centimetres for WebDriver print (96 px/inch × 2.54 cm/inch).
-		SLIDE_WIDTH_CM  = (SLIDE_WIDTH_PX  / 96.0 * 2.54).round(4)
-		SLIDE_HEIGHT_CM = (SLIDE_HEIGHT_PX / 96.0 * 2.54).round(4)
-		NOTES_HEIGHT_CM = (NOTES_HEIGHT_PX / 96.0 * 2.54).round(4)
+		PageSize::DEFAULT = PageSize.new(slide_width_px: 1920, slide_height_px: 1080, notes_height_px: 300)
 		
 		TEMPLATE = XRB::Template.load_file(File.expand_path("export.xrb", __dir__))
 		
@@ -40,24 +36,37 @@ module Presently
 			return {} unless query
 			
 			params = URI.decode_www_form(query).to_h
+			
+			page_size = PageSize.new(
+				slide_width_px:  (params["slide_width_px"]  || PageSize::DEFAULT.slide_width_px).to_i,
+				slide_height_px: (params["slide_height_px"] || PageSize::DEFAULT.slide_height_px).to_i,
+				notes_height_px: (params["notes_height_px"] || PageSize::DEFAULT.notes_height_px).to_i,
+			)
+			
 			{
-				notes:   params["notes"]   != "false",
-				speaker: params["speaker"] != "false",
-				timing:  params["timing"]  != "false",
+				notes:     params["notes"]   != "false",
+				speaker:   params["speaker"] != "false",
+				timing:    params["timing"]  != "false",
+				page_size: page_size,
 			}
 		end
 		
 		# @parameter presentation [Presentation] The presentation to export.
+		# @parameter page_size [PageSize] Slide canvas and notes panel dimensions.
 		# @parameter notes [Boolean] Whether to include presenter notes below each slide.
 		# @parameter speaker [Boolean] Whether to include the speaker name.
 		# @parameter timing [Boolean] Whether to include per-slide timing information.
-		def initialize(presentation:, notes: true, speaker: true, timing: true)
+		def initialize(presentation:, page_size: PageSize::DEFAULT, notes: true, speaker: true, timing: true)
 			@presentation = presentation
+			@page_size    = page_size
 			@notes        = notes
 			@speaker      = speaker
 			@timing       = timing
 			@renderer     = SlideRenderer.new
 		end
+		
+		# @attribute [PageSize] The slide canvas and notes panel dimensions.
+		attr :page_size
 		
 		# @attribute [Boolean] Whether presenter notes are included.
 		attr :notes

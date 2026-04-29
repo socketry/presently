@@ -20,12 +20,12 @@
 	
 	<body class="export">
 		<?r self.slides.each_with_index do |slide, index| ?>
-		<div class="export-page" style="width: #{Presently::Export::SLIDE_WIDTH_PX}px; height: #{Presently::Export::SLIDE_HEIGHT_PX + (self.notes ? Presently::Export::NOTES_HEIGHT_PX : 0)}px;">
-			<div class="export-slide-area" style="width: #{Presently::Export::SLIDE_WIDTH_PX}px; height: #{Presently::Export::SLIDE_HEIGHT_PX}px;">
+		<div class="export-page" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px + (self.notes ? self.page_size.notes_height_px : 0)}px;">
+			<div class="export-slide-area" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px}px;">
 				#{self.render_slide(slide)}
 			</div>
 			<?r if self.notes ?>
-			<div class="export-notes-area" style="width: #{Presently::Export::SLIDE_WIDTH_PX}px; height: #{Presently::Export::NOTES_HEIGHT_PX}px;">
+			<div class="export-notes-area" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.notes_height_px}px;">
 				#{self.render_notes(slide, index + 1)}
 			</div>
 			<?r end ?>

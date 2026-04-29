@@ -23,7 +23,7 @@ end
 # @parameter timing [Boolean] Include slide duration and elapsed time. Default: `true`.
 # @parameter port [Integer] Local port for the temporary server. Default: a free ephemeral port.
 # @parameter timeout [Integer] Seconds to wait for the page to signal readiness. Default: `60`.
-def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker: true, timing: true, port: nil, timeout: 60)
+def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker: true, timing: true, slide_width_px: 1920, slide_height_px: 1080, notes_height_px: 300, port: nil, timeout: 60)
 	require "async"
 	require "async/service"
 	require "async/webdriver"
@@ -32,13 +32,19 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 	
 	port ||= ephemeral_port
 	base_url = "http://localhost:#{port}"
-	query = URI.encode_www_form(notes: notes, speaker: speaker, timing: timing)
+	query = URI.encode_www_form(
+		notes: notes, speaker: speaker, timing: timing,
+		slide_width_px: slide_width_px, slide_height_px: slide_height_px, notes_height_px: notes_height_px
+	)
 	export_url = "#{base_url}/export?#{query}"
 	
-	page_width_cm   = Presently::Export::SLIDE_WIDTH_CM
-	slide_height_cm = Presently::Export::SLIDE_HEIGHT_CM
-	notes_height_cm = notes ? Presently::Export::NOTES_HEIGHT_CM : 0.0
-	page_height_cm  = (slide_height_cm + notes_height_cm).round(4)
+	page_size = Presently::Export::PageSize.new(
+		slide_width_px:  slide_width_px,
+		slide_height_px: slide_height_px,
+		notes_height_px: notes_height_px,
+	)
+	
+	page_height_cm = (page_size.slide_height_cm + (notes ? page_size.notes_height_cm : 0.0)).round(4)
 	
 	# Build the service environment using the standard Presently stack, then
 	# override `url` and `slides_root` for this ephemeral export server.
@@ -79,12 +85,12 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 					
 					begin
 						session.resize_window(
-							Presently::Export::SLIDE_WIDTH_PX,
-							Presently::Export::SLIDE_HEIGHT_PX
+							page_size.slide_width_px,
+							page_size.slide_height_px
 						)
 						
 						session.page_load_timeout = timeout * 1000
-						session.script_timeout    = timeout * 1000
+						session.script_timeout = timeout * 1000
 						
 						Console.info(self, "Navigating to export page...", url: export_url)
 						session.navigate_to(export_url)
@@ -101,7 +107,7 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 						pdf_data = session.print(
 							background:    true,
 							margin:        {top: 0, bottom: 0, left: 0, right: 0},
-							page:          {width: page_width_cm, height: page_height_cm},
+							page:          {width: page_size.slide_width_cm, height: page_height_cm},
 							shrink_to_fit: false
 						)
 						
@@ -131,7 +137,7 @@ private
 def ephemeral_port
 	require "socket"
 	server = TCPServer.new("localhost", 0)
-	port   = server.local_address.ip_port
+	port = server.local_address.ip_port
 	server.close
 	port
 end
