@@ -10,9 +10,11 @@ speaker: Samuel
 
 ---
 
-And finally, transitions. These are handled with the View Transitions API and standard CSS — no JavaScript animation library required. Morph, fade, slide left and right are all built in, and you can add your own with a few lines of CSS.
+*Pause — let the callout land.*
 
-*Open two browser windows side by side to demonstrate.*
+And yes — this slide is itself a live example. The "You are here" badge just faded up on the display using exactly the same animation system we're about to look at.
+
+That's the whole point of Presently: the tool eats its own cooking.
 
 ```javascript
 slide.find("li").show(5, {group: "bullet"})
