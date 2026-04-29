@@ -3,6 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
+require "xrb/builder"
 require "xrb/template"
 require "xrb/markup"
 
@@ -20,6 +21,16 @@ module Presently
 		def initialize(css_class: "slide", templates: Templates.for)
 			@css_class = css_class
 			@templates = templates
+		end
+		
+		# Render a slide to an HTML string.
+		# @parameter slide [Slide] The slide to render.
+		# @parameter extra_class [String | Nil] An additional CSS class for the container.
+		# @returns [XRB::MarkupString] The rendered HTML, safe for embedding.
+		def render_to_html(slide, extra_class: nil)
+			builder = XRB::Builder.new
+			render(builder, slide, extra_class: extra_class)
+			XRB::MarkupString.raw(builder.to_s)
 		end
 		
 		# Render a slide into the given builder.

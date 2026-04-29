@@ -5,6 +5,9 @@
 /gems.locked
 /.covered.db
 /external
+/chrome
+/chromedriver
+*.pdf
 
 .presently.json
 node_modules/

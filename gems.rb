@@ -8,6 +8,7 @@ source "https://rubygems.org"
 gemspec
 
 gem "io-watch"
+gem "async-webdriver"
 
 group :maintenance, optional: true do
 	gem "bake-modernize"

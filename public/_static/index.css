@@ -750,3 +750,130 @@ pre code {
 	background: none;
 	padding: 0;
 }
+
+/* ========================
+   EXPORT PAGE LAYOUT
+   ======================== */
+
+/* Allow multi-page layout — overrides the default full-viewport body. */
+body.export {
+	height: auto;
+	overflow: visible;
+}
+
+/*
+ * Each export-page div maps to one printed page.
+ *
+ * Dimensions (1280 × 720 px slide + 200 px notes panel) are intentionally
+ * hard-coded in pixels so the WebDriver print command's page-size parameters
+ * (derived from the same constants in ExportPage) produce a 1:1 pixel mapping
+ * at the CSS reference pixel density of 96 px/inch.
+ */
+.export-page {
+	position: relative;
+	overflow: hidden;
+	break-after: page;
+	page-break-after: always;
+}
+
+.export-slide-area {
+	width: 1280px;
+	height: 720px;
+	position: relative;
+	overflow: hidden;
+}
+
+/* Make the slide fill its fixed container instead of the viewport. */
+.export-slide-area .slide {
+	width: 1280px;
+	height: 720px;
+}
+
+/* Notes panel below the slide. */
+.export-notes-area {
+	width: 1280px;
+	height: 200px;
+	padding: 0.5rem 2rem 0.5rem;
+	background: #0d0d1f;
+	border-top: 2px solid var(--accent);
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+/* Meta strip — mirrors the timing bar in the presenter view. */
+.export-meta {
+	display: flex;
+	align-items: center;
+	gap: 1.5rem;
+	flex-shrink: 0;
+	font-size: 0.75rem;
+	opacity: 0.75;
+	font-family: var(--font-sans);
+}
+
+.export-slide-number {
+	font-weight: 600;
+}
+
+.export-filename code {
+	font-family: var(--font-mono);
+	background: rgba(255,255,255,0.08);
+	padding: 0.1em 0.35em;
+	border-radius: 3px;
+	font-size: 0.9em;
+}
+
+.export-elapsed,
+.export-duration {
+	opacity: 0.85;
+}
+
+.export-speaker {
+	margin-left: auto;
+	font-size: 0.8rem;
+	opacity: 0.9;
+}
+
+/* Notes panel — reuses .notes / .notes-content from the presenter view,
+   but overrides sizing to fit the compact export area. */
+.export-notes-area .notes {
+	min-height: unset;
+	max-height: unset;
+	padding: 0;
+	background: none;
+	border-radius: 0;
+	flex: 1;
+	overflow: hidden;
+}
+
+/* ========================
+   PRINT MEDIA
+   ======================== */
+
+@media print {
+	/* Allow full-document layout. */
+	html, body {
+		height: auto !important;
+		overflow: visible !important;
+	}
+
+	/* Ensure backgrounds (dark theme) are included in the PDF. */
+	html {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	/* Each export-page is one printed page. */
+	.export-page {
+		break-after: page;
+		page-break-after: always;
+	}
+
+	/* Strip the Live element wrapper chrome from the presenter view if somehow printed. */
+	live-view {
+		display: contents;
+	}
+}
