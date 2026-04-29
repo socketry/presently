@@ -1,10 +1,8 @@
 import Syntax from '@socketry/syntax';
+import {Slide} from '/slide.js';
 
 // Run all inline slide scripts synchronously, scoped to their slide element.
 function runSlideScripts() {
-	const {Slide} = window.__SLIDE_CLASSES__ || {};
-	if (!Slide) return;
-	
 	document.querySelectorAll('script[type="text/slide-script"]').forEach((scriptEl) => {
 		const slideEl = scriptEl.closest('.slide');
 		if (!slideEl) return;
