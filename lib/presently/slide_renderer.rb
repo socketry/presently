@@ -45,11 +45,7 @@ module Presently
 			html = template.to_string(scope)
 			
 			classes = [@css_class, extra_class].compact.join(" ")
-			data = {template: slide.template}
-			if (focus = slide.focus)
-				data[:focus] = focus.join("-")
-			end
-			builder.tag(:div, class: classes, data: data) do
+			builder.tag(:div, class: classes, data: {template: slide.template}) do
 				builder.raw(html)
 				if slide.script
 					builder.tag(:script, type: "text/slide-script") do
