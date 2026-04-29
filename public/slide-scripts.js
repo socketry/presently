@@ -9,9 +9,7 @@ import {Slide} from './slide.js';
 // slide change. Returns the Slide instance, or null if there was no script.
 //
 // @parameter slideEl [HTMLElement] The .slide container element.
-// @returns [Slide | null]
-// @parameter slideEl [HTMLElement] The .slide container element.
-// @parameter exportMode [Boolean] Whether to run in export mode (skips animations).
+// @parameter animated [Boolean] Whether animations are active. Default: true.
 // @returns [Slide | null]
 export function runScript(slideEl, {animated = true} = {}) {
 	const scriptEl = slideEl.querySelector('script[type="text/slide-script"]');
