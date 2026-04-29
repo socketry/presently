@@ -1,96 +1,26 @@
 import { Live } from 'live';
 import Syntax from '@socketry/syntax';
-import { Slide } from './slide.js';
+import { runScript } from './slide-scripts.js';
+import { applyCodeFocus } from './code-focus.js';
 
 const live = Live.start();
 
 // Highlight code blocks on initial load:
 await Syntax.highlight();
 
-// Apply code focus effect to all code viewports.
-function applyCodeFocus() {
-	document.querySelectorAll('.code-viewport').forEach(viewport => {
-		const focusStart = parseInt(viewport.dataset.focusStart);
-		const focusEnd = parseInt(viewport.dataset.focusEnd);
-		
-		const scroll = viewport.querySelector('.code-scroll');
-		const dimTop = viewport.querySelector('.code-dim-top');
-		const dimBottom = viewport.querySelector('.code-dim-bottom');
-		if (!scroll) return;
-		
-		if (!focusStart || !focusEnd) {
-			scroll.style.transform = '';
-			if (dimTop) dimTop.style.height = '0';
-			if (dimBottom) dimBottom.style.height = '0';
-			return;
-		}
-		
-		requestAnimationFrame(async () => {
-			const code = scroll.querySelector('syntax-code');
-			if (!code) return;
-			
-			await code.ready;
-			
-			// Get line positions via getBoundingClientRect (screen pixels),
-			// and convert to CSS pixels using the scroll container's own rect
-			// as the reference frame:
-			const firstLineRect = code.getLineBoundingClientRect(focusStart);
-			const lastLineRect = code.getLineBoundingClientRect(focusEnd);
-			if (!firstLineRect || !lastLineRect) return;
-			
-			const scrollRect = scroll.getBoundingClientRect();
-			
-			// Both rects are in screen pixels. Compute the ratio between
-			// the scroll container's screen size and CSS size to convert:
-			const scale = scroll.clientHeight / scrollRect.height;
-			
-			const focusTopPx = (firstLineRect.top - scrollRect.top) * scale;
-			const focusBottomPx = (lastLineRect.bottom - scrollRect.top) * scale;
-			const focusHeight = focusBottomPx - focusTopPx;
-			const viewportHeight = viewport.clientHeight;
-			
-			// Center the focus region in the viewport:
-			const targetCenter = focusTopPx + focusHeight / 2;
-			const viewportCenter = viewportHeight / 2;
-			const translateY = Math.min(0, viewportCenter - targetCenter);
-			
-			scroll.style.transform = `translateY(${translateY}px)`;
-			
-			// Position the dim overlays:
-			const dimTopHeight = Math.max(0, focusTopPx + translateY);
-			const dimBottomHeight = Math.max(0, viewportHeight - (focusBottomPx + translateY));
-			
-			if (dimTop) dimTop.style.height = `${dimTopHeight}px`;
-			if (dimBottom) dimBottom.style.height = `${dimBottomHeight}px`;
-		});
-	});
-}
 
 // Run the script for a single slide element.
 // Wrapped in try/catch so syntax errors don't crash the presentation.
 // Passes a tracked setTimeout so pending timeouts can be cancelled on slide change.
-function runScript(slideEl) {
-	const scriptEl = slideEl.querySelector('script[type="text/slide-script"]');
-	if (!scriptEl) return;
-
-	const container = slideEl.querySelector('.slide-body') ?? slideEl;
-	const slide = new Slide(container);
-	currentSlides.push(slide);
-
-	try {
-		const fn = new Function('slide', 'setTimeout', scriptEl.textContent);
-		fn(slide, slide.setTimeout.bind(slide));
-	} catch (error) {
-		console.error('Slide script error:', error);
-	}
-}
-
 // Run scripts for all slide elements currently in the DOM.
 // Cancels any pending timeouts from the previous slide's scripts first.
 function runSlideScripts() {
 	currentSlides.forEach(slide => slide.cancelTimeouts());
 	currentSlides = [];
-	document.querySelectorAll('.slide').forEach(runScript);
+	document.querySelectorAll('.slide').forEach(slideEl => {
+		const slide = runScript(slideEl);
+		if (slide) currentSlides.push(slide);
+	});
 }
 
 

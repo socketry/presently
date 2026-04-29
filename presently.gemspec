@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 	spec.authors = ["Samuel Williams"]
 	spec.license = "MIT"
 	
-	spec.cert_chain  = ["release.cert"]
+	spec.cert_chain = ["release.cert"]
 	spec.signing_key = File.expand_path("~/.gem/release.pem")
 	
 	spec.homepage = "https://github.com/socketry/presently"
@@ -28,4 +28,5 @@ Gem::Specification.new do |spec|
 	
 	spec.add_dependency "lively", "~> 0.16"
 	spec.add_dependency "markly", "~> 0.16"
+	spec.add_dependency "async-webdriver", "~> 0.12"
 end

@@ -4,11 +4,13 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "lively"
+require "uri"
 
 require_relative "presentation"
 require_relative "presentation_controller"
 require_relative "display_view"
 require_relative "presenter_view"
+require_relative "export"
 require_relative "page"
 require_relative "state"
 
@@ -75,6 +77,15 @@ module Presently
 		# @parameter request [Protocol::HTTP::Request] The incoming request.
 		# @returns [Protocol::HTTP::Response] The HTTP response.
 		def handle(request)
+			path, query = request.path.split("?", 2)
+			
+			if path == "/export"
+				options = Export.options_from_query(query)
+				presentation = Presentation.load(@slides_root, templates: controller.templates)
+				export = Export.new(presentation: presentation, **options)
+				return Protocol::HTTP::Response[200, [["content-type", "text/html"]], [export.call]]
+			end
+			
 			if body = self.body(request)
 				page = Page.new(title: title, body: body)
 				return Protocol::HTTP::Response[200, [], [page.call]]

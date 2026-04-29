@@ -1,7 +1,7 @@
 ---
 template: code
 duration: 60
-focus: 20-36
+focus: 20-26
 title: Navigation
 speaker: Samuel
 ---
@@ -26,7 +26,7 @@ class Presentation
 		@slides[@current_index + 1]
 	end
 	
-	def advance! 
+	def advance!
 		go_to(@current_index + 1)
 	end
 	

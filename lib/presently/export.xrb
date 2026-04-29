@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		
+		<link rel="stylesheet" href="/_static/index.css" type="text/css" />
+		<link rel="stylesheet" href="/_static/custom.css" type="text/css" />
+		<link rel="stylesheet" href="/_components/@socketry/syntax/themes/base/syntax.css" type="text/css" />
+		
+		<script type="importmap">
+		{
+			"imports": {
+				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
+			}
+		}
+		</script>
+		
+		<script type="module" src="/export.js"></script>
+	</head>
+	
+	<body class="export">
+		<?r self.slides.each_with_index do |slide, index| ?>
+		<div class="export-page" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px + (self.notes ? self.page_size.notes_height_px : 0)}px;">
+			<div class="export-slide-area" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px}px;">
+				#{self.render_slide(slide)}
+			</div>
+			<?r if self.notes ?>
+			<div class="export-notes-area" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.notes_height_px}px;">
+				#{self.render_notes(slide, index + 1)}
+			</div>
+			<?r end ?>
+		</div>
+		<?r end ?>
+	</body>
+</html>
