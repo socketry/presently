@@ -763,11 +763,8 @@ body.export {
 
 /*
  * Each export-page div maps to one printed page.
- *
- * Dimensions (1280 × 720 px slide + 200 px notes panel) are intentionally
- * hard-coded in pixels so the WebDriver print command's page-size parameters
- * (derived from the same constants in Export) produce a 1:1 pixel mapping
- * at the CSS reference pixel density of 96 px/inch.
+ * Dimensions are set via inline styles from Export::PageSize so they can
+ * be configured at export time. CSS just handles layout and overflow.
  */
 .export-page {
 	position: relative;
@@ -777,22 +774,18 @@ body.export {
 }
 
 .export-slide-area {
-	width: 1280px;
-	height: 720px;
 	position: relative;
 	overflow: hidden;
 }
 
-/* Make the slide fill its fixed container instead of the viewport. */
+/* Slide fills its container, which is sized by inline style. */
 .export-slide-area .slide {
-	width: 1280px;
-	height: 720px;
+	width: 100%;
+	height: 100%;
 }
 
 /* Notes panel below the slide. */
 .export-notes-area {
-	width: 1280px;
-	height: 200px;
 	padding: 0.5rem 2rem 0.5rem;
 	background: #0d0d1f;
 	border-top: 2px solid var(--accent);
