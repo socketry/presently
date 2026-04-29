@@ -22,7 +22,7 @@ export class SlideBuilder {
 	// @parameter overrides [Object] Option overrides for this step (e.g. a different effect).
 	// @returns [Promise] Resolves when the animation completes (or immediately if no effect).
 	show(count, overrides = {}) {
-		const effect = window.__PRESENTLY_EXPORT ? null : (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect);
+		const effect = this.#slide.animated ? (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect) : null;
 		let revealedElement = null;
 
 		this.#elements.forEach((element, index) => {
@@ -72,7 +72,7 @@ export class SlideBuilder {
 	next(overrides = {}) {
 		if (this.finished) return Promise.resolve();
 
-		const effect = window.__PRESENTLY_EXPORT ? null : (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect);
+		const effect = this.#slide.animated ? (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect) : null;
 		const element = this.#elements[this.#step];
 
 		if (!element.style.viewTransitionName || element.style.viewTransitionName === 'none') {
@@ -106,7 +106,7 @@ export class SlideBuilder {
 	play(interval, callback = null) {
 		if (this.finished) return;
 
-		if (window.__PRESENTLY_EXPORT) {
+		if (!this.#slide.animated) {
 			while (!this.finished) this.next();
 			return;
 		}
@@ -204,7 +204,7 @@ export class SlideContext {
 	// @parameter callback [Function] The function to call.
 	// @returns [SlideContext]
 	after(delay, callback) {
-		if (window.__PRESENTLY_EXPORT) {
+		if (!this.#slide.animated) {
 			callback(this);
 			return this;
 		}
@@ -226,9 +226,18 @@ export class SlideContext {
 export class Slide {
 	#element;
 	#timeouts = [];
+	#animated;
 
-	constructor(element) {
+	constructor(element, {animated = true} = {}) {
 		this.#element = element;
+		this.#animated = animated;
+	}
+
+	// Whether animations and timeouts are active for this slide.
+	// When false, all builds and delays resolve instantly.
+	// @returns [Boolean]
+	get animated() {
+		return this.#animated;
 	}
 
 	// The slide body element.
@@ -264,7 +273,7 @@ export class Slide {
 	// @parameter callback [Function] The function to call after the delay.
 	// @returns [SlideContext]
 	after(delay, callback) {
-		if (window.__PRESENTLY_EXPORT) {
+		if (!this.#animated) {
 			callback();
 			return new SlideContext(this, 0);
 		}
@@ -280,7 +289,7 @@ export class Slide {
 	// @parameter callback [Function] Receives a fresh SlideContext as `context` each iteration.
 	// @parameter delay [Number] Extra pause in milliseconds after the last step before restarting.
 	loop(callback, { delay = 0 } = {}) {
-		if (window.__PRESENTLY_EXPORT) {
+		if (!this.#animated) {
 			callback(new SlideContext(this));
 			return;
 		}

@@ -1,6 +1,6 @@
 import { Live } from 'live';
 import Syntax from '@socketry/syntax';
-import { Slide } from './slide.js';
+import { runScript } from './slide-scripts.js';
 import { applyCodeFocus } from './code-focus.js';
 
 const live = Live.start();
@@ -12,28 +12,15 @@ await Syntax.highlight();
 // Run the script for a single slide element.
 // Wrapped in try/catch so syntax errors don't crash the presentation.
 // Passes a tracked setTimeout so pending timeouts can be cancelled on slide change.
-function runScript(slideEl) {
-	const scriptEl = slideEl.querySelector('script[type="text/slide-script"]');
-	if (!scriptEl) return;
-
-	const container = slideEl.querySelector('.slide-body') ?? slideEl;
-	const slide = new Slide(container);
-	currentSlides.push(slide);
-
-	try {
-		const fn = new Function('slide', 'setTimeout', scriptEl.textContent);
-		fn(slide, slide.setTimeout.bind(slide));
-	} catch (error) {
-		console.error('Slide script error:', error);
-	}
-}
-
 // Run scripts for all slide elements currently in the DOM.
 // Cancels any pending timeouts from the previous slide's scripts first.
 function runSlideScripts() {
 	currentSlides.forEach(slide => slide.cancelTimeouts());
 	currentSlides = [];
-	document.querySelectorAll('.slide').forEach(runScript);
+	document.querySelectorAll('.slide').forEach(slideEl => {
+		const slide = runScript(slideEl);
+		if (slide) currentSlides.push(slide);
+	});
 }
 
 

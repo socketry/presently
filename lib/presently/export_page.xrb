@@ -15,9 +15,6 @@
 		}
 		</script>
 		
-		<!-- Set export flag before any module loads so slide.js skips animations. -->
-		<script>window.__PRESENTLY_EXPORT = true;</script>
-		
 		<script type="module" src="/export.js"></script>
 	</head>
 	

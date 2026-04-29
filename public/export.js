@@ -1,18 +1,6 @@
 import Syntax from '@socketry/syntax';
-import {Slide} from '/slide.js';
+import {runAllSlideScripts} from '/slide-scripts.js';
 import {applyCodeFocus} from '/code-focus.js';
-
-// Run all inline slide scripts synchronously, scoped to their slide element.
-function runSlideScripts() {
-	document.querySelectorAll('script[type="text/slide-script"]').forEach((scriptEl) => {
-		const slideEl = scriptEl.closest('.slide');
-		if (!slideEl) return;
-		
-		const slide = new Slide(slideEl);
-		// eslint-disable-next-line no-new-func
-		new Function('slide', scriptEl.textContent)(slide);
-	});
-}
 
 
 // Wait for two animation frames, ensuring the browser has processed all pending
@@ -28,7 +16,7 @@ async function main() {
 	const syntaxDone = Syntax.highlight();
 
 	// 2. Run slide scripts (synchronous in export mode — sets visibility instantly).
-	runSlideScripts();
+	runAllSlideScripts({animated: false});
 
 	// 3. Wait for syntax and fonts to finish before applying focus.
 	await Promise.all([syntaxDone, document.fonts.ready]);
