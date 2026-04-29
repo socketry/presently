@@ -29,6 +29,12 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.14.0
+
+  - Increase code font size by 50%.
+  - Add support for includes using `![[path]]` syntax.
+  - Add `bake presently:rehearse` tasks for updating timing information.
+
 ### v0.13.0
 
   - Change zoom to 50% on slide preview (presenter display).
@@ -74,11 +80,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
 ### v0.5.0
 
   - Add optional `speaker` front matter key to slides. When present, the current speaker's name is shown in the timing bar. If the next slide has a different speaker, a handoff indicator (e.g. `→ Next Speaker`) is shown alongside, giving presenters an at-a-glance cue for tag-team talks.
-
-### v0.4.0
-
-  - Add `bake presently:slides:notes` task to extract all presenter notes into a single Markdown document, with each slide's file path as a heading. Useful for reviewing or sharing speaker notes outside of the presentation.
-  - Presenter notes are now kept as a Markdown AST internally and rendered to HTML on demand, so the notes you write are faithfully round-tripped rather than converted to HTML at parse time.
 
 ## See Also
 

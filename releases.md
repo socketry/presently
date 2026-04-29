@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.14.0
 
   - Increase code font size by 50%.
   - Add support for includes using `![[path]]` syntax.
