@@ -18,7 +18,7 @@ module Presently
 	# Page dimensions are fixed at 1280×720 px (16:9) for the slide area, with an optional
 	# 200 px notes panel below each slide. The corresponding centimetre values are used as
 	# WebDriver print page dimensions so the output is pixel-perfect at 96 dpi.
-	class ExportPage
+	class Export
 		# Slide canvas dimensions in CSS pixels.
 		SLIDE_WIDTH_PX  = 1280
 		SLIDE_HEIGHT_PX = 720
@@ -31,7 +31,7 @@ module Presently
 		SLIDE_HEIGHT_CM = (SLIDE_HEIGHT_PX / 96.0 * 2.54).round(4)
 		NOTES_HEIGHT_CM = (NOTES_HEIGHT_PX / 96.0 * 2.54).round(4)
 		
-		TEMPLATE = XRB::Template.load_file(File.expand_path("export_page.xrb", __dir__))
+		TEMPLATE = XRB::Template.load_file(File.expand_path("export.xrb", __dir__))
 		
 		# Parse export options from a URL query string.
 		# @parameter query [String | Nil] The raw query string, e.g. `"notes=true&speaker=true"`.

@@ -35,9 +35,9 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 	query = URI.encode_www_form(notes: notes, speaker: speaker, timing: timing)
 	export_url = "#{base_url}/export?#{query}"
 	
-	page_width_cm   = Presently::ExportPage::SLIDE_WIDTH_CM
-	slide_height_cm = Presently::ExportPage::SLIDE_HEIGHT_CM
-	notes_height_cm = notes ? Presently::ExportPage::NOTES_HEIGHT_CM : 0.0
+	page_width_cm   = Presently::Export::SLIDE_WIDTH_CM
+	slide_height_cm = Presently::Export::SLIDE_HEIGHT_CM
+	notes_height_cm = notes ? Presently::Export::NOTES_HEIGHT_CM : 0.0
 	page_height_cm  = (slide_height_cm + notes_height_cm).round(4)
 	
 	# Build the service environment using the standard Presently stack, then
@@ -79,8 +79,8 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 					
 					begin
 						session.resize_window(
-							Presently::ExportPage::SLIDE_WIDTH_PX,
-							Presently::ExportPage::SLIDE_HEIGHT_PX
+							Presently::Export::SLIDE_WIDTH_PX,
+							Presently::Export::SLIDE_HEIGHT_PX
 						)
 						
 						session.page_load_timeout = timeout * 1000

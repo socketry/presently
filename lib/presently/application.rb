@@ -10,7 +10,7 @@ require_relative "presentation"
 require_relative "presentation_controller"
 require_relative "display_view"
 require_relative "presenter_view"
-require_relative "export_page"
+require_relative "export"
 require_relative "page"
 require_relative "state"
 
@@ -80,9 +80,9 @@ module Presently
 			path, query = request.path.split("?", 2)
 			
 			if path == "/export"
-				options = ExportPage.options_from_query(query)
+				options = Export.options_from_query(query)
 				presentation = Presentation.load(@slides_root, templates: controller.templates)
-				export = ExportPage.new(presentation: presentation, **options)
+				export = Export.new(presentation: presentation, **options)
 				return Protocol::HTTP::Response[200, [["content-type", "text/html"]], [export.call]]
 			end
 			

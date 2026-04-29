@@ -766,7 +766,7 @@ body.export {
  *
  * Dimensions (1280 × 720 px slide + 200 px notes panel) are intentionally
  * hard-coded in pixels so the WebDriver print command's page-size parameters
- * (derived from the same constants in ExportPage) produce a 1:1 pixel mapping
+ * (derived from the same constants in Export) produce a 1:1 pixel mapping
  * at the CSS reference pixel density of 96 px/inch.
  */
 .export-page {
