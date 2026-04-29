@@ -48,24 +48,24 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 		bound_endpoint = Async::HTTP::Endpoint.parse("http://localhost:0").bound
 		
 		begin
-			environment = Async::Service::Environment.for(
+			environment = Async::Service::Environment.build(
 				Presently::Environment::Application,
 				root: context.root,
 				slides_root: File.expand_path(slides_root, context.root),
-				endpoint: bound_endpoint,
+				endpoint: Async::HTTP::Endpoint.parse("http://localhost", bound_endpoint)
 			)
 			
 			evaluator = environment.evaluator
 			server = evaluator.make_server(evaluator.endpoint)
-			server_task = task.async { server.run }
+			server_task = task.async{server.run}
 			
 			begin
 				# Derive the actual base URL from the bound socket address.
 				base_url = nil
-				bound_endpoint.local_address_endpoint.each do |ep|
-					addr = ep.address
-					host = addr.ipv6? ? "[#{addr.ip_address}]" : addr.ip_address
-					base_url = "http://#{host}:#{addr.ip_port}"
+				bound_endpoint.local_address_endpoint.each do |endpoint|
+					address = endpoint.address
+					host = address.ipv6? ? "[#{address.ip_address}]" : address.ip_address
+					base_url = "http://#{host}:#{address.ip_port}"
 					break
 				end
 				
@@ -89,7 +89,6 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 							session.page_load_timeout = timeout * 1000
 							session.script_timeout = timeout * 1000
 							
-							Console.info(self, "Navigating to export page...", url: export_url)
 							session.navigate_to(export_url)
 							
 							# Block until export.js dispatches presently:ready.
@@ -98,8 +97,6 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 								if (window.__PRESENTLY_READY) { done(); return; }
 								document.addEventListener('presently:ready', () => done(), {once: true});
 							JS
-							
-							Console.info(self, "Page ready, printing PDF...")
 							
 							pdf_data = session.print(
 								background:    true,
@@ -110,8 +107,6 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 							
 							FileUtils.mkdir_p(File.dirname(File.expand_path(output)))
 							File.write(output, pdf_data, mode: "wb")
-							
-							Console.info(self, "Export complete.", output: output)
 						ensure
 							session.close
 						end
@@ -129,4 +124,6 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 			bound_endpoint.close
 		end
 	end
+	
+	return {path: output}
 end

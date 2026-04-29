@@ -98,7 +98,7 @@ module Presently
 				end
 				
 				builder.tag(:span, class: "export-filename") do
-					builder.tag(:code) { builder.text(File.basename(slide.path)) }
+					builder.tag(:code){builder.text(File.basename(slide.path))}
 				end
 				
 				if @timing
@@ -113,7 +113,7 @@ module Presently
 				
 				if @speaker && slide.speaker
 					builder.tag(:span, class: "export-speaker") do
-						builder.tag(:span, class: "speaker-label") { builder.text("🎤") }
+						builder.tag(:span, class: "speaker-label"){builder.text("🎤")}
 						builder.text(" #{slide.speaker}")
 					end
 				end
@@ -125,7 +125,7 @@ module Presently
 					if slide.notes && !slide.notes.empty?
 						builder.raw(slide.notes.to_html)
 					else
-						builder.tag(:p, class: "no-notes") { builder.text("No presenter notes for this slide.") }
+						builder.tag(:p, class: "no-notes"){builder.text("No presenter notes for this slide.")}
 					end
 				end
 			end
