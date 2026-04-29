@@ -1,0 +1,74 @@
+/* ========================
+   ARCHITECTURE DIAGRAM
+   ======================== */
+
+.arch-diagram {
+	position: relative;
+	width: 100%;
+	height: 80%;
+	font-family: var(--font-mono);
+	font-size: 0.85em;
+}
+
+.arch-box {
+	position: absolute;
+	border-radius: 8px;
+	padding: 0.9rem 1rem;
+}
+
+.arch-box-title {
+	font-weight: bold;
+	margin-bottom: 0.6rem;
+}
+
+.arch-component {
+	border-radius: 4px;
+	padding: 0.35rem 0.5rem;
+	text-align: center;
+	margin-bottom: 0.35rem;
+}
+
+.arch-component:last-child {
+	margin-bottom: 0;
+}
+
+.arch-server {
+	border: 2px solid #f90;
+}
+
+.arch-server .arch-component {
+	border: 1px solid #666;
+}
+
+.arch-display {
+	border: 2px solid #4a9eff;
+}
+
+.arch-display .arch-component {
+	border: 1px solid #666;
+}
+
+.arch-display .arch-ws {
+	border-color: #4a9eff;
+	color: #4a9eff;
+}
+
+.arch-presenter {
+	border: 2px solid #a78bfa;
+}
+
+.arch-presenter .arch-component {
+	border: 1px solid #666;
+}
+
+.arch-presenter .arch-ws {
+	border-color: #a78bfa;
+	color: #a78bfa;
+}
+
+.arch-arrow {
+	position: absolute;
+	text-align: center;
+	color: #888;
+	font-size: 0.8em;
+}

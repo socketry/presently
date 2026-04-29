@@ -1,23 +1,30 @@
 ---
-duration: 90
+duration: 45
 marker: Architecture
 transition: fade
 speaker: Samuel
 ---
 
-```mermaid
-graph LR
-    Browser1[Display View] -->|WebSocket| Server
-    Browser2[Presenter View] -->|WebSocket| Server
-    Server --> Controller[Presentation Controller]
-    Controller --> Presentation
-    Presentation --> Slides[(Markdown Files)]
-```
+<div class="arch-diagram">
+  <div class="arch-box arch-server" style="top: 10%; left: 15%; width: 70%; view-transition-name: arch-server;">
+    <div class="arch-box-title">Server</div>
+    <div class="arch-component server-ctrl">Presentation Controller</div>
+    <div class="arch-component server-pres">Presentation</div>
+    <div class="arch-component server-slides">Markdown Files</div>
+  </div>
+</div>
 
 ---
 
-*Give the diagram a moment to render before speaking.*
+At the heart of Presently is the server. It runs a single Presentation Controller that owns all the state — which slide is current, the clock, everything.
 
-Here's a bird's eye view of how Presently fits together. Both browser windows — the display and the presenter view — connect to the same server over WebSockets. The server runs a single Presentation Controller that owns all the state.
+Below it sits the Presentation object, which holds the ordered list of Markdown slides loaded from disk.
 
-When you advance a slide in the presenter view, that event travels up to the controller, which updates the Presentation and notifies every connected client. The display updates in under a millisecond. There's no refresh, no polling — just a push.
+```javascript
+const details = slide.find(".arch-component").builder({group: "detail", effect: "fly-up"})
+details.show(0)
+slide
+  .after(500, () => details.next())
+  .after(400, () => details.next())
+  .after(400, () => details.next())
+```
