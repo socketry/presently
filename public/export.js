@@ -28,17 +28,31 @@ function applyCodeFocus() {
 	});
 }
 
+// Wait for two animation frames, ensuring the browser has processed all pending
+// style recalculations and committed DOM mutations to a rendered frame.
+// This is the canonical way to know the browser is done after async DOM work.
+function waitForRender() {
+	return new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
 async function main() {
-	// 1. Syntax highlighting (synchronous).
-	await Syntax.highlight();
-	
-	// 2. Run slide scripts (reveals builds etc. instantly in export mode).
+	// 1. Kick off syntax highlighting and font loading concurrently.
+	//    Slide scripts are synchronous and don't depend on either, so run them now.
+	const syntaxDone = Syntax.highlight();
+
+	// 2. Run slide scripts (synchronous in export mode — sets visibility instantly).
 	runSlideScripts();
-	
-	// 3. Apply code focus highlighting.
+
+	// 3. Wait for syntax and fonts to finish before applying focus.
+	await Promise.all([syntaxDone, document.fonts.ready]);
+
+	// 4. Apply code focus now that syntax has created the .line elements.
 	applyCodeFocus();
-	
-	// 4. Signal readiness to the WebDriver bake task.
+
+	// 5. Wait for the browser to commit all DOM mutations to a rendered frame.
+	//    Without this, the PDF can be captured before the browser has painted.
+	await waitForRender();
+
 	window.__PRESENTLY_READY = true;
 	document.dispatchEvent(new CustomEvent('presently:ready'));
 }
