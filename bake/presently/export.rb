@@ -50,8 +50,8 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 		begin
 			environment = Async::Service::Environment.build(
 				Presently::Environment::Application,
-				root: context.root,
-				slides_root: File.expand_path(slides_root, context.root),
+				root: Dir.pwd,
+				slides_root: slides_root,
 				endpoint: Async::HTTP::Endpoint.parse("http://localhost", bound_endpoint)
 			)
 			

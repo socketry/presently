@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Export works from current working directory.
+
 ## v0.14.0
 
   - Increase code font size by 50%.
