@@ -3,7 +3,6 @@
 // instead of tracking count manually. Created via SlideElements#builder(options).
 export class SlideBuilder {
 	#elements;
-	#prefix;
 	#defaultEffect;
 	#slide;
 	#step = 0;
@@ -11,7 +10,6 @@ export class SlideBuilder {
 	constructor(slide, elements, options = {}) {
 		this.#slide = slide;
 		this.#elements = elements;
-		this.#prefix = options.group || 'build';
 		this.#defaultEffect = options.effect || null;
 	}
 
@@ -26,16 +24,8 @@ export class SlideBuilder {
 		let revealedElement = null;
 
 		this.#elements.forEach((element, index) => {
-			// Only assign a group name if the element doesn't already have an explicit one.
-			// Preserving explicit names allows elements to participate in morph transitions
-			// to other slides while still being managed by the build system.
-			if (!element.style.viewTransitionName || element.style.viewTransitionName === 'none') {
-				element.style.viewTransitionName = `${this.#prefix}-${index + 1}`;
-			}
-
 			if (index < count) {
 				element.style.visibility = 'visible';
-				element.style.viewTransitionClass = '';
 
 				if (index === count - 1 && effect) {
 					element.classList.add(`build-${effect}`);
@@ -43,9 +33,6 @@ export class SlideBuilder {
 				}
 			} else {
 				element.style.visibility = 'hidden';
-				// Keep viewTransitionClass set so morph transitions can suppress
-				// crossfading on hidden elements when called inside startViewTransition.
-				element.style.viewTransitionClass = 'build-hidden';
 			}
 		});
 
@@ -75,11 +62,7 @@ export class SlideBuilder {
 		const effect = this.#slide.animated ? (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect) : null;
 		const element = this.#elements[this.#step];
 
-		if (!element.style.viewTransitionName || element.style.viewTransitionName === 'none') {
-			element.style.viewTransitionName = `${this.#prefix}-${this.#step + 1}`;
-		}
 		element.style.visibility = 'visible';
-		element.style.viewTransitionClass = '';
 
 		this.#step += 1;
 
@@ -141,7 +124,6 @@ export class SlideElements {
 
 	// Create a stateful SlideBuilder for this element collection with default options.
 	// @parameter options [Object] Default options applied to every show() / next() call.
-	//   group: prefix for view-transition-name (default: "build")
 	//   effect: "fade", "fly-up", "fly-down", "fly-left", "fly-right", "scale"
 	// @returns [SlideBuilder]
 	builder(options = {}) {
@@ -152,7 +134,6 @@ export class SlideElements {
 	// Delegates to SlideBuilder for the actual implementation.
 	// @parameter count [Integer] Number of elements to show.
 	// @parameter options [Object]
-	//   group: prefix for view-transition-name (default: "build")
 	//   effect: "fade", "fly-up", "fly-down", "fly-left", "fly-right", "scale"
 	// @returns [Promise] Resolves when the animation completes (or immediately if no effect).
 	show(count, options = {}) {

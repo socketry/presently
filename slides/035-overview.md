@@ -1,6 +1,6 @@
 ---
 duration: 20
-transition: morph
+transition: fade
 speaker: Samuel
 ---
 
@@ -17,6 +17,6 @@ And yes — this slide is itself a live example. The "You are here" badge just f
 That's the whole point of Presently: the tool eats its own cooking.
 
 ```javascript
-slide.find("li").show(5, {group: "bullet"})
+slide.find("li").show(5)
 slide.find(".callout").show(1, {effect: "fly-up"})
 ```

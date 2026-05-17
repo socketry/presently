@@ -249,7 +249,7 @@ module Presently
 		end
 		
 		# The transition type for animating into this slide.
-		# @returns [String | Nil] The transition name (e.g. `"fade"`, `"slide-left"`, `"morph"`), or `nil` for instant swap.
+		# @returns [String | Nil] The transition name (e.g. `"fade"`, `"slide-left"`, `"slide-right"`), or `nil` for instant swap.
 		def transition
 			@front_matter&.fetch("transition", nil)
 		end

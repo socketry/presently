@@ -1,14 +1,6 @@
 # Animating Slides
 
-This guide explains how to animate content within slides using the `morph` transition and the slide scripting system.
-
-## How Morph Works
-
-The `morph` transition uses the browser's View Transitions API. When navigating between two slides, any element that has a `view-transition-name` style on both the old and new slide is matched — the browser captures its position and appearance in both states and animates between them.
-
-Elements without a matching name crossfade. The slide background stays completely still (no container animation).
-
-This is the mechanism that makes build sequences possible: the same element appears on consecutive slides with the same name, so it stays pinned in place while hidden elements appear around it.
+This guide explains how to animate content within slides using the slide scripting system.
 
 ## Slide Scripts
 
@@ -18,7 +10,6 @@ Any slide can include a JavaScript block at the end of its presenter notes secti
 ---
 template: default
 duration: 30
-transition: morph
 ---
 
 - First point
@@ -30,7 +21,7 @@ transition: morph
 Your presenter notes here.
 
 ```javascript
-slide.find("li").show(1, {group: "bullet"})
+slide.find("li").show(1)
 ```
 ~~~
 
@@ -52,7 +43,7 @@ slide.find(".callout")     // elements with a specific class
 
 ### `elements.show(n, options)`
 
-Shows the first `n` elements in the collection and hides the rest. Assigns `view-transition-name` to each element so the morph transition can match them across consecutive slides. Returns a `Promise` that resolves when any reveal animation completes.
+Shows the first `n` elements in the collection and hides the rest. Returns a `Promise` that resolves when any reveal animation completes.
 
 ``` javascript
 slide.find("li").show(0)  // all hidden
@@ -64,7 +55,6 @@ Options:
 
 | Option | Description |
 |---|---|
-| `group` | Name prefix for `view-transition-name` — must be consistent across slides for morph to match elements. Defaults to `"build"`. |
 | `effect` | Entry animation for the newly revealed element. See effects below. |
 
 ### `elements.builder(options)`
@@ -72,7 +62,7 @@ Options:
 Creates a `SlideBuilder` with default options and a cached position. Use this instead of calling `show()` manually when you want to reveal elements one at a time from a script.
 
 ``` javascript
-const bullets = slide.find("li").builder({group: "bullet", effect: "fly-up"})
+const bullets = slide.find("li").builder({effect: "fly-up"})
 bullets.show(0)       // hide all initially
 bullets.next()        // reveal first, plays fly-up
 bullets.next()        // reveal second, plays fly-up
@@ -115,7 +105,7 @@ A build sequence is a series of consecutive slides with the same content, each r
 ---
 template: default
 duration: 20
-transition: morph
+transition: fade
 ---
 
 - Real-time synchronization
@@ -127,7 +117,7 @@ transition: morph
 Let's walk through the key features.
 
 ```javascript
-slide.find("li").show(0, {group: "bullet"})
+slide.find("li").show(0)
 ```
 ~~~
 
@@ -136,7 +126,7 @@ slide.find("li").show(0, {group: "bullet"})
 ---
 template: default
 duration: 20
-transition: morph
+transition: fade
 ---
 
 - Real-time synchronization
@@ -148,11 +138,9 @@ transition: morph
 The display and presenter stay in sync over a WebSocket connection.
 
 ```javascript
-slide.find("li").show(1, {group: "bullet"})
+slide.find("li").show(1)
 ```
 ~~~
-
-The `group` option must be identical across all slides in the sequence so the browser matches the same elements. Without it, each slide uses the default `"build"` prefix — which is fine as long as only one build sequence is active per slide.
 
 Because all elements are in the DOM from the start (just hidden), the vertical layout stays consistent throughout the sequence — there is no shift as elements appear.
 
@@ -161,7 +149,7 @@ Because all elements are in the DOM from the start (just hidden), the vertical l
 Pass an `effect` option to animate the newly revealed element as it appears. The effect plays as a CSS animation on the element and is removed automatically once it completes.
 
 ``` javascript
-slide.find("li").show(2, {group: "bullet", effect: "fly-up"})
+slide.find("li").show(2, {effect: "fly-up"})
 ```
 
 Available effects:
@@ -181,8 +169,8 @@ A slide can have multiple independent build groups. Each `find().show()` call is
 
 ``` javascript
 // Reveal list items as one group, callout div as another
-slide.find("li").show(3, {group: "bullet"})
-slide.find(".callout").show(1, {group: "callout", effect: "fly-up"})
+slide.find("li").show(3)
+slide.find(".callout").show(1, {effect: "fly-up"})
 ```
 
 ## In-Slide Animation with `slide.after()`
@@ -190,8 +178,8 @@ slide.find(".callout").show(1, {group: "callout", effect: "fly-up"})
 For sequential reveals within a single slide (without navigating to the next slide), use `slide.after()`. Each step fires a delay in milliseconds relative to the previous step. Returns a `SlideContext` so subsequent `.after()` calls chain naturally.
 
 ``` javascript
-const panes = slide.find(".pane").builder({group: "pane", effect: "fade"})
-const items = slide.find(".item").builder({group: "item", effect: "fly-up"})
+const panes = slide.find(".pane").builder({effect: "fade"})
+const items = slide.find(".item").builder({effect: "fly-up"})
 panes.show(0)
 items.show(0)
 

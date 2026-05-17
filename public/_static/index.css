@@ -364,18 +364,6 @@ html[data-transition="slide-right"]::view-transition-new(slide-container) {
 	animation: vt-slide-in-left 0.4s ease-in-out;
 }
 
-/* Magic move — the browser interpolates position/size for matched
-   view-transition-name elements. No cross-fade on the container
-   to avoid background dimming. */
-html[data-transition="morph"]::view-transition-old(slide-container) {
-	animation: none;
-	opacity: 0;
-}
-
-html[data-transition="morph"]::view-transition-new(slide-container) {
-	animation: none;
-}
-
 @keyframes vt-fade-out {
 	from { opacity: 1; }
 	to { opacity: 0; }
@@ -409,13 +397,6 @@ html[data-transition="morph"]::view-transition-new(slide-container) {
 /* ========================
    BUILD EFFECTS
    ======================== */
-
-/* Suppress both pseudo-elements for hidden build elements so they
-   neither crossfade in nor crossfade out during the transition. */
-::view-transition-old(.build-hidden),
-::view-transition-new(.build-hidden) {
-	display: none;
-}
 
 /* Fade */
 .build-fade {

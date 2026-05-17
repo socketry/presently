@@ -32,8 +32,8 @@ speaker: Samuel
 An HTML grid layout with animated step-by-step reveals using `slide.after()`.
 
 ```javascript
-const panes = slide.find(".pane").builder({group: "pane", effect: "fade"})
-const components = slide.find(".component").builder({group: "component", effect: "fly-up"})
+const panes = slide.find(".pane").builder({effect: "fade"})
+const components = slide.find(".component").builder({effect: "fly-up"})
 panes.show(0)
 components.show(0)
 slide

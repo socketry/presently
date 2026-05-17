@@ -1,7 +1,7 @@
 ---
 template: statement
 duration: 30
-transition: morph
+transition: fade
 speaker: Samuel
 ---
 
