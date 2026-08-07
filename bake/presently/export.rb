@@ -55,7 +55,13 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 				endpoint: Async::HTTP::Endpoint.parse("http://localhost", bound_endpoint)
 			)
 			
-			evaluator = environment.evaluator
+			# `make_server` comes from `Falcon::Environment::Server`, which
+			# `Lively::Environment::Application` does not include directly - the
+			# transport is composed in via `transport_environment` so that
+			# `service_class` resolves correctly. Compose it here too, otherwise
+			# the evaluator has no `make_server`.
+			transport = environment.with(environment.evaluator.transport_environment)
+			evaluator = transport.evaluator
 			server = evaluator.make_server(evaluator.endpoint)
 			server_task = task.async{server.run}
 			
