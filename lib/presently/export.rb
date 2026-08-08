@@ -20,8 +20,16 @@ module Presently
 		PageSize = Struct.new(:slide_width_px, :slide_height_px, :notes_height_px, keyword_init: true) do
 			PX_PER_CM = 96.0 / 2.54
 			
+			# Convert the slide width from CSS pixels to centimetres.
+			# @returns [Float] The slide width in centimetres.
 			def slide_width_cm  = (slide_width_px  / PX_PER_CM).round(4)
+			
+			# Convert the slide height from CSS pixels to centimetres.
+			# @returns [Float] The slide height in centimetres.
 			def slide_height_cm = (slide_height_px / PX_PER_CM).round(4)
+			
+			# Convert the notes panel height from CSS pixels to centimetres.
+			# @returns [Float] The notes panel height in centimetres.
 			def notes_height_cm = (notes_height_px / PX_PER_CM).round(4)
 		end
 		
