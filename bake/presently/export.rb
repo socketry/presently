@@ -55,7 +55,10 @@ def pdf(output: "presentation.pdf", slides_root: "slides", notes: true, speaker:
 				endpoint: Async::HTTP::Endpoint.parse("http://localhost", bound_endpoint)
 			)
 			
-			evaluator = environment.evaluator
+			# PDF export always requires an HTTP server, regardless of the configured
+			# Lively transport:
+			transport = environment.with(environment.evaluator.http_environment)
+			evaluator = transport.evaluator
 			server = evaluator.make_server(evaluator.endpoint)
 			server_task = task.async{server.run}
 			
