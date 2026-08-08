@@ -16,29 +16,29 @@ describe Presently::Environment::Application do
 			endpoint: Async::HTTP::Endpoint.parse("http://localhost:0")
 		)
 	end
-
+	
 	it "exposes the presently application" do
 		expect(environment.evaluator.application).to be == Presently::Application
 	end
-
+	
 	# `make_server` comes from `Falcon::Environment::Server`, which this module
 	# does not include directly. Anything wanting to run a server (e.g. the
-	# `presently:export:pdf` task) has to compose the transport first.
+	# `presently:export:pdf` task) has to compose the HTTP environment first.
 	it "does not expose make_server before the transport is composed" do
 		expect(environment.evaluator.respond_to?(:make_server)).to be == false
 	end
-
-	it "exposes make_server once the transport environment is composed" do
+	
+	it "exposes make_server once the HTTP environment is composed" do
 		evaluator = environment.evaluator
-		transport = environment.with(evaluator.transport_environment)
-
+		transport = environment.with(evaluator.http_environment)
+		
 		expect(transport.evaluator.respond_to?(:make_server)).to be == true
 	end
-
-	it "can build a server from the composed transport environment" do
-		transport = environment.with(environment.evaluator.transport_environment)
+	
+	it "can build a server from the composed HTTP environment" do
+		transport = environment.with(environment.evaluator.http_environment)
 		evaluator = transport.evaluator
-
+		
 		expect(evaluator.make_server(evaluator.endpoint)).not.to be_nil
 	end
 end
