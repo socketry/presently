@@ -21,8 +21,8 @@ end
 #
 # @parameter slides_root [String] The slides directory. Default: `slides`.
 # @parameter speaker [String | Nil] Only rehearse slides for this speaker.
-# @parameter from [String | Nil] Substring match — start at the first slide whose filename contains this.
-# @parameter to [String | Nil] Substring match — stop after the first slide whose filename contains this.
+# @parameter from [String | Nil] Substring match — start at the first slide whose relative path contains this.
+# @parameter to [String | Nil] Substring match — stop after the first slide whose relative path contains this.
 # @parameter resume [Boolean] Resume from the slide after the last one recorded in the log. Keeps prior records and appends new ones.
 # @parameter log [String] Path to write the JSON log. Default: `tmp/rehearsal.json`.
 def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: false, log: "tmp/rehearsal.json")
@@ -31,12 +31,12 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 	slides = slides.select{|slide| slide.speaker == speaker} if speaker
 	
 	if from
-		start_index = slides.index{|slide| File.basename(slide.path).include?(from)}
+		start_index = slides.index{|slide| slide.path.include?(from)}
 		slides = slides[start_index..] if start_index
 	end
 	
 	if to
-		end_index = slides.index{|slide| File.basename(slide.path).include?(to)}
+		end_index = slides.index{|slide| slide.path.include?(to)}
 		slides = slides[..end_index] if end_index
 	end
 	
@@ -49,7 +49,7 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 		
 		prior_records = JSON.parse(File.read(log), symbolize_names: true)
 		last_path = prior_records.last&.dig(:path)
-		resume_index = slides.index{|slide| File.basename(slide.path) == last_path}
+		resume_index = slides.index{|slide| slide.path == last_path}
 		
 		if resume_index.nil?
 			puts "Last rehearsed slide (#{last_path}) not found in current slide set. Nothing to resume."
@@ -81,14 +81,14 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 	records = []
 	offset = prior_records.length
 	slides.each_with_index do |slide, index|
-		basename = File.basename(slide.path)
+		relative_path = slide.path
 		headline = extract_headline(slide)
 		absolute = offset + index + 1
 		total = offset + slides.length
 		
 		puts
 		puts "─" * 72
-		puts "[#{absolute}/#{total}] #{basename}  planned: #{format_duration(slide.duration)}  speaker: #{slide.speaker || "—"}"
+		puts "[#{absolute}/#{total}] #{relative_path}  planned: #{format_duration(slide.duration)}  speaker: #{slide.speaker || "—"}"
 		puts "  #{headline}" unless headline.empty?
 		if slide.notes
 			notes = slide.notes.to_commonmark.strip
@@ -105,7 +105,7 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 		
 		records << {
 			index: absolute,
-			path: basename,
+			path: relative_path,
 			speaker: slide.speaker,
 			planned: slide.duration,
 			actual: elapsed.round(1),

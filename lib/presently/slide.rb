@@ -61,15 +61,17 @@ module Presently
 			module_function
 			
 			# Parse the file and return a {Slide}.
-			# @parameter path [String] The file path to parse.
+			# @parameter presentation [Presentation] The presentation which owns the slide.
+			# @parameter path [String] The slide path relative to the presentation root.
 			# @returns [Slide]
-			def load(path)
-				raw = File.read(path)
+			def load(presentation, path)
+				source_path = File.join(presentation.root, path)
+				raw = File.read(source_path)
 				
 				# Parse once, with native front matter support.
 				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
 				
-				expand_includes!(document, File.dirname(path))
+				expand_includes!(document, File.dirname(source_path))
 				
 				# Extract front matter from the first AST node if present.
 				front_matter = nil
@@ -111,7 +113,7 @@ module Presently
 					script = nil
 				end
 				
-				Slide.new(path, front_matter: front_matter, content: content, notes: notes, script: script)
+				Slide.new(presentation, path, front_matter: front_matter, content: content, notes: notes, script: script)
 			end
 			
 			# Expand `![[path/to/file.md]]` include directives in a parsed document.
@@ -183,19 +185,22 @@ module Presently
 		end
 		
 		# Load and parse a slide from a Markdown file.
-		# @parameter path [String] The file path to the Markdown slide.
+		# @parameter presentation [Presentation] The presentation which owns the slide.
+		# @parameter path [String] The slide path relative to the presentation root.
 		# @returns [Slide]
-		def self.load(path)
-			Parser.load(path)
+		def self.load(presentation, path)
+			Parser.load(presentation, path)
 		end
 		
 		# Initialize a slide with pre-parsed data.
-		# @parameter path [String] The file path of the slide.
+		# @parameter presentation [Presentation] The presentation which owns the slide.
+		# @parameter path [String] The slide path relative to the presentation root.
 		# @parameter front_matter [Hash | Nil] The parsed YAML front_matter.
 		# @parameter content [Hash(String, Fragment)] Content sections keyed by heading name.
 		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		# @parameter script [String | Nil] JavaScript to execute after the slide renders.
-		def initialize(path, front_matter: nil, content: {}, notes: nil, script: nil)
+		def initialize(presentation, path, front_matter: nil, content: {}, notes: nil, script: nil)
+			@presentation = presentation
 			@path = path
 			@front_matter = front_matter
 			@content = content
@@ -203,8 +208,17 @@ module Presently
 			@script = script
 		end
 		
-		# @attribute [String] The file path of the slide.
+		# @attribute [Presentation] The presentation which owns the slide.
+		attr :presentation
+		
+		# @attribute [String] The slide path relative to the presentation root.
 		attr :path
+		
+		# The absolute path of the slide source file.
+		# @returns [String]
+		def source_path
+			File.join(@presentation.root, @path)
+		end
 		
 		# @attribute [Hash | Nil] The parsed YAML front_matter.
 		attr :front_matter

@@ -204,10 +204,10 @@ module Presently
 						if slide
 							builder.text(" · ")
 							builder.tag(:code, class: "slide-path") do
-								builder.text(File.basename(slide.path))
+								builder.text(slide.path)
 							end
 							
-							if editor_url = editor_url_for(slide.path)
+							if editor_url = editor_url_for(slide.source_path)
 								builder.tag(:a, href: editor_url, class: "edit-link") do
 									builder.text("✎")
 								end

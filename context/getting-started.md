@@ -32,7 +32,27 @@ $ mkdir slides
 
 ### Writing Slides
 
-Each slide is a Markdown file in the `slides/` directory. Files are ordered alphabetically, so prefix them with numbers:
+Each slide is a Markdown file in the `slides/` directory. Files are ordered by path, and every directory and slide filename must begin with a numeric prefix:
+
+``` text
+slides/
+├── 010-welcome.md
+├── 020-performance/
+│   ├── 010-introduction.md
+│   └── 020-results.md
+└── 030-conclusion.md
+```
+
+This allows related slides to be grouped in nested directories while retaining an unambiguous presentation order. Markdown files with any unnumbered path component, such as `slides/shared/example.md`, are not treated as slides and can be used for included content.
+
+The `presently:slides:renumber` task only renumbers files directly inside the selected directory. Run it without arguments for the top-level slides, or pass a nested directory explicitly:
+
+``` shell
+$ bake presently:slides:renumber
+$ bake presently:slides:renumber slides_root=slides/020-performance
+```
+
+A slide file contains Markdown with optional frontmatter and presenter notes:
 
 ``` markdown
 ---
