@@ -106,7 +106,7 @@ module Presently
 				end
 				
 				builder.tag(:span, class: "export-filename") do
-					builder.tag(:code){builder.text(slide.relative_path)}
+					builder.tag(:code){builder.text(slide.path)}
 				end
 				
 				if @timing

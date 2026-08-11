@@ -49,7 +49,7 @@ module Presently
 		def controller
 			@controller ||= begin
 				templates = Templates.for(@templates_roots)
-				presentation = Presentation.load(@slides_root, templates: templates)
+				presentation = Presentation.load(@slides_root, templates)
 				
 				PresentationController.new(presentation, state: State.new)
 			end
@@ -81,7 +81,7 @@ module Presently
 			
 			if path == "/export"
 				options = Export.options_from_query(query)
-				presentation = Presentation.load(@slides_root, templates: controller.templates)
+				presentation = Presentation.load(@slides_root, controller.templates)
 				export = Export.new(presentation: presentation, **options)
 				return Protocol::HTTP::Response[200, [["content-type", "text/html"]], [export.call]]
 			end

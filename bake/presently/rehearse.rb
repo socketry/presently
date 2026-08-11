@@ -31,12 +31,12 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 	slides = slides.select{|slide| slide.speaker == speaker} if speaker
 	
 	if from
-		start_index = slides.index{|slide| slide.relative_path.include?(from)}
+		start_index = slides.index{|slide| slide.path.include?(from)}
 		slides = slides[start_index..] if start_index
 	end
 	
 	if to
-		end_index = slides.index{|slide| slide.relative_path.include?(to)}
+		end_index = slides.index{|slide| slide.path.include?(to)}
 		slides = slides[..end_index] if end_index
 	end
 	
@@ -49,7 +49,7 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 		
 		prior_records = JSON.parse(File.read(log), symbolize_names: true)
 		last_path = prior_records.last&.dig(:path)
-		resume_index = slides.index{|slide| slide.relative_path == last_path}
+		resume_index = slides.index{|slide| slide.path == last_path}
 		
 		if resume_index.nil?
 			puts "Last rehearsed slide (#{last_path}) not found in current slide set. Nothing to resume."
@@ -81,7 +81,7 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 	records = []
 	offset = prior_records.length
 	slides.each_with_index do |slide, index|
-		relative_path = slide.relative_path
+		relative_path = slide.path
 		headline = extract_headline(slide)
 		absolute = offset + index + 1
 		total = offset + slides.length

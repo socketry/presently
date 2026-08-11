@@ -41,12 +41,18 @@ describe Presently::Presentation do
 			let(:presentation) {subject.load(@root)}
 			
 			it "loads recursively in path order" do
-				expect(presentation.slides.map(&:relative_path)).to be == [
+				expect(presentation.slides.map(&:path)).to be == [
 					"010-introduction.md",
 					File.join("020-performance", "010-overview.md"),
 					File.join("020-performance", "030-details", "010-cpu.md"),
 					"030-conclusion.md",
 				]
+			end
+			
+			it "attaches slides to the presentation" do
+				slide = presentation.slides.first
+				expect(slide.presentation).to be_equal(presentation)
+				expect(slide.source_path).to be == File.join(@root, slide.path)
 			end
 			
 			it "requires every path component to have a numeric prefix" do

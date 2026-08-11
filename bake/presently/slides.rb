@@ -24,7 +24,7 @@ def notes(slides_root: "slides")
 	presentation.slides.each do |slide|
 		next unless slide.notes
 		
-		puts "## #{slide.relative_path}"
+		puts "## #{slide.path}"
 		puts
 		puts slide.notes.to_commonmark
 		puts
@@ -58,7 +58,7 @@ def speakers(slides_root: "slides")
 		puts "#{speaker} — #{format_duration(total_seconds)}"
 		
 		slides.each do |slide|
-			puts "  #{format_duration(slide.duration)}  #{slide.title}  (#{slide.relative_path})"
+			puts "  #{format_duration(slide.duration)}  #{slide.title}  (#{slide.path})"
 		end
 		
 		puts

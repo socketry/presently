@@ -3,13 +3,25 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "presently/slide"
+require "presently/presentation"
 require "tmpdir"
 require "fileutils"
 
 describe Presently::Slide do
+	def load_slide(path)
+		presentation = Presently::Presentation.new(File.dirname(path))
+		Presently::Slide.load(presentation, File.basename(path))
+	end
+	
 	let(:slide_path) {File.expand_path("../../slides/010-welcome.md", __dir__)}
-	let(:slide) {subject.load(slide_path)}
+	let(:slide) {load_slide(slide_path)}
+	
+	with "its presentation" do
+		it "retains its relative and source paths" do
+			expect(slide.path).to be == "010-welcome.md"
+			expect(slide.source_path).to be == slide_path
+		end
+	end
 	
 	with "#template" do
 		it "reads template from front_matter" do
@@ -79,7 +91,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "uses default template" do
 			expect(slide.template).to be == "default"
@@ -131,7 +143,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "separates content from notes" do
 			expect(slide.content["body"].to_html).to be(:include?, "Content here")
@@ -151,7 +163,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "extracts the script" do
 			expect(slide.script).to be(:include?, "console.log")
@@ -178,7 +190,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "expands the include into the document" do
 			expect(slide.content).to have_keys("before", "included", "after")
@@ -213,7 +225,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "recursively expands nested includes" do
 			html = slide.content["body"].to_html
@@ -236,7 +248,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "strips front matter from the included file" do
 			html = slide.content["body"].to_html
@@ -257,7 +269,7 @@ describe Presently::Slide do
 			FileUtils.remove_entry(dir)
 		end
 		
-		let(:slide) {Presently::Slide.load(path)}
+		let(:slide) {load_slide(path)}
 		
 		it "reads transition" do
 			expect(slide.transition).to be == "fade"
