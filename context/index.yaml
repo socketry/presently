@@ -13,4 +13,4 @@ files:
 - path: animating-slides.md
   title: Animating Slides
   description: This guide explains how to animate content within slides using the
-    `morph` transition and the slide scripting system.
+    slide scripting system.

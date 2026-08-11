@@ -1,9 +1,11 @@
 # Releases
 
-## Unreleased
+## v0.15.0
+
 q
+
   - Export works from current working directory.
-	- Remove explicit support for `morph` transition.
+      - Remove explicit support for `morph` transition.
 
 ## v0.14.0
 

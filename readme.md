@@ -23,11 +23,18 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
   - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
 
-  - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the `morph` transition and the slide scripting system.
+  - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the slide scripting system.
 
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
+
+### v0.15.0
+
+q
+
+  - Export works from current working directory.
+      - Remove explicit support for `morph` transition.
 
 ### v0.14.0
 
@@ -76,10 +83,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
 ### v0.6.0
 
   - Add `bake presently:slides:speakers` task to print a timing breakdown grouped by speaker. Each speaker's slides are listed in presentation order with individual and total durations, making it easy to balance talk time in multi-speaker presentations. Slides without a `speaker` key are grouped under `(no speaker)`.
-
-### v0.5.0
-
-  - Add optional `speaker` front matter key to slides. When present, the current speaker's name is shown in the timing bar. If the next slide has a different speaker, a handoff indicator (e.g. `→ Next Speaker`) is shown alongside, giving presenters an at-a-glance cue for tag-team talks.
 
 ## See Also
 
