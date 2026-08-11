@@ -204,7 +204,7 @@ module Presently
 						if slide
 							builder.text(" · ")
 							builder.tag(:code, class: "slide-path") do
-								builder.text(File.basename(slide.path))
+								builder.text(slide.relative_path)
 							end
 							
 							if editor_url = editor_url_for(slide.path)

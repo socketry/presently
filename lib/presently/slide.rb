@@ -62,8 +62,9 @@ module Presently
 			
 			# Parse the file and return a {Slide}.
 			# @parameter path [String] The file path to parse.
+			# @parameter relative_path [String | Nil] The slide path relative to its presentation root.
 			# @returns [Slide]
-			def load(path)
+			def load(path, relative_path: nil)
 				raw = File.read(path)
 				
 				# Parse once, with native front matter support.
@@ -111,7 +112,7 @@ module Presently
 					script = nil
 				end
 				
-				Slide.new(path, front_matter: front_matter, content: content, notes: notes, script: script)
+				Slide.new(path, relative_path: relative_path, front_matter: front_matter, content: content, notes: notes, script: script)
 			end
 			
 			# Expand `![[path/to/file.md]]` include directives in a parsed document.
@@ -184,19 +185,22 @@ module Presently
 		
 		# Load and parse a slide from a Markdown file.
 		# @parameter path [String] The file path to the Markdown slide.
+		# @parameter relative_path [String | Nil] The slide path relative to its presentation root.
 		# @returns [Slide]
-		def self.load(path)
-			Parser.load(path)
+		def self.load(path, relative_path: nil)
+			Parser.load(path, relative_path: relative_path)
 		end
 		
 		# Initialize a slide with pre-parsed data.
 		# @parameter path [String] The file path of the slide.
+		# @parameter relative_path [String | Nil] The slide path relative to its presentation root.
 		# @parameter front_matter [Hash | Nil] The parsed YAML front_matter.
 		# @parameter content [Hash(String, Fragment)] Content sections keyed by heading name.
 		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		# @parameter script [String | Nil] JavaScript to execute after the slide renders.
-		def initialize(path, front_matter: nil, content: {}, notes: nil, script: nil)
+		def initialize(path, relative_path: nil, front_matter: nil, content: {}, notes: nil, script: nil)
 			@path = path
+			@relative_path = relative_path || File.basename(path)
 			@front_matter = front_matter
 			@content = content
 			@notes = notes
@@ -205,6 +209,9 @@ module Presently
 		
 		# @attribute [String] The file path of the slide.
 		attr :path
+		
+		# @attribute [String] The slide path relative to its presentation root.
+		attr :relative_path
 		
 		# @attribute [Hash | Nil] The parsed YAML front_matter.
 		attr :front_matter

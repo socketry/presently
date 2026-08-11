@@ -24,7 +24,7 @@ def notes(slides_root: "slides")
 	presentation.slides.each do |slide|
 		next unless slide.notes
 		
-		puts "## #{slide.path}"
+		puts "## #{slide.relative_path}"
 		puts
 		puts slide.notes.to_commonmark
 		puts
@@ -58,7 +58,7 @@ def speakers(slides_root: "slides")
 		puts "#{speaker} — #{format_duration(total_seconds)}"
 		
 		slides.each do |slide|
-			puts "  #{format_duration(slide.duration)}  #{slide.title}  (#{File.basename(slide.path)})"
+			puts "  #{format_duration(slide.duration)}  #{slide.title}  (#{slide.relative_path})"
 		end
 		
 		puts
@@ -69,9 +69,10 @@ end
 
 # Renumber slide files sequentially with a consistent step size.
 #
-# Renames all `.md` files in the slides directory to have sequential
+# Renames all `.md` files directly in the given directory to have sequential
 # numeric prefixes (010, 020, 030, ...), preserving their current order.
-# The descriptive part of the filename (after the number prefix) is kept.
+# The descriptive part of the filename (after the number prefix) is kept. It
+# does not recurse; pass a nested directory as `slides_root` to renumber it.
 #
 # @parameter slides_root [String] The slides directory. Default: `slides`.
 # @parameter step [Integer] The step between slide numbers. Default: `10`.

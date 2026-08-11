@@ -12,11 +12,18 @@ module Presently
 	# Use {.load} to create a presentation from a directory of Markdown files,
 	# or initialize directly with an array of {Slide} instances.
 	class Presentation
-		# Load and sort slide files from a directory.
-		# @parameter slides_root [String] The directory containing `.md` slide files.
+		# Load and sort numerically-prefixed slide files from a directory tree.
+		# @parameter slides_root [String] The root directory containing `.md` slide files.
 		# @returns [Array(Slide)] The loaded, sorted, non-skipped slides.
 		def self.slides_from(slides_root)
-			Dir.glob(File.join(slides_root, "*.md")).sort.map{|path| Slide.load(path)}.reject(&:skip?)
+			Dir.glob("**/*.md", base: slides_root).sort.filter_map do |relative_path|
+				components = relative_path.split(File::SEPARATOR)
+				next unless components.all?{|component| component.match?(/\A\d/)}
+				
+				path = File.join(slides_root, relative_path)
+				slide = Slide.load(path, relative_path: relative_path)
+				slide unless slide.skip?
+			end
 		end
 		
 		# Load a presentation from a directory of Markdown slide files.
