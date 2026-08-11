@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.16.0
 
   - Add support for organizing slides in nested directories. Every directory and slide filename must begin with a numeric prefix, and slides are ordered by relative path.
 

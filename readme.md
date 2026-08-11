@@ -29,6 +29,10 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.16.0
+
+  - Add support for organizing slides in nested directories. Every directory and slide filename must begin with a numeric prefix, and slides are ordered by relative path.
+
 ### v0.15.0
 
 q
@@ -79,10 +83,6 @@ q
   - Add `Slide#after(delay, callback)` — schedules a callback after a delay in milliseconds and returns a `SlideChain`. Subsequent `.after(delay, callback)` calls on the chain fire relative to the previous step, making sequential reveal timing easy to read and adjust.
   - Add `Slide#setTimeout(callback, delay)` — a tracked replacement for the global `setTimeout`. All timeouts registered this way are automatically cancelled when the slide changes, preventing stale callbacks from firing after navigation. The global `setTimeout` in slide scripts is shadowed by this method automatically.
   - Add `Slide#cancelTimeouts()` — cancels all pending timeouts registered by the slide's script. Called automatically by the presentation engine on every slide change.
-
-### v0.6.0
-
-  - Add `bake presently:slides:speakers` task to print a timing breakdown grouped by speaker. Each speaker's slides are listed in presentation order with individual and total durations, making it easy to balance talk time in multi-speaker presentations. Slides without a `speaker` key are grouped under `(no speaker)`.
 
 ## See Also
 
