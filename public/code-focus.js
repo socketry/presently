@@ -30,6 +30,7 @@ export async function applyCodeFocus() {
 
 		// Wait for the syntax-code element to finish rendering into its shadow DOM.
 		await code.ready;
+		if (!code.highlighted) continue;
 
 		// Get line positions in screen pixels and convert to CSS pixels using
 		// the scroll container's own rect as the reference frame.

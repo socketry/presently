@@ -5,8 +5,13 @@ import { applyCodeFocus } from './code-focus.js';
 
 const live = Live.start();
 
-// Highlight code blocks on initial load:
-await Syntax.highlight();
+async function highlightAndApplyCodeFocus() {
+	await Syntax.highlight();
+	await applyCodeFocus();
+}
+
+// Highlight code blocks on initial load and apply focus once rendering finishes:
+await highlightAndApplyCodeFocus();
 
 
 // Run the script for a single slide element.
@@ -53,27 +58,23 @@ live.update = function(id, html, options) {
 		activeTransition.finished.finally(() => {
 			delete document.documentElement.dataset.transition;
 			activeTransition = null;
-			Syntax.highlight();
-			applyCodeFocus();
+			highlightAndApplyCodeFocus();
 		});
 	} else {
 		originalUpdate(id, html, options);
 		runSlideScripts();
-		Syntax.highlight();
-		applyCodeFocus();
+		highlightAndApplyCodeFocus();
 	}
 };
 
 // Re-highlight and apply focus after non-update DOM mutations (e.g. replace):
 const observer = new MutationObserver(() => {
 	if (activeTransition) return;
-	Syntax.highlight();
-	applyCodeFocus();
+	highlightAndApplyCodeFocus();
 });
 observer.observe(document.body, { childList: true, subtree: true });
 
-// Initial focus and script application:
-applyCodeFocus();
+// Initial script application:
 runSlideScripts();
 
 // Jump-to select: forward the selected slide index to the presenter view.
