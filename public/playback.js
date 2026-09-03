@@ -136,10 +136,14 @@ function handlePlaybackError(error) {
 	startButton.disabled = false;
 	setStatus(error.name === 'NotAllowedError' ? 'Press Start to allow audio playback.' : error.message, error.name !== 'NotAllowedError');
 	console.error(error);
+
+	window.__PRESENTLY_PLAYBACK_ERROR = error.message;
+	document.dispatchEvent(new CustomEvent('presently:playback-error', {detail: {message: error.message}}));
 }
 
 async function start() {
 	window.__PRESENTLY_PLAYBACK_FINISHED = false;
+	window.__PRESENTLY_PLAYBACK_ERROR = null;
 	startButton.disabled = true;
 
 	try {
@@ -153,6 +157,8 @@ async function start() {
 		handlePlaybackError(error);
 	}
 }
+
+window.__PRESENTLY_PLAYBACK_START = start;
 
 async function move(offset) {
 	const wasPlaying = playing;
@@ -255,4 +261,7 @@ prepare().catch(error => {
 	startButton.disabled = true;
 	setStatus(error.message, true);
 	console.error(error);
+
+	window.__PRESENTLY_PLAYBACK_ERROR = error.message;
+	document.dispatchEvent(new CustomEvent('presently:playback-error', {detail: {message: error.message}}));
 });

@@ -50,6 +50,16 @@ Open `http://localhost:9292/playback` to watch the narrated presentation. Playba
 
 For automated capture, use `http://localhost:9292/playback?autoplay=true&controls=false`. The page exposes `window.__PRESENTLY_PLAYBACK_READY` and `window.__PRESENTLY_PLAYBACK_FINISHED`, and dispatches matching `presently:playback-ready` and `presently:playback-finished` events.
 
+To export playback directly to an MP4 file using a Chromium build that supports `Page.startScreenRecording`:
+
+``` shell
+PRESENTLY_CHROME_PATH=/path/to/chromium \
+PRESENTLY_CHROMEDRIVER_PATH=/path/to/chromedriver \
+bundle exec bake presently:export:video output=presentation.mp4
+```
+
+The task records the presentation at 1920×1080 and 30 frames per second by default. Use `width`, `height`, and `frame_rate` to select different limits. If explicit browser paths are omitted, Presently tries the current Chrome for Testing canary build.
+
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.

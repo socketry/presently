@@ -460,6 +460,10 @@ body.playback[data-controls="false"] .playback-controls {
 	display: none;
 }
 
+body.playback[data-controls="false"] .playback-start-screen {
+	display: none;
+}
+
 .playback-controls button {
 	min-width: 2.4rem;
 	height: 2.2rem;

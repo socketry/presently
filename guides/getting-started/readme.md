@@ -136,6 +136,16 @@ http://localhost:9292/playback?autoplay=true&controls=false
 
 The playback page sets `window.__PRESENTLY_PLAYBACK_READY` after its slides, fonts, syntax highlighting, and audio metadata are loaded. It sets `window.__PRESENTLY_PLAYBACK_FINISHED` when the final narration ends. It also dispatches `presently:playback-ready` and `presently:playback-finished` events for event-driven integrations.
 
+To export the narrated presentation directly to MP4, use a Chromium and matching ChromeDriver build that supports the experimental `Page.startScreenRecording` DevTools command:
+
+``` shell
+PRESENTLY_CHROME_PATH=/path/to/chromium \
+PRESENTLY_CHROMEDRIVER_PATH=/path/to/chromedriver \
+bundle exec bake presently:export:video output=presentation.mp4
+```
+
+The defaults are 1920×1080 at up to 30 frames per second. The exporter starts an isolated Presently server, waits for playback to become ready, records until the final narration ends, and writes Chromium's MP4 stream to the selected output path.
+
 ### Keyboard Controls
 
 - **Arrow Right / Space / Page Down** — next slide.
