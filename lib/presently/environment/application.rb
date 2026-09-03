@@ -30,6 +30,18 @@ module Presently
 				[File.expand_path("templates", self.root)].select{|d| File.directory?(d)}
 			end
 			
+			# The root directory where per-slide narration recordings are stored.
+			# @returns [String] Absolute path to the recording root.
+			def recordings_root
+				File.expand_path("audio", self.root)
+			end
+			
+			# The root directory containing normalized narration used for playback.
+			# @returns [String] Absolute path to the playback recording root.
+			def playback_recordings_root
+				File.expand_path("audio-normalized", self.root)
+			end
+			
 			# The application class to use.
 			# @returns [Class] The Presently application class.
 			def application
@@ -42,6 +54,8 @@ module Presently
 				application = self.application
 				slides_root = self.slides_root
 				templates_roots = self.templates_roots
+				recordings_root = self.recordings_root
+				playback_recordings_root = self.playback_recordings_root
 				root = self.root
 				
 				::Protocol::HTTP::Middleware.build do |builder|
@@ -56,7 +70,9 @@ module Presently
 					
 					builder.use application,
 						slides_root: slides_root,
-						templates_roots: templates_roots
+						templates_roots: templates_roots,
+						recordings_root: recordings_root,
+						playback_recordings_root: playback_recordings_root
 				end
 			end
 		end

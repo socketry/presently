@@ -14,6 +14,8 @@ A web-based presentation tool built with [Lively](https://github.com/socketry/li
   - **Code highlighting** with [@socketry/syntax](https://github.com/socketry/syntax-js), including animated focus regions for code walkthroughs.
   - **Multiple templates** — title, section, two-column, code, translation, image, and default.
   - **Timing and pacing** — per-slide duration metadata with elapsed/remaining time and pacing indicators.
+  - **Slide narration** — record, review, and retake one audio track per slide from a dedicated recording interface.
+  - **Narrated playback** — automatically play each slide with its recorded narration, including slide scripts and transitions.
   - **Full-screen support** — press `F` on the display view.
   - **Keyboard navigation** — arrow keys, space, Page Up/Down.
 
@@ -24,6 +26,29 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
   - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
 
   - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the slide scripting system.
+
+### Recording Narration
+
+Open `http://localhost:9292/record` to record narration separately from the live presenter interface. Presently stores one WebM/Opus recording per slide under `audio/`, mirroring the slide's relative path:
+
+``` text
+slides/020-problem/010-overview.md
+audio/020-problem/010-overview.webm
+```
+
+The interface preserves the microphone's dynamics for offline normalization and excludes mouse clicks at the recording boundaries using a short delayed audio pipeline. An existing recording is preserved until a completed retake is explicitly saved.
+
+After recording, normalize every completed take to a consistent `-16 LUFS` target:
+
+``` shell
+bundle exec bake presently:recordings:normalize
+```
+
+The task preserves the original files under `audio/` and writes normalized copies to matching paths under `audio-normalized/`. It requires FFmpeg.
+
+Open `http://localhost:9292/playback` to watch the narrated presentation. Playback uses normalized audio when available, falls back to the original recording, and advances when each track ends.
+
+For automated capture, use `http://localhost:9292/playback?autoplay=true&controls=false`. The page exposes `window.__PRESENTLY_PLAYBACK_READY` and `window.__PRESENTLY_PLAYBACK_FINISHED`, and dispatches matching `presently:playback-ready` and `presently:playback-finished` events.
 
 ## Releases
 

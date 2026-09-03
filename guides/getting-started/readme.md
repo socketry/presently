@@ -91,8 +91,50 @@ Then open two browser windows:
 
 - `http://localhost:9292/` — the audience display.
 - `http://localhost:9292/presenter` — the presenter console.
+- `http://localhost:9292/record` — the slide narration recorder.
+- `http://localhost:9292/playback` — automatic playback with recorded narration.
 
 Advancing slides in either window updates both in real-time via WebSockets.
+
+### Recording Slide Narration
+
+The recording interface is separate from the presenter console because narration is an authoring workflow: each slide can be recorded, reviewed, retaken, and explicitly saved without changing the live presentation controls.
+
+Presently records WebM/Opus audio using the browser microphone, preserving its dynamics for offline normalization. A short delayed audio pipeline excludes approximately 100 milliseconds around the mouse clicks at the beginning and end. Saved recording paths mirror their slide paths under the presentation's `audio/` directory:
+
+``` text
+slides/020-problem/010-overview.md
+audio/020-problem/010-overview.webm
+```
+
+To record narration:
+
+1. Open `http://localhost:9292/record` in a browser with WebM/Opus `MediaRecorder` support.
+2. Select the slide and press **Record**.
+3. Press **Stop**, then review the recording with the audio player.
+4. Press **Save** to replace that slide's existing narration.
+
+Navigating away before saving discards the retake and preserves the previously saved recording.
+
+To normalize completed takes to a consistent `-16 LUFS` target, install FFmpeg and run:
+
+``` shell
+bundle exec bake presently:recordings:normalize
+```
+
+Originals remain under `audio/`; normalized WebM/Opus copies are written under `audio-normalized/` using the same relative paths. The task skips outputs that are newer than their source, so it can be rerun after recording additional slides.
+
+### Playing Recorded Narration
+
+Open `http://localhost:9292/playback` after every slide has a recording. Press **Start presentation** and Presently will play each narration track, run the slide's script, preserve its transition, and advance when the narration ends. Normalized recordings are preferred, with the corresponding original recording used as a fallback.
+
+For browser automation or video capture, open:
+
+``` text
+http://localhost:9292/playback?autoplay=true&controls=false
+```
+
+The playback page sets `window.__PRESENTLY_PLAYBACK_READY` after its slides, fonts, syntax highlighting, and audio metadata are loaded. It sets `window.__PRESENTLY_PLAYBACK_FINISHED` when the final narration ends. It also dispatches `presently:playback-ready` and `presently:playback-finished` events for event-driven integrations.
 
 ### Keyboard Controls
 

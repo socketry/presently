@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Presently Playback</title>
+		
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+		<link rel="icon" type="image/png" href="/_static/icon.png" />
+		<link rel="stylesheet" href="/_static/site.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/_static/index.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/_static/custom.css" type="text/css" media="screen" />
+		<link rel="stylesheet" href="/_components/@socketry/syntax/themes/base/syntax.css" type="text/css" media="screen" />
+		
+		<script type="importmap">
+		{
+			"imports": {
+				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
+			}
+		}
+		</script>
+		
+		<script type="module" src="/playback.js"></script>
+	</head>
+	
+	<body class="playback" data-autoplay="#{self.autoplay}" data-controls="#{self.controls}">
+		<main class="playback-stage">
+			<?r self.slides.each_with_index do |slide, index| ?>
+			<div class="playback-frame" data-index="#{index}" data-transition="#{slide.transition}" data-duration="#{slide.duration}"<?r if index != 0 ?> hidden<?r end ?>>
+				#{self.render_slide(slide)}
+			</div>
+			<?r end ?>
+		</main>
+		
+		<div class="playback-audio" hidden>
+			<?r self.slides.each_with_index do |slide, index| ?>
+				<?r if recording_url = self.recording_url(index) ?>
+				<audio data-index="#{index}" preload="auto" src="#{recording_url}"></audio>
+				<?r end ?>
+			<?r end ?>
+		</div>
+		
+		<div class="playback-start-screen">
+			<button class="playback-start" type="button" disabled>▶ Start presentation</button>
+			<p class="playback-status">Preparing presentation…</p>
+		</div>
+		
+		<nav class="playback-controls" aria-label="Playback controls">
+			<button class="playback-previous" type="button" title="Previous slide">◀</button>
+			<button class="playback-toggle" type="button" title="Play or pause">▶</button>
+			<button class="playback-next" type="button" title="Next slide">▶|</button>
+			<span class="playback-counter">1 / #{self.slides.length}</span>
+		</nav>
+	</body>
+</html>
