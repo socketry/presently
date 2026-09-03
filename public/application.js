@@ -137,7 +137,7 @@ class PresentlyRecorder extends HTMLElement {
 				if (event.data.size > 0) this.#chunks.push(event.data);
 			});
 			
-			this.#mediaRecorder.addEventListener('stop', () => this.finish());
+			this.#mediaRecorder.onstop = () => this.finish();
 
 			this.dataset.state = 'starting';
 			this.setStatus('Starting…');
