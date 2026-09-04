@@ -40,6 +40,11 @@ module Presently
 		attr :autoplay
 		attr :controls
 		
+		# @returns [Array(Stylesheet)] The ordered presentation stylesheets.
+		def stylesheets
+			@presentation.stylesheets
+		end
+		
 		# @returns [Array(Slide)] The slides in playback order.
 		def slides
 			@presentation.slides

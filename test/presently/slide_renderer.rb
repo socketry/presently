@@ -59,3 +59,23 @@ describe Presently::TemplateScope do
 		end
 	end
 end
+
+describe Presently::SlideRenderer do
+	let(:dir) {Dir.mktmpdir}
+	let(:path) {File.join(dir, "010-example.md")}
+	
+	before do
+		File.write(path, "Example slide\n")
+	end
+	
+	after do
+		FileUtils.remove_entry(dir)
+	end
+	
+	it "identifies the rendered slide by its presentation path" do
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, 'data-slide-path="010-example.md"')
+	end
+end

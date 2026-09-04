@@ -13,6 +13,7 @@ A web-based presentation tool built with [Lively](https://github.com/socketry/li
   - **Real-time sync** between display and presenter via WebSockets.
   - **Code highlighting** with [@socketry/syntax](https://github.com/socketry/syntax-js), including animated focus regions for code walkthroughs.
   - **Multiple templates** — title, section, two-column, code, translation, image, and default.
+  - **Colocated styles** — presentation, directory, and slide-specific CSS can live beside the slides it styles.
   - **Timing and pacing** — per-slide duration metadata with elapsed/remaining time and pacing indicators.
   - **Slide narration** — record, review, and retake one audio track per slide from a dedicated recording interface.
   - **Narrated playback** — automatically play each slide with its recorded narration, including slide scripts and transitions.

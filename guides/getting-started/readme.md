@@ -79,6 +79,43 @@ Each slide has three parts:
 2. **Content** with Markdown headings that become named sections for the template.
 3. **Presenter notes** after a `---` separator in the body (optional).
 
+### Styling Slides
+
+CSS can be colocated with the slides it styles:
+
+``` text
+slides/
+├── style.css
+├── 010-introduction.md
+└── 020-scheduling/
+    ├── style.css
+    ├── 010-overview.md
+    ├── 020-queue.md
+    └── 020-queue.css
+```
+
+`slides/style.css` applies globally. A nested `style.css` applies to every slide below that directory, while a CSS file matching a Markdown filename applies only to that slide. In the example above, `020-scheduling/style.css` applies to both scheduling slides and `020-queue.css` applies only to `020-queue.md`.
+
+Presently automatically wraps nested and slide-specific stylesheets in an [`@scope`](https://developer.mozilla.org/en-US/docs/Web/CSS/@scope) rule rooted at the rendered slide. Write these files as scoped CSS fragments containing ordinary style rules and nestable grouping rules such as `@media`, `@supports`, `@container`, and `@layer`. Keep stylesheet-level rules such as `@charset`, `@import`, and `@namespace`, and globally named definitions such as `@font-face`, `@keyframes`, and `@property`, in the root `slides/style.css` or the existing `public/_static/custom.css`.
+
+Relative images and fonts remain adjacent to the stylesheet that uses them:
+
+``` css
+.architecture {
+	background-image: url("architecture.svg");
+}
+```
+
+Presently uses `protocol-media-registry` to determine asset content types. Files with unrecognized media types are not served.
+
+Relative images embedded in Markdown resolve from the Markdown file's directory, including images in included Markdown files:
+
+``` markdown
+![Architecture](architecture.svg)
+```
+
+Presently loads each discovered stylesheet once in deterministic presentation order. Directory styles are loaded from parent to child before the matching slide sidecar, so more specific styles naturally appear later in the cascade. The same stylesheets are used by the display, presenter, recorder, playback, and export interfaces.
+
 ### Running the Presentation
 
 Start the server from your presentation directory:

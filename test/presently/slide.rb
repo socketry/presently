@@ -257,6 +257,60 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "relative Markdown images" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "010-section", "010-images.md")}
+		
+		before do
+			FileUtils.mkdir_p(File.dirname(path))
+			File.write(path, <<~MARKDOWN)
+				![Local](diagram.svg)
+				![Parent](../shared/diagram.svg?size=large#preview)
+				![Root](/images/diagram.svg)
+				![Remote](https://example.com/diagram.svg)
+			MARKDOWN
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {Presently::Presentation.new(dir).slides.first}
+		let(:html) {slide.content["body"].to_html}
+		
+		it "resolves local images relative to the slide source" do
+			expect(html).to be(:include?, 'src="/_slides/010-section/diagram.svg"')
+			expect(html).to be(:include?, 'src="/_slides/shared/diagram.svg?size=large#preview"')
+		end
+		
+		it "preserves root-relative and external images" do
+			expect(html).to be(:include?, 'src="/images/diagram.svg"')
+			expect(html).to be(:include?, 'src="https://example.com/diagram.svg"')
+		end
+	end
+	
+	with "a relative image in an included Markdown file" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "010-main.md")}
+		let(:included_path) {File.join(dir, "shared", "snippet.md")}
+		
+		before do
+			FileUtils.mkdir_p(File.dirname(included_path))
+			File.write(included_path, "![Included](images/diagram.svg)\n")
+			File.write(path, "![[shared/snippet.md]]\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "resolves the image relative to the included source" do
+			expect(slide.content["body"].to_html).to be(:include?, 'src="/_slides/shared/images/diagram.svg"')
+		end
+	end
+	
 	with "a slide with transition and focus front_matter" do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "test.md")}

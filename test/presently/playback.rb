@@ -47,6 +47,12 @@ describe Presently::Playback do
 			expect(playback.call).to be(:include?, "playback.js")
 		end
 		
+		it "loads presentation stylesheets" do
+			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
+			
+			expect(playback.call).to be(:include?, 'href="/_slides/style.css"')
+		end
+		
 		it "omits an unavailable narration track" do
 			playback = subject.new(presentation: presentation, recording_urls: [recording_urls.first, nil])
 			

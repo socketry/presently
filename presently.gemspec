@@ -26,7 +26,8 @@ Gem::Specification.new do |spec|
 	
 	spec.required_ruby_version = ">= 3.3"
 	
-	spec.add_dependency "lively", "~> 0.19"
+	spec.add_dependency "lively", "~> 0.20"
 	spec.add_dependency "markly", "~> 0.16"
 	spec.add_dependency "async-webdriver", "~> 0.12"
+	spec.add_dependency "protocol-media-registry", "~> 0.0"
 end

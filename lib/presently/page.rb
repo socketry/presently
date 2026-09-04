@@ -29,12 +29,13 @@ module Presently
 		# Initialize a new page.
 		# @parameter title [String] The page title.
 		# @parameter body [Live::View | Nil] The Live view to embed in the page.
-		def initialize(title: "Presently", body: nil)
+		# @parameter stylesheets [Array(String | Hash)] Presentation-specific stylesheets.
+		def initialize(title: "Presently", body: nil, stylesheets: [])
 			super(
 				title: title,
 				body: body,
 				icon: ICON,
-				stylesheets: STYLESHEETS,
+				stylesheets: STYLESHEETS + stylesheets,
 				imports: IMPORTS,
 				modules: MODULES,
 			)

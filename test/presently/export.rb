@@ -139,6 +139,12 @@ describe Presently::Export do
 			html = export.call
 			expect(html).to be(:include?, "export.js")
 		end
+		
+		it "loads presentation stylesheets" do
+			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
+			
+			expect(export.call).to be(:include?, 'href="/_slides/style.css"')
+		end
 	end
 	
 	with "notes disabled" do

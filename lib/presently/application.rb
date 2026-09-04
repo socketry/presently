@@ -11,6 +11,7 @@ require_relative "display_view"
 require_relative "presenter_view"
 require_relative "recording_view"
 require_relative "recordings"
+require_relative "slide_assets"
 require_relative "playback"
 require_relative "export"
 require_relative "page"
@@ -34,7 +35,8 @@ module Presently
 			@recordings = Recordings.new(recordings_root || File.expand_path("../audio", slides_root))
 			@playback_recordings = Recordings.new(playback_recordings_root || File.expand_path("../audio-normalized", slides_root))
 			
-			super(delegate)
+			slide_assets = SlideAssets.new(delegate, root: @slides_root, stylesheets: ->{controller.presentation.stylesheets})
+			super(slide_assets)
 		end
 		
 		# The view classes that this application allows.
@@ -66,12 +68,17 @@ module Presently
 			"Presently"
 		end
 		
+		# Create the presentation display page for the root route.
+		# @returns [Page] The presentation page.
+		def index
+			page(body)
+		end
+		
 		# Add Presently's routes to Lively's standard application routes.
 		# @parameter router [Lively::Router] The router to configure.
 		def configure_routes(router)
 			super
 			
-			router.get("/"){render_page(DisplayView.new(controller: controller))}
 			router.get("/presenter"){render_page(PresenterView.new(controller: controller))}
 			router.get("/record"){render_page(RecordingView.new(controller: controller))}
 			
@@ -92,19 +99,17 @@ module Presently
 			end
 		end
 		
-		# Delegate requests which do not match a configured route.
-		# @parameter request [Protocol::HTTP::Request] The incoming request.
-		# @returns [Protocol::HTTP::Response] The delegate response.
-		def handle(request)
-			delegate.call(request)
-		end
-		
 		private
+		
+		# Create a Presently page with the presentation-specific stylesheets.
+		def page(body)
+			stylesheets = controller.presentation.stylesheets.map(&:url)
+			Page.new(title: title, body: body, stylesheets: stylesheets)
+		end
 		
 		# Render one of Presently's live interfaces.
 		def render_page(body)
-			page = Page.new(title: title, body: body)
-			Protocol::HTTP::Response[200, [], [page.call]]
+			Protocol::HTTP::Response[200, [], [page(body).call]]
 		end
 		
 		# Render the narrated playback interface.
