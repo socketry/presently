@@ -37,45 +37,58 @@ describe Presently::Application do
 	end
 	
 	it "serves the recording interface separately from the presenter" do
-		response = application.handle(request("GET", "/record"))
+		response = application.call(request("GET", "/record"))
 		
 		expect(response.status).to be == 200
 		expect(response.read).to be(:include?, "Record, review, and save one audio track")
 	end
 	
+	it "only serves page interfaces via GET" do
+		response = application.call(request("POST", "/record"))
+		
+		expect(response.status).to be == 405
+		expect(response.headers["allow"]).to be == ["GET"]
+	end
+	
+	it "delegates unknown routes" do
+		response = application.call(request("GET", "/unknown"))
+		
+		expect(response.status).to be == 404
+	end
+	
 	it "stores and serves a slide recording" do
-		put = application.handle(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm;codecs=opus"}, "audio data"))
+		put = application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm;codecs=opus"}, "audio data"))
 		expect(put.status).to be == 201
 		
-		get = application.handle(request("GET", "/recordings?index=0"))
+		get = application.call(request("GET", "/recordings?index=0"))
 		expect(get.status).to be == 200
 		expect(get.headers["content-type"]).to be == "audio/webm"
 		expect(get.read).to be == "audio data"
 	end
 	
 	it "supports checking for a recording without returning its body" do
-		application.handle(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
-		response = application.handle(request("HEAD", "/recordings?index=0"))
+		application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
+		response = application.call(request("HEAD", "/recordings?index=0"))
 		
 		expect(response.status).to be == 200
 		expect(response.body).to be_nil
 	end
 	
 	it "rejects unsupported recording formats" do
-		response = application.handle(request("PUT", "/recordings?index=0", {"content-type" => "audio/mpeg"}, "audio data"))
+		response = application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/mpeg"}, "audio data"))
 		expect(response.status).to be == 415
 	end
 	
 	it "rejects an invalid slide index" do
-		expect(application.handle(request("GET", "/recordings")).status).to be == 400
-		expect(application.handle(request("GET", "/recordings?index=20")).status).to be == 404
+		expect(application.call(request("GET", "/recordings")).status).to be == 400
+		expect(application.call(request("GET", "/recordings?index=20")).status).to be == 404
 	end
 	
 	it "serves the playback interface" do
 		FileUtils.mkdir_p(recordings_root)
 		File.binwrite(File.join(recordings_root, "010-example.webm"), "source audio")
 		
-		response = application.handle(request("GET", "/playback?autoplay=true&controls=false"))
+		response = application.call(request("GET", "/playback?autoplay=true&controls=false"))
 		html = response.read
 		
 		expect(response.status).to be == 200
@@ -90,7 +103,7 @@ describe Presently::Application do
 		File.binwrite(File.join(recordings_root, "010-example.webm"), "source audio")
 		File.binwrite(File.join(playback_recordings_root, "010-example.webm"), "normalized audio")
 		
-		response = application.handle(request("GET", "/playback/recordings?index=0"))
+		response = application.call(request("GET", "/playback/recordings?index=0"))
 		
 		expect(response.status).to be == 200
 		expect(response.read).to be == "normalized audio"
@@ -100,14 +113,14 @@ describe Presently::Application do
 		FileUtils.mkdir_p(recordings_root)
 		File.binwrite(File.join(recordings_root, "010-example.webm"), "source audio")
 		
-		response = application.handle(request("GET", "/playback/recordings?index=0"))
+		response = application.call(request("GET", "/playback/recordings?index=0"))
 		
 		expect(response.status).to be == 200
 		expect(response.read).to be == "source audio"
 	end
 	
 	it "only reads playback narration" do
-		response = application.handle(request("PUT", "/playback/recordings?index=0"))
+		response = application.call(request("PUT", "/playback/recordings?index=0"))
 		
 		expect(response.status).to be == 405
 		expect(response.headers["allow"]).to be == ["GET", "HEAD"]

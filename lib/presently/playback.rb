@@ -3,7 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "uri"
 require "xrb/template"
 
 require_relative "slide_renderer"
@@ -16,12 +15,10 @@ module Presently
 	class Playback
 		TEMPLATE = XRB::Template.load_file(File.expand_path("playback.xrb", __dir__))
 		
-		# Parse playback options from a URL query string.
-		# @parameter query [String | Nil] The raw query string.
+		# Extract playback options from decoded query parameters.
+		# @parameter parameters [Hash] The decoded query parameters.
 		# @returns [Hash] Options suitable for passing to {.new}.
-		def self.options_from_query(query)
-			parameters = URI.decode_www_form(query.to_s).to_h
-			
+		def self.options_from_parameters(parameters)
 			{
 				autoplay: parameters["autoplay"] == "true",
 				controls: parameters["controls"] != "false",

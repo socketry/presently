@@ -3,7 +3,6 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "uri"
 require "xrb/template"
 require "xrb/markup"
 
@@ -37,24 +36,22 @@ module Presently
 		
 		TEMPLATE = XRB::Template.load_file(File.expand_path("export.xrb", __dir__))
 		
-		# Parse export options from a URL query string.
-		# @parameter query [String | Nil] The raw query string, e.g. `"notes=true&speaker=true"`.
+		# Extract export options from decoded query parameters.
+		# @parameter parameters [Hash] The decoded query parameters.
 		# @returns [Hash] Options suitable for passing to {.new}.
-		def self.options_from_query(query)
-			return {} unless query
-			
-			params = URI.decode_www_form(query).to_h
+		def self.options_from_parameters(parameters)
+			return {} if parameters.empty?
 			
 			page_size = PageSize.new(
-				slide_width_px:  (params["slide_width_px"]  || PageSize::DEFAULT.slide_width_px).to_i,
-				slide_height_px: (params["slide_height_px"] || PageSize::DEFAULT.slide_height_px).to_i,
-				notes_height_px: (params["notes_height_px"] || PageSize::DEFAULT.notes_height_px).to_i,
+				slide_width_px:  (parameters["slide_width_px"]  || PageSize::DEFAULT.slide_width_px).to_i,
+				slide_height_px: (parameters["slide_height_px"] || PageSize::DEFAULT.slide_height_px).to_i,
+				notes_height_px: (parameters["notes_height_px"] || PageSize::DEFAULT.notes_height_px).to_i,
 			)
 			
 			{
-				notes:     params["notes"]   != "false",
-				speaker:   params["speaker"] != "false",
-				timing:    params["timing"]  != "false",
+				notes:     parameters["notes"]   != "false",
+				speaker:   parameters["speaker"] != "false",
+				timing:    parameters["timing"]  != "false",
 				page_size: page_size,
 			}
 		end

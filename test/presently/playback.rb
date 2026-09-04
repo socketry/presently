@@ -24,13 +24,13 @@ describe Presently::Playback do
 	let(:recording_urls) {["/recordings?index=0", "/recordings?index=1"]}
 	let(:playback) {subject.new(presentation: presentation, recording_urls: recording_urls)}
 	
-	with ".options_from_query" do
+	with ".options_from_parameters" do
 		it "uses interactive playback by default" do
-			expect(subject.options_from_query(nil)).to be == {autoplay: false, controls: true}
+			expect(subject.options_from_parameters({})).to be == {autoplay: false, controls: true}
 		end
 		
 		it "parses autoplay and controls" do
-			expect(subject.options_from_query("autoplay=true&controls=false")).to be == {autoplay: true, controls: false}
+			expect(subject.options_from_parameters("autoplay" => "true", "controls" => "false")).to be == {autoplay: true, controls: false}
 		end
 	end
 	
