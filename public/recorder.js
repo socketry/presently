@@ -18,18 +18,26 @@ class PresentlyRecorder extends HTMLElement {
 	#startToken = null;
 	
 	connectedCallback() {
-		this.startButton = this.querySelector('.recording-start');
-		this.stopButton = this.querySelector('.recording-stop');
+		this.recordButton = this.querySelector('.recording-toggle');
 		this.saveButton = this.querySelector('.recording-save');
 		this.playback = this.querySelector('.recording-playback');
 		this.status = this.querySelector('.recording-status');
 		this.time = this.querySelector('.recording-time');
 		
-		this.startButton.addEventListener('click', () => this.start(performance.now()));
-		// Stop as soon as the pointer is pressed, before the normal click completes.
-		// The click handler remains for keyboard activation and is safe to invoke twice.
-		this.stopButton.addEventListener('pointerdown', () => this.stop());
-		this.stopButton.addEventListener('click', () => this.stop());
+		// Stop as soon as the pointer is pressed so the delayed audio excludes the
+		// click. The click handler provides both starting and keyboard activation.
+		this.recordButton.addEventListener('pointerdown', () => {
+			if (this.#mediaRecorder?.state === 'recording') this.stop();
+		});
+		this.recordButton.addEventListener('click', () => {
+			if (this.recordButton.disabled) return;
+			
+			if (this.#mediaRecorder?.state === 'recording') {
+				this.stop();
+			} else {
+				this.start(performance.now());
+			}
+		});
 		this.saveButton.addEventListener('click', () => this.save());
 		
 		this.loadExisting();
@@ -59,7 +67,7 @@ class PresentlyRecorder extends HTMLElement {
 			if (response.ok) {
 				this.playback.src = this.cacheBustedURL();
 				this.playback.hidden = false;
-				this.startButton.textContent = '● Retake';
+				this.recordButton.textContent = '● Retake';
 				this.setStatus('Existing recording loaded.');
 			} else if (response.status === 404) {
 				this.setStatus('No recording yet.');
@@ -85,8 +93,7 @@ class PresentlyRecorder extends HTMLElement {
 		}
 		
 		const startToken = this.#startToken = {};
-		this.startButton.disabled = true;
-		this.stopButton.disabled = true;
+		this.recordButton.disabled = true;
 		this.saveButton.disabled = true;
 		this.dataset.state = 'preparing';
 		this.setStatus('Preparing microphone…');
@@ -153,7 +160,8 @@ class PresentlyRecorder extends HTMLElement {
 			this.#startToken = null;
 			this.startTimer();
 			
-			this.stopButton.disabled = false;
+			this.recordButton.disabled = false;
+			this.recordButton.textContent = '■ Stop';
 			this.dataset.state = 'recording';
 			this.setStatus('Recording…');
 		} catch (error) {
@@ -161,7 +169,7 @@ class PresentlyRecorder extends HTMLElement {
 
 			this.#startToken = null;
 			this.releaseMicrophone();
-			this.startButton.disabled = false;
+			this.recordButton.disabled = false;
 			this.dataset.state = 'idle';
 			this.setStatus(`Could not start recording: ${error.message}`, true);
 		}
@@ -172,7 +180,7 @@ class PresentlyRecorder extends HTMLElement {
 			// The encoder receives audio through a 100 ms delay. Stopping immediately
 			// excludes approximately the final 100 ms before this pointer-down event.
 			this.#mediaRecorder.stop();
-			this.stopButton.disabled = true;
+			this.recordButton.disabled = true;
 			this.dataset.state = 'finishing';
 			this.setStatus('Preparing recording…');
 		}
@@ -188,8 +196,8 @@ class PresentlyRecorder extends HTMLElement {
 		this.playback.src = this.#recordingURL;
 		this.playback.hidden = false;
 		
-		this.startButton.disabled = false;
-		this.startButton.textContent = '● Retake';
+		this.recordButton.disabled = false;
+		this.recordButton.textContent = '● Retake';
 		this.saveButton.disabled = this.#recording.size === 0;
 		this.dataset.state = 'review';
 		this.setStatus(this.#recording.size > 0 ? 'Review the recording, then save it.' : 'The recording was empty.', this.#recording.size === 0);

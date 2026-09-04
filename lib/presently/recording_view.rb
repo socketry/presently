@@ -95,8 +95,7 @@ module Presently
 								"data-recording-url": recording_url
 							) do
 								builder.tag(:div, class: "recording-actions") do
-									builder.tag(:button, class: "recording-start", type: "button"){builder.text("● Record")}
-									builder.tag(:button, class: "recording-stop", type: "button", disabled: true){builder.text("■ Stop")}
+									builder.tag(:button, class: "recording-toggle", type: "button"){builder.text("● Record")}
 									builder.tag(:button, class: "recording-save", type: "button", disabled: true){builder.text("Save")}
 									builder.tag(:span, class: "recording-indicator", "aria-hidden": "true"){}
 									builder.tag(:span, class: "recording-time"){builder.text("0:00")}

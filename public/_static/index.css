@@ -912,8 +912,12 @@ presently-recorder {
 	opacity: 0.35;
 }
 
-.recording-start:not(:disabled) {
+.recording-toggle:not(:disabled) {
 	color: var(--accent-light);
+}
+
+presently-recorder[data-state="recording"] .recording-toggle {
+	color: #ef5350;
 }
 
 .recording-indicator {
