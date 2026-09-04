@@ -82,6 +82,11 @@ module Presently
 		# @attribute [Boolean] Whether slide timing is included.
 		attr :timing
 		
+		# @returns [Array(Stylesheet)] The ordered presentation stylesheets.
+		def stylesheets
+			@presentation.stylesheets
+		end
+		
 		# Render a single slide to an HTML string.
 		# @parameter slide [Slide] The slide to render.
 		# @returns [XRB::MarkupString]

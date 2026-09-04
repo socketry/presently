@@ -56,6 +56,68 @@ describe Presently::Application do
 		expect(response.status).to be == 404
 	end
 	
+	it "includes presentation stylesheets in live pages" do
+		File.write(File.join(slides_root, "style.css"), ".slide { color: blue; }\n")
+		
+		response = application.call(request("GET", "/"))
+		
+		expect(response.read).to be(:include?, 'href="/_slides/style.css"')
+	end
+	
+	it "serves scoped directory stylesheets" do
+		directory = File.join(slides_root, "020-section")
+		FileUtils.mkdir_p(directory)
+		File.write(File.join(directory, "010-example.md"), "Example\n")
+		File.write(File.join(directory, "style.css"), ".diagram { color: orange; }\n")
+		
+		response = application.call(request("GET", "/_slides/020-section/style.css"))
+		css = response.read
+		
+		expect(response.status).to be == 200
+		expect(response.headers["content-type"]).to be == "text/css"
+		expect(css).to be(:include?, '@scope (.slide[data-slide-path^="020-section/"])')
+		expect(css).to be(:include?, ".diagram { color: orange; }")
+	end
+	
+	it "serves assets adjacent to presentation stylesheets" do
+		directory = File.join(slides_root, "020-section")
+		FileUtils.mkdir_p(directory)
+		File.write(File.join(directory, "diagram.svg"), "<svg></svg>")
+		
+		response = application.call(request("GET", "/_slides/020-section/diagram.svg"))
+		
+		expect(response.status).to be == 200
+		expect(response.headers["content-type"]).to be == "image/svg+xml"
+		expect(response.read).to be == "<svg></svg>"
+	end
+	
+	it "uses the media registry for adjacent asset content types" do
+		directory = File.join(slides_root, "020-section")
+		FileUtils.mkdir_p(directory)
+		File.binwrite(File.join(directory, "diagram.avif"), "image data")
+		
+		response = application.call(request("GET", "/_slides/020-section/diagram.avif"))
+		
+		expect(response.status).to be == 200
+		expect(response.headers["content-type"]).to be == "image/avif"
+		expect(response.read).to be == "image data"
+	end
+	
+	it "serves Markdown using its registered content type" do
+		response = application.call(request("GET", "/_slides/010-example.md"))
+		
+		expect(response.status).to be == 200
+		expect(response.headers["content-type"]).to be == "text/markdown"
+		expect(response.read).to be == "Example slide\n"
+	end
+	
+	it "only reads presentation assets" do
+		response = application.call(request("POST", "/_slides/010-example.css"))
+		
+		expect(response.status).to be == 405
+		expect(response.headers["allow"]).to be == ["GET", "HEAD"]
+	end
+	
 	it "stores and serves a slide recording" do
 		put = application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm;codecs=opus"}, "audio data"))
 		expect(put.status).to be == 201

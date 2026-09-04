@@ -5,8 +5,11 @@
 
 require "yaml"
 require "markly"
+require "protocol/url"
 
 require "markly/renderer/html"
+
+require_relative "stylesheet"
 
 module Presently
 	# A single slide parsed from a Markdown file.
@@ -71,7 +74,8 @@ module Presently
 				# Parse once, with native front matter support.
 				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
 				
-				expand_includes!(document, File.dirname(source_path))
+				expand_includes!(document, File.dirname(source_path), presentation.root)
+				rewrite_image_urls!(document, source_path, presentation.root)
 				
 				# Extract front matter from the first AST node if present.
 				front_matter = nil
@@ -125,8 +129,9 @@ module Presently
 			#
 			# @parameter document [Markly::Node] The document to expand in-place.
 			# @parameter base_dir [String] Directory used to resolve relative paths.
+			# @parameter root [String] The presentation asset root.
 			# @parameter depth [Integer] Current recursion depth (guards against cycles).
-			def expand_includes!(document, base_dir, depth: 0)
+			def expand_includes!(document, base_dir, root, depth: 0)
 				raise "Include depth limit exceeded" if depth > 10
 				
 				# Collect matching paragraphs first — mutating the tree while iterating is unsafe.
@@ -150,10 +155,37 @@ module Presently
 						front_matter_node.delete
 					end
 					
-					expand_includes!(included_document, File.dirname(included_path), depth: depth + 1)
+					expand_includes!(included_document, File.dirname(included_path), root, depth: depth + 1)
+					rewrite_image_urls!(included_document, included_path, root)
 					
 					included_document.each{|node| paragraph.insert_before(node.dup)}
 					paragraph.delete
+				end
+			end
+			
+			# Rewrite relative Markdown image destinations so they remain relative to
+			# the source file after its content is rendered into a shared HTML page.
+			# @parameter document [Markly::Node] The document containing image nodes.
+			# @parameter source_path [String] The Markdown source path.
+			# @parameter root [String] The presentation asset root.
+			def rewrite_image_urls!(document, source_path, root)
+				directory = File.dirname(File.expand_path(source_path))
+				root = File.expand_path(root)
+				return unless directory == root || directory.start_with?(root + File::SEPARATOR)
+				
+				relative_directory = directory.delete_prefix(root).delete_prefix(File::SEPARATOR)
+				base_path = Stylesheet::PREFIX
+				base_path += Stylesheet.encode_path(relative_directory) + "/" unless relative_directory.empty?
+				base_url = Protocol::URL::Relative.new(base_path)
+				
+				document.walk do |node|
+					next unless node.type == :image
+					
+					url = Protocol::URL[node.url]
+					next unless url.is_a?(Protocol::URL::Relative)
+					next if url.path.empty? || url.path.absolute?
+					
+					node.url = (base_url + url).to_s
 				end
 			end
 			

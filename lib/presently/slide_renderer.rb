@@ -8,6 +8,7 @@ require "xrb/template"
 require "xrb/markup"
 
 require_relative "templates"
+require_relative "stylesheet"
 
 module Presently
 	# Renders a single slide using its XRB template.
@@ -45,7 +46,7 @@ module Presently
 			html = template.to_string(scope)
 			
 			classes = [@css_class, extra_class].compact.join(" ")
-			builder.tag(:div, class: classes, data: {template: slide.template}) do
+			builder.tag(:div, class: classes, data: {template: slide.template}, "data-slide-path": Stylesheet.encode_path(slide.path)) do
 				builder.raw(html)
 				if slide.script
 					builder.tag(:script, type: "text/slide-script") do

@@ -4,6 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require_relative "slide"
+require_relative "stylesheet"
 require_relative "templates"
 
 module Presently
@@ -28,6 +29,7 @@ module Presently
 			@root = File.expand_path(root)
 			@templates = templates
 			@slides = load_slides
+			@stylesheets = Stylesheet.discover(@root, @slides)
 		end
 		
 		# @attribute [String] The absolute root directory containing slide files.
@@ -35,6 +37,9 @@ module Presently
 		
 		# @attribute [Array(Slide)] The ordered list of slides.
 		attr :slides
+		
+		# @attribute [Array(Stylesheet)] The ordered presentation stylesheets.
+		attr :stylesheets
 		
 		# @attribute [Templates] The template resolver.
 		attr :templates

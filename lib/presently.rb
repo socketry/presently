@@ -6,6 +6,7 @@
 require_relative "presently/version"
 
 require_relative "presently/recordings"
+require_relative "presently/stylesheet"
 require_relative "presently/recordings/normalizer"
 require_relative "presently/recording_view"
 require_relative "presently/playback"
