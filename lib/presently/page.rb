@@ -3,36 +3,41 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "xrb/template"
+require "lively/page"
 
 module Presently
 	# The HTML page shell for a Presently view.
 	#
-	# Renders the initial HTML page with the import map, stylesheets, and the
-	# embedded Live view component. Uses a custom XRB template that includes
-	# Presently's assets (syntax highlighting, etc.).
-	class Page
-		# The compiled XRB template for the page shell.
-		TEMPLATE = XRB::Template.load_file(File.expand_path("page.xrb", __dir__))
+	# Configures Lively's generic page with Presently's assets and embedded Live
+	# view component.
+	class Page < Lively::Page
+		ICON = "/_static/icon.png"
+		STYLESHEETS = [
+			{href: "/_static/site.css", media: "screen"}.freeze,
+			{href: "/_static/index.css", media: "screen"}.freeze,
+			{href: "/_static/custom.css", media: "screen"}.freeze,
+			{href: "/_components/@socketry/syntax/themes/base/syntax.css", media: "screen"}.freeze,
+		].freeze
+		IMPORTS = {
+			"live" => "/_components/@socketry/live/Live.js",
+			"live-audio" => "/_components/@socketry/live-audio/Live/Audio.js",
+			"morphdom" => "/_components/morphdom/morphdom-esm.js",
+			"@socketry/syntax" => "/_components/@socketry/syntax/Syntax.js",
+		}.freeze
+		MODULES = ["/application.js"].freeze
 		
 		# Initialize a new page.
 		# @parameter title [String] The page title.
 		# @parameter body [Live::View | Nil] The Live view to embed in the page.
 		def initialize(title: "Presently", body: nil)
-			@title = title
-			@body = body
-		end
-		
-		# @attribute [String] The page title.
-		attr :title
-		
-		# @attribute [Live::View | Nil] The Live view to embed.
-		attr :body
-		
-		# Render the page to an HTML string.
-		# @returns [String] The rendered HTML.
-		def call
-			TEMPLATE.to_string(self)
+			super(
+				title: title,
+				body: body,
+				icon: ICON,
+				stylesheets: STYLESHEETS,
+				imports: IMPORTS,
+				modules: MODULES,
+			)
 		end
 	end
 end

@@ -45,20 +45,20 @@ describe Presently::Export do
 	let(:presentation) {Presently::Presentation.load(dir)}
 	let(:export) {subject.new(presentation: presentation)}
 	
-	with ".options_from_query" do
-		it "returns empty hash for nil query" do
-			expect(subject.options_from_query(nil)).to be == {}
+	with ".options_from_parameters" do
+		it "returns an empty hash without parameters" do
+			expect(subject.options_from_parameters({})).to be == {}
 		end
 		
-		it "parses notes, speaker, and timing from query string" do
-			options = subject.options_from_query("notes=true&speaker=true&timing=true")
+		it "extracts notes, speaker, and timing" do
+			options = subject.options_from_parameters("notes" => "true", "speaker" => "true", "timing" => "true")
 			expect(options[:notes]).to be_truthy
 			expect(options[:speaker]).to be_truthy
 			expect(options[:timing]).to be_truthy
 		end
 		
 		it "parses false values" do
-			options = subject.options_from_query("notes=false&speaker=false&timing=false")
+			options = subject.options_from_parameters("notes" => "false", "speaker" => "false", "timing" => "false")
 			expect(options[:notes]).to be_falsey
 			expect(options[:speaker]).to be_falsey
 			expect(options[:timing]).to be_falsey

@@ -4,7 +4,6 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "lively"
-require "uri"
 
 require_relative "presentation"
 require_relative "presentation_controller"
@@ -20,9 +19,8 @@ require_relative "state"
 module Presently
 	# Represents the main Presently application middleware.
 	#
-	# Handles routing for the display view (`/`), presenter view (`/presenter`),
-	# and WebSocket connections (`/live`). Creates a shared {PresentationController}
-	# that keeps all connected clients in sync.
+	# Routes the presentation, recording, playback, export, and live interfaces.
+	# Creates a shared {PresentationController} that keeps connected clients in sync.
 	class Application < Lively::Application
 		# Initialize a new Presently application.
 		# @parameter delegate [Protocol::HTTP::Middleware] The next middleware in the chain.
@@ -68,69 +66,80 @@ module Presently
 			"Presently"
 		end
 		
-		# Create the body view for the given request path.
-		# @parameter request [Protocol::HTTP::Request] The incoming request.
-		# @returns [Live::View | Nil] The view for the path, or `nil` for unknown paths.
-		def body(request)
-			case request.path
-			when "/"
-				DisplayView.new(controller: controller)
-			when "/presenter"
-				PresenterView.new(controller: controller)
-			when "/record"
-				RecordingView.new(controller: controller)
+		# Add Presently's routes to Lively's standard application routes.
+		# @parameter router [Lively::Router] The router to configure.
+		def configure_routes(router)
+			super
+			
+			router.get("/"){render_page(DisplayView.new(controller: controller))}
+			router.get("/presenter"){render_page(PresenterView.new(controller: controller))}
+			router.get("/record"){render_page(RecordingView.new(controller: controller))}
+			
+			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request, parameters|
+				handle_recording(request, parameters)
+			end
+			
+			router.route("/playback/recordings", methods: ["GET", "HEAD"]) do |request, parameters|
+				handle_playback_recording(request, parameters)
+			end
+			
+			router.get("/playback") do |_request, parameters|
+				render_playback(parameters)
+			end
+			
+			router.get("/export") do |_request, parameters|
+				render_export(parameters)
 			end
 		end
 		
-		# Handle an HTTP request by rendering the appropriate page.
+		# Delegate requests which do not match a configured route.
 		# @parameter request [Protocol::HTTP::Request] The incoming request.
-		# @returns [Protocol::HTTP::Response] The HTTP response.
+		# @returns [Protocol::HTTP::Response] The delegate response.
 		def handle(request)
-			path, query = request.path.split("?", 2)
-			
-			if path == "/recordings"
-				return handle_recording(request, query)
-			end
-			
-			if path == "/playback/recordings"
-				return handle_playback_recording(request, query)
-			end
-			
-			if path == "/playback"
-				presentation = Presentation.load(@slides_root, controller.templates)
-				recording_urls = presentation.slides.each_index.map do |index|
-					slide = presentation.slides[index]
-					if @playback_recordings.exist?(slide) || @recordings.exist?(slide)
-						"/playback/recordings?index=#{index}"
-					end
-				end
-				playback = Playback.new(presentation: presentation, recording_urls: recording_urls, **Playback.options_from_query(query))
-				return Protocol::HTTP::Response[200, [["content-type", "text/html"]], [playback.call]]
-			end
-			
-			if path == "/export"
-				options = Export.options_from_query(query)
-				presentation = Presentation.load(@slides_root, controller.templates)
-				export = Export.new(presentation: presentation, **options)
-				return Protocol::HTTP::Response[200, [["content-type", "text/html"]], [export.call]]
-			end
-			
-			if body = self.body(request)
-				page = Page.new(title: title, body: body)
-				return Protocol::HTTP::Response[200, [], [page.call]]
-			else
-				return Protocol::HTTP::Response[404, [], ["Not Found"]]
-			end
+			delegate.call(request)
 		end
 		
 		private
 		
+		# Render one of Presently's live interfaces.
+		def render_page(body)
+			page = Page.new(title: title, body: body)
+			Protocol::HTTP::Response[200, [], [page.call]]
+		end
+		
+		# Render the narrated playback interface.
+		def render_playback(parameters)
+			presentation = Presentation.load(@slides_root, controller.templates)
+			recording_urls = presentation.slides.each_index.map do |index|
+				slide = presentation.slides[index]
+				if @playback_recordings.exist?(slide) || @recordings.exist?(slide)
+					"/playback/recordings?index=#{index}"
+				end
+			end
+			
+			playback = Playback.new(
+				presentation: presentation,
+				recording_urls: recording_urls,
+				**Playback.options_from_parameters(parameters),
+			)
+			
+			Protocol::HTTP::Response[200, [["content-type", "text/html"]], [playback.call]]
+		end
+		
+		# Render the printable export interface.
+		def render_export(parameters)
+			presentation = Presentation.load(@slides_root, controller.templates)
+			export = Export.new(presentation: presentation, **Export.options_from_parameters(parameters))
+			
+			Protocol::HTTP::Response[200, [["content-type", "text/html"]], [export.call]]
+		end
+		
 		# Handle reading and writing a slide recording.
 		# @parameter request [Protocol::HTTP::Request] The incoming request.
-		# @parameter query [String | Nil] The raw query string.
+		# @parameter parameters [Hash] The decoded query parameters.
 		# @returns [Protocol::HTTP::Response]
-		def handle_recording(request, query)
-			index = recording_index(query)
+		def handle_recording(request, parameters)
+			index = recording_index(parameters)
 			return Protocol::HTTP::Response[400, [], ["A valid slide index is required."]] unless index
 			
 			slide = controller.slides[index]
@@ -141,18 +150,12 @@ module Presently
 				serve_recording(request, slide, @recordings)
 			when "PUT"
 				store_recording(request, slide)
-			else
-				Protocol::HTTP::Response[405, [["allow", "GET, HEAD, PUT"]], ["Method not allowed."]]
 			end
 		end
 		
 		# Serve normalized narration for playback, falling back to the source take.
-		def handle_playback_recording(request, query)
-			unless request.method == "GET" || request.method == "HEAD"
-				return Protocol::HTTP::Response[405, [["allow", "GET, HEAD"]], ["Method not allowed."]]
-			end
-			
-			index = recording_index(query)
+		def handle_playback_recording(request, parameters)
+			index = recording_index(parameters)
 			return Protocol::HTTP::Response[400, [], ["A valid slide index is required."]] unless index
 			
 			slide = controller.slides[index]
@@ -162,11 +165,10 @@ module Presently
 			serve_recording(request, slide, recordings)
 		end
 		
-		# Parse the slide index from a recording query string.
-		# @parameter query [String | Nil] The raw query string.
+		# Extract the slide index from decoded query parameters.
+		# @parameter parameters [Hash] The decoded query parameters.
 		# @returns [Integer | Nil]
-		def recording_index(query)
-			parameters = URI.decode_www_form(query.to_s).to_h
+		def recording_index(parameters)
 			Integer(parameters.fetch("index"))
 		rescue ArgumentError, KeyError
 			nil
