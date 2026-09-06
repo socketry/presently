@@ -7,6 +7,7 @@ require "lively"
 
 require_relative "presentation"
 require_relative "presentation_controller"
+require_relative "home_view"
 require_relative "display_view"
 require_relative "presenter_view"
 require_relative "recording_view"
@@ -42,7 +43,7 @@ module Presently
 		# The view classes that this application allows.
 		# @returns [Array(Class)] The allowed view classes.
 		def allowed_views
-			[DisplayView, PresenterView, RecordingView]
+			[HomeView, DisplayView, PresenterView, RecordingView]
 		end
 		
 		# The shared state passed to all views via the resolver.
@@ -68,19 +69,16 @@ module Presently
 			"Presently"
 		end
 		
-		# Create the presentation display page for the root route.
-		# @returns [Page] The presentation page.
-		def index
-			page(body)
-		end
-		
-		# Add Presently's routes to Lively's standard application routes.
+		# Add Presently's application routes.
 		# @parameter router [Lively::Router] The router to configure.
 		def configure_routes(router)
-			super
+			router.get("/") do |request|
+				Page.new(title: title, body: make_view(HomeView)).call(request)
+			end
 			
-			router.get("/presenter"){render_page(PresenterView.new(controller: controller))}
-			router.get("/record"){render_page(RecordingView.new(controller: controller))}
+			router.get("/display"){|request| render_view(request, DisplayView)}
+			router.get("/presenter"){|request| render_view(request, PresenterView)}
+			router.get("/record"){|request| render_view(request, RecordingView)}
 			
 			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request, parameters|
 				handle_recording(request, parameters)
@@ -102,14 +100,11 @@ module Presently
 		private
 		
 		# Create a Presently page with the presentation-specific stylesheets.
-		def page(body)
+		# @parameter view [Live::View] The root view for the page.
+		# @returns [Page] The presentation page.
+		def make_page(view)
 			stylesheets = controller.presentation.stylesheets.map(&:url)
-			Page.new(title: title, body: body, stylesheets: stylesheets)
-		end
-		
-		# Render one of Presently's live interfaces.
-		def render_page(body)
-			Protocol::HTTP::Response[200, [], [page(body).call]]
+			Page.new(title: title, body: view, stylesheets: stylesheets)
 		end
 		
 		# Render the narrated playback interface.

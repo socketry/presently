@@ -26,7 +26,7 @@ describe Presently::RecordingView do
 	end
 	
 	it "renders a dedicated recording interface" do
-		html = Presently::Page.new(body: view).call
+		html = Presently::Page.new(body: view).to_html
 		
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, "Narrate this slide.")
