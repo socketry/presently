@@ -36,6 +36,24 @@ describe Presently::Application do
 		Protocol::HTTP::Request[method, path, headers, Protocol::HTTP::Body::Buffered.wrap(body)]
 	end
 	
+	it "serves a home page linking to each presentation interface" do
+		response = application.call(request("GET", "/"))
+		html = response.read
+		
+		expect(response.status).to be == 200
+		expect(html).to be(:include?, 'href="/display"')
+		expect(html).to be(:include?, 'href="/presenter"')
+		expect(html).to be(:include?, 'href="/record"')
+		expect(html).to be(:include?, 'href="/playback"')
+	end
+	
+	it "serves the audience display separately from the home page" do
+		response = application.call(request("GET", "/display"))
+		
+		expect(response.status).to be == 200
+		expect(response.read).to be(:include?, "Example slide")
+	end
+	
 	it "serves the recording interface separately from the presenter" do
 		response = application.call(request("GET", "/record"))
 		
@@ -59,7 +77,7 @@ describe Presently::Application do
 	it "includes presentation stylesheets in live pages" do
 		File.write(File.join(slides_root, "style.css"), ".slide { color: blue; }\n")
 		
-		response = application.call(request("GET", "/"))
+		response = application.call(request("GET", "/display"))
 		
 		expect(response.read).to be(:include?, 'href="/_slides/style.css"')
 	end

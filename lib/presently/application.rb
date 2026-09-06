@@ -7,6 +7,7 @@ require "lively"
 
 require_relative "presentation"
 require_relative "presentation_controller"
+require_relative "home_view"
 require_relative "display_view"
 require_relative "presenter_view"
 require_relative "recording_view"
@@ -42,7 +43,7 @@ module Presently
 		# The view classes that this application allows.
 		# @returns [Array(Class)] The allowed view classes.
 		def allowed_views
-			[DisplayView, PresenterView, RecordingView]
+			[HomeView, DisplayView, PresenterView, RecordingView]
 		end
 		
 		# The shared state passed to all views via the resolver.
@@ -68,10 +69,10 @@ module Presently
 			"Presently"
 		end
 		
-		# Create the presentation display page for the root route.
-		# @returns [Page] The presentation page.
+		# Create the home page for the root route.
+		# @returns [Page] The presentation interface launcher.
 		def index
-			page(body)
+			Page.new(title: title, body: body)
 		end
 		
 		# Add Presently's routes to Lively's standard application routes.
@@ -79,6 +80,7 @@ module Presently
 		def configure_routes(router)
 			super
 			
+			router.get("/display"){render_page(DisplayView.new(controller: controller))}
 			router.get("/presenter"){render_page(PresenterView.new(controller: controller))}
 			router.get("/record"){render_page(RecordingView.new(controller: controller))}
 			

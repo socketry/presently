@@ -172,6 +172,104 @@ pre > syntax-code {
 	transition: opacity 0.15s ease-in;
 }
 
+/* ========================
+   HOME
+   ======================== */
+
+.home {
+	width: 100vw;
+	height: 100vh;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: clamp(2rem, 8vw, 8rem);
+	background:
+		radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 20%, transparent), transparent 35rem),
+		var(--slide-bg);
+}
+
+.home-heading,
+.home-interfaces {
+	width: min(72rem, 100%);
+	margin-inline: auto;
+}
+
+.home-heading {
+	margin-bottom: 3rem;
+}
+
+.home-kicker {
+	margin: 0 0 0.75rem;
+	color: var(--accent-light);
+	font-size: 0.9rem;
+	font-weight: 700;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+}
+
+.home-heading h1 {
+	margin: 0;
+	font-size: clamp(2.5rem, 6vw, 5rem);
+	line-height: 1;
+}
+
+.home-introduction {
+	max-width: 48rem;
+	margin: 1.25rem 0 0;
+	font-size: clamp(1.1rem, 2vw, 1.4rem);
+	line-height: 1.5;
+	opacity: 0.72;
+}
+
+.home-interfaces {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 1rem;
+}
+
+.home-interface {
+	display: flex;
+	min-height: 10rem;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: 1.5rem;
+	padding: 1.75rem;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 0.75rem;
+	background: color-mix(in srgb, var(--surface) 82%, transparent);
+	color: inherit;
+	text-decoration: none;
+	transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+}
+
+.home-interface:hover,
+.home-interface:focus-visible {
+	border-color: var(--accent-light);
+	background: color-mix(in srgb, var(--surface-light) 85%, transparent);
+	transform: translateY(-0.2rem);
+	outline: none;
+}
+
+.home-interface strong {
+	font-size: 1.4rem;
+}
+
+.home-interface span {
+	line-height: 1.5;
+	opacity: 0.7;
+}
+
+@media (max-width: 48rem) {
+	.home {
+		justify-content: flex-start;
+	}
+	
+	.home-interfaces {
+		grid-template-columns: 1fr;
+	}
+}
+
 /* Statement template */
 .statement-template {
 	text-align: center;
