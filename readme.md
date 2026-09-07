@@ -24,6 +24,8 @@ A web-based presentation tool built with [Lively](https://github.com/socketry/li
 
 Please see the [project documentation](https://socketry.github.io/presently/) for more details.
 
+After starting Presently, open `http://localhost:9292/` to choose between the audience display, presenter console, narration recorder, and narrated playback interfaces.
+
   - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
 
   - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the slide scripting system.

@@ -15,7 +15,7 @@ describe Presently::RecordingView do
 	let(:path) {File.join(dir, "010-example.md")}
 	let(:presentation) {Presently::Presentation.load(dir)}
 	let(:controller) {Presently::PresentationController.new(presentation)}
-	let(:view) {subject.new(controller: controller)}
+	let(:view) {subject.root(controller: controller)}
 	
 	before do
 		File.write(path, "---\nmarker: Example\n---\nExample slide\n\n---\nNarrate this slide.\n")
@@ -26,7 +26,7 @@ describe Presently::RecordingView do
 	end
 	
 	it "renders a dedicated recording interface" do
-		html = Presently::Page.new(body: view).call
+		html = Presently::Page.new(body: view).to_html
 		
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, "Narrate this slide.")

@@ -124,9 +124,10 @@ Start the server from your presentation directory:
 $ presently
 ```
 
-Then open two browser windows:
+Open the launcher, or go directly to one of the presentation interfaces:
 
-- `http://localhost:9292/` — the audience display.
+- `http://localhost:9292/` — the interface launcher.
+- `http://localhost:9292/display` — the audience display.
 - `http://localhost:9292/presenter` — the presenter console.
 - `http://localhost:9292/record` — the slide narration recorder.
 - `http://localhost:9292/playback` — automatic playback with recorded narration.

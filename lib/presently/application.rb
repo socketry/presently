@@ -4,9 +4,11 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "lively"
+require "protocol/url"
 
 require_relative "presentation"
 require_relative "presentation_controller"
+require_relative "home_view"
 require_relative "display_view"
 require_relative "presenter_view"
 require_relative "recording_view"
@@ -42,7 +44,7 @@ module Presently
 		# The view classes that this application allows.
 		# @returns [Array(Class)] The allowed view classes.
 		def allowed_views
-			[DisplayView, PresenterView, RecordingView]
+			[HomeView, DisplayView, PresenterView, RecordingView]
 		end
 		
 		# The shared state passed to all views via the resolver.
@@ -68,48 +70,50 @@ module Presently
 			"Presently"
 		end
 		
-		# Create the presentation display page for the root route.
+		# Create a Presently page with the presentation-specific stylesheets.
+		# @parameter view [Live::View] The root view for the page.
 		# @returns [Page] The presentation page.
-		def index
-			page(body)
+		def make_page(view)
+			stylesheets = controller.presentation.stylesheets.map(&:url)
+			Page.new(title: title, body: view, stylesheets: stylesheets)
 		end
 		
-		# Add Presently's routes to Lively's standard application routes.
-		# @parameter router [Lively::Router] The router to configure.
+		# Add Presently's application routes.
+		# @parameter router [Lively::Router::Builder] The router to configure.
 		def configure_routes(router)
-			super
-			
-			router.get("/presenter"){render_page(PresenterView.new(controller: controller))}
-			router.get("/record"){render_page(RecordingView.new(controller: controller))}
-			
-			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request, parameters|
-				handle_recording(request, parameters)
+			router.get("/") do
+				body = resolver.root(HomeView)
+				Page.new(title: title, body: body).call
 			end
 			
-			router.route("/playback/recordings", methods: ["GET", "HEAD"]) do |request, parameters|
-				handle_playback_recording(request, parameters)
+			router.get("/display"){make_page(resolver.root(DisplayView)).call}
+			router.get("/presenter"){make_page(resolver.root(PresenterView)).call}
+			router.get("/record"){make_page(resolver.root(RecordingView)).call}
+			
+			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request|
+				handle_recording(request, request_parameters(request))
 			end
 			
-			router.get("/playback") do |_request, parameters|
-				render_playback(parameters)
+			router.route("/playback/recordings", methods: ["GET", "HEAD"]) do |request|
+				handle_playback_recording(request, request_parameters(request))
 			end
 			
-			router.get("/export") do |_request, parameters|
-				render_export(parameters)
+			router.get("/playback") do |request|
+				render_playback(request_parameters(request))
+			end
+			
+			router.get("/export") do |request|
+				render_export(request_parameters(request))
 			end
 		end
 		
 		private
 		
-		# Create a Presently page with the presentation-specific stylesheets.
-		def page(body)
-			stylesheets = controller.presentation.stylesheets.map(&:url)
-			Page.new(title: title, body: body, stylesheets: stylesheets)
-		end
-		
-		# Render one of Presently's live interfaces.
-		def render_page(body)
-			Protocol::HTTP::Response[200, [], [page(body).call]]
+		# Parse query parameters from the incoming request target.
+		# @parameter request [Protocol::HTTP::Request] The incoming request.
+		# @returns [Hash] The decoded query parameters.
+		def request_parameters(request)
+			Protocol::URL::Reference[request.path].parse_query!
 		end
 		
 		# Render the narrated playback interface.

@@ -18,11 +18,11 @@ module Presently
 		# Initialize a recording view.
 		# @parameter id [String] The unique element identifier.
 		# @parameter data [Hash] The element data attributes.
-		# @parameter controller [PresentationController | Nil] The shared presentation controller.
-		def initialize(id = Live::Element.unique_id, data = {}, controller: nil)
+		# @parameter controller [PresentationController] The shared presentation controller.
+		def initialize(id, data, controller:)
 			super(id, data)
 			@controller = controller
-			@slide_renderer = SlideRenderer.new(css_class: "slide recording-slide", templates: controller&.templates)
+			@slide_renderer = SlideRenderer.new(css_class: "slide recording-slide", templates: controller.templates)
 		end
 		
 		# Bind this view to a page and register for slide changes.
