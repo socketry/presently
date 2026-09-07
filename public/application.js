@@ -5,20 +5,16 @@ import { applyCodeFocus } from './code-focus.js';
 
 import './recorder.js';
 
-const live = Live.start();
+const SLIDE_RENDER_EVENT = 'presently:slide:render';
+const SLIDE_CHANGE_EVENT = 'presently:slide:change';
+
+let live = null;
 
 async function highlightAndApplyCodeFocus() {
 	await Syntax.highlight();
 	await applyCodeFocus();
 }
 
-// Highlight code blocks on initial load and apply focus once rendering finishes:
-await highlightAndApplyCodeFocus();
-
-
-// Run the script for a single slide element.
-// Wrapped in try/catch so syntax errors don't crash the presentation.
-// Passes a tracked setTimeout so pending timeouts can be cancelled on slide change.
 // Run scripts for all slide elements currently in the DOM.
 // Cancels any pending timeouts from the previous slide's scripts first.
 function runSlideScripts() {
@@ -30,51 +26,54 @@ function runSlideScripts() {
 	});
 }
 
-
-// Detect the transition type from the incoming HTML before morphdom applies it.
-function detectTransition(html) {
-	const match = html.match(/data-transition="([^"]+)"/);
-	return match ? match[1] : null;
-}
-
 // Track the active view transition so we can skip overlapping ones.
 let activeTransition = null;
 
 // Track Slide instances from the current scripts so we can cancel their timeouts on slide change.
 let currentSlides = [];
 
-// Wrap Live's update method to support view transitions.
-const originalUpdate = live.update.bind(live);
-live.update = function(id, html, options) {
-	// Only apply transitions on the display view, not the presenter:
-	const transition = document.querySelector('.display') ? detectTransition(html) : null;
+function dispatchSlideChange(view) {
+	view.dispatchEvent(new CustomEvent(SLIDE_CHANGE_EVENT, {bubbles: true}));
+}
+
+function renderSlide(event) {
+	const view = event.target.closest?.('live-view');
+	if (!view) return;
+
+	const {html, transition} = event.detail;
+	const render = () => {
+		live.update(view.id, html);
+		runSlideScripts();
+	};
 	
 	if (transition && document.startViewTransition && !activeTransition) {
 		document.documentElement.dataset.transition = transition;
 
-		activeTransition = document.startViewTransition(() => {
-			originalUpdate(id, html, options);
-			runSlideScripts();
-		});
+		const viewTransition = document.startViewTransition(render);
+		activeTransition = viewTransition;
 
-		activeTransition.finished.finally(() => {
+		const complete = () => {
 			delete document.documentElement.dataset.transition;
 			activeTransition = null;
-			highlightAndApplyCodeFocus();
-		});
-	} else {
-		originalUpdate(id, html, options);
-		runSlideScripts();
-		highlightAndApplyCodeFocus();
-	}
-};
+			dispatchSlideChange(view);
+		};
 
-// Re-highlight and apply focus after non-update DOM mutations (e.g. replace):
-const observer = new MutationObserver(() => {
-	if (activeTransition) return;
+		viewTransition.finished.then(complete, complete);
+	} else {
+		render();
+		dispatchSlideChange(view);
+	}
+}
+
+document.addEventListener(SLIDE_RENDER_EVENT, renderSlide);
+document.addEventListener(SLIDE_CHANGE_EVENT, () => {
 	highlightAndApplyCodeFocus();
 });
-observer.observe(document.body, { childList: true, subtree: true });
+
+// Initialize the server-rendered slide before connecting for subsequent updates:
+await highlightAndApplyCodeFocus();
+
+live = Live.start();
 
 // Initial script application:
 runSlideScripts();

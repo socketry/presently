@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "live"
+require_relative "slide_view"
 require_relative "slide_renderer"
 require_relative "editor"
 
@@ -12,7 +12,7 @@ module Presently
 	#
 	# Shows the current slide, next slide preview, presenter notes, timing controls,
 	# and pacing indicators. Updates the timing display every second via a background task.
-	class PresenterView < Live::View
+	class PresenterView < SlideView
 		# Initialize a new presenter view.
 		# @parameter id [String] The unique element identifier.
 		# @parameter data [Hash] The element data attributes.
@@ -48,7 +48,7 @@ module Presently
 		
 		# Called by the controller when the slide changes.
 		def slide_changed!
-			self.update!
+			self.render_slide!
 		end
 		
 		# Push an update to just the timing section.
