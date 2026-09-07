@@ -47,6 +47,13 @@ describe Presently::Application do
 		expect(html).to be(:include?, 'href="/playback"')
 	end
 	
+	it "exposes page construction as a public customization interface" do
+		view = application.make_view(Presently::DisplayView)
+		page = application.make_page(view)
+		
+		expect(page).to be_a(Presently::Page)
+	end
+	
 	it "serves the audience display separately from the home page" do
 		response = application.call(request("GET", "/display"))
 		

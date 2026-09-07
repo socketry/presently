@@ -69,6 +69,14 @@ module Presently
 			"Presently"
 		end
 		
+		# Create a Presently page with the presentation-specific stylesheets.
+		# @parameter view [Live::View] The root view for the page.
+		# @returns [Page] The presentation page.
+		def make_page(view)
+			stylesheets = controller.presentation.stylesheets.map(&:url)
+			Page.new(title: title, body: view, stylesheets: stylesheets)
+		end
+		
 		# Add Presently's application routes.
 		# @parameter router [Lively::Router] The router to configure.
 		def configure_routes(router)
@@ -98,14 +106,6 @@ module Presently
 		end
 		
 		private
-		
-		# Create a Presently page with the presentation-specific stylesheets.
-		# @parameter view [Live::View] The root view for the page.
-		# @returns [Page] The presentation page.
-		def make_page(view)
-			stylesheets = controller.presentation.stylesheets.map(&:url)
-			Page.new(title: title, body: view, stylesheets: stylesheets)
-		end
 		
 		# Render the narrated playback interface.
 		def render_playback(parameters)
