@@ -48,7 +48,7 @@ describe Presently::Application do
 	end
 	
 	it "exposes page construction as a public customization interface" do
-		view = application.make_view(Presently::DisplayView)
+		view = application.resolver.root(Presently::DisplayView)
 		page = application.make_page(view)
 		
 		expect(page).to be_a(Presently::Page)

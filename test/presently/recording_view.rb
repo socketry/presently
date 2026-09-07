@@ -15,7 +15,7 @@ describe Presently::RecordingView do
 	let(:path) {File.join(dir, "010-example.md")}
 	let(:presentation) {Presently::Presentation.load(dir)}
 	let(:controller) {Presently::PresentationController.new(presentation)}
-	let(:view) {subject.new(controller: controller)}
+	let(:view) {subject.root(controller: controller)}
 	
 	before do
 		File.write(path, "---\nmarker: Example\n---\nExample slide\n\n---\nNarrate this slide.\n")

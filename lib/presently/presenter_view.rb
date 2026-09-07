@@ -16,12 +16,12 @@ module Presently
 		# Initialize a new presenter view.
 		# @parameter id [String] The unique element identifier.
 		# @parameter data [Hash] The element data attributes.
-		# @parameter controller [PresentationController | Nil] The shared presentation controller.
-		def initialize(id = Live::Element.unique_id, data = {}, controller: nil)
+		# @parameter controller [PresentationController] The shared presentation controller.
+		def initialize(id, data, controller:)
 			super(id, data)
 			@controller = controller
 			@clock_task = nil
-			@preview_renderer = SlideRenderer.new(css_class: "slide preview-slide", templates: controller&.templates)
+			@preview_renderer = SlideRenderer.new(css_class: "slide preview-slide", templates: controller.templates)
 		end
 		
 		# Bind this view to a page and start the timing update loop.

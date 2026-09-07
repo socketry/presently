@@ -4,6 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "lively"
+require "protocol/url"
 
 require_relative "presentation"
 require_relative "presentation_controller"
@@ -78,34 +79,42 @@ module Presently
 		end
 		
 		# Add Presently's application routes.
-		# @parameter router [Lively::Router] The router to configure.
+		# @parameter router [Lively::Router::Builder] The router to configure.
 		def configure_routes(router)
-			router.get("/") do |request|
-				Page.new(title: title, body: make_view(HomeView)).call(request)
+			router.get("/") do
+				body = resolver.root(HomeView)
+				Page.new(title: title, body: body).call
 			end
 			
-			router.get("/display"){|request| render_view(request, DisplayView)}
-			router.get("/presenter"){|request| render_view(request, PresenterView)}
-			router.get("/record"){|request| render_view(request, RecordingView)}
+			router.get("/display"){make_page(resolver.root(DisplayView)).call}
+			router.get("/presenter"){make_page(resolver.root(PresenterView)).call}
+			router.get("/record"){make_page(resolver.root(RecordingView)).call}
 			
-			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request, parameters|
-				handle_recording(request, parameters)
+			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request|
+				handle_recording(request, request_parameters(request))
 			end
 			
-			router.route("/playback/recordings", methods: ["GET", "HEAD"]) do |request, parameters|
-				handle_playback_recording(request, parameters)
+			router.route("/playback/recordings", methods: ["GET", "HEAD"]) do |request|
+				handle_playback_recording(request, request_parameters(request))
 			end
 			
-			router.get("/playback") do |_request, parameters|
-				render_playback(parameters)
+			router.get("/playback") do |request|
+				render_playback(request_parameters(request))
 			end
 			
-			router.get("/export") do |_request, parameters|
-				render_export(parameters)
+			router.get("/export") do |request|
+				render_export(request_parameters(request))
 			end
 		end
 		
 		private
+		
+		# Parse query parameters from the incoming request target.
+		# @parameter request [Protocol::HTTP::Request] The incoming request.
+		# @returns [Hash] The decoded query parameters.
+		def request_parameters(request)
+			Protocol::URL::Reference[request.path].parse_query!
+		end
 		
 		# Render the narrated playback interface.
 		def render_playback(parameters)
