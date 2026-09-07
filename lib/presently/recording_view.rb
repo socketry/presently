@@ -3,9 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "live"
-
 require_relative "editor"
+require_relative "slide_view"
 require_relative "slide_renderer"
 
 module Presently
@@ -14,7 +13,7 @@ module Presently
 	# Recording is intentionally separate from {PresenterView}: presenting is a
 	# live performance interface, while recording is an authoring workflow with
 	# retakes, playback, and explicit saving.
-	class RecordingView < Live::View
+	class RecordingView < SlideView
 		# Initialize a recording view.
 		# @parameter id [String] The unique element identifier.
 		# @parameter data [Hash] The element data attributes.
@@ -40,7 +39,7 @@ module Presently
 		
 		# Update the recording interface when the current slide changes.
 		def slide_changed!
-			self.update!
+			self.render_slide!
 		end
 		
 		# Handle navigation events from the recording interface.

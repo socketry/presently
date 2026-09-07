@@ -3,7 +3,7 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
-require "live"
+require_relative "slide_view"
 require_relative "slide_renderer"
 
 module Presently
@@ -11,7 +11,7 @@ module Presently
 	#
 	# Connects to the {PresentationController} as a listener and updates
 	# whenever the slide changes. Pushes the current state on WebSocket reconnect.
-	class DisplayView < Live::View
+	class DisplayView < SlideView
 		# Initialize a new display view.
 		# @parameter id [String] The unique element identifier.
 		# @parameter data [Hash] The element data attributes.
@@ -28,7 +28,7 @@ module Presently
 		def bind(page)
 			super
 			@controller.add_listener(self)
-			self.update!
+			self.render_slide!(transition: @controller.current_slide&.transition)
 		end
 		
 		# Close this view and unregister as a listener.
@@ -39,7 +39,7 @@ module Presently
 		
 		# Called by the controller when the slide changes.
 		def slide_changed!
-			self.update!
+			self.render_slide!(transition: @controller.current_slide&.transition)
 		end
 		
 		# Handle an event from the client.
