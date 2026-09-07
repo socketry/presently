@@ -15,35 +15,45 @@ async function highlightAndApplyCodeFocus() {
 	await applyCodeFocus();
 }
 
-// Run scripts for all slide elements currently in the DOM.
-// Cancels any pending timeouts from the previous slide's scripts first.
-function runSlideScripts() {
-	currentSlides.forEach(slide => slide.cancelTimeouts());
-	currentSlides = [];
+// A page can render multiple slides, such as the current slide and presenter preview.
+// Track their active Slide instances so we can cancel their timeouts on slide change.
+let activeSlides = [];
+let slideRevision = 0;
+
+async function initializeSlides() {
+	const revision = ++slideRevision;
+
+	activeSlides.forEach(slide => slide.cancelTimeouts());
+	activeSlides = [];
+
+	await highlightAndApplyCodeFocus();
+	if (revision !== slideRevision) return null;
+
 	document.querySelectorAll('.slide').forEach(slideEl => {
 		const slide = runScript(slideEl);
-		if (slide) currentSlides.push(slide);
+		if (slide) activeSlides.push(slide);
 	});
+
+	return revision;
 }
 
 // Track the active view transition so we can skip overlapping ones.
 let activeTransition = null;
 
-// Track Slide instances from the current scripts so we can cancel their timeouts on slide change.
-let currentSlides = [];
-
 function dispatchSlideChange(view) {
 	view.dispatchEvent(new CustomEvent(SLIDE_CHANGE_EVENT, {bubbles: true}));
 }
 
-function renderSlide(event) {
+async function renderSlide(event) {
 	const view = event.target.closest?.('live-view');
 	if (!view) return;
 
 	const {html, transition} = event.detail;
-	const render = () => {
+	let revision = null;
+
+	const render = async () => {
 		live.update(view.id, html);
-		runSlideScripts();
+		revision = await initializeSlides();
 	};
 	
 	if (transition && document.startViewTransition && !activeTransition) {
@@ -52,31 +62,31 @@ function renderSlide(event) {
 		const viewTransition = document.startViewTransition(render);
 		activeTransition = viewTransition;
 
-		const complete = () => {
+		try {
+			await viewTransition.finished;
+			if (revision === slideRevision) dispatchSlideChange(view);
+		} finally {
 			delete document.documentElement.dataset.transition;
 			activeTransition = null;
-			dispatchSlideChange(view);
-		};
-
-		viewTransition.finished.then(complete, complete);
+		}
 	} else {
-		render();
-		dispatchSlideChange(view);
+		await render();
+		if (revision === slideRevision) dispatchSlideChange(view);
 	}
 }
 
-document.addEventListener(SLIDE_RENDER_EVENT, renderSlide);
-document.addEventListener(SLIDE_CHANGE_EVENT, () => {
-	highlightAndApplyCodeFocus();
+document.addEventListener(SLIDE_RENDER_EVENT, (event) => {
+	renderSlide(event).catch(error => console.error('Could not render slide:', error));
 });
 
-// Initialize the server-rendered slide before connecting for subsequent updates:
-await highlightAndApplyCodeFocus();
-
+// Begin initializing the server-rendered slide before connecting. If the server
+// sends a newer render while this is in progress, its revision takes precedence.
+const initialSlide = initializeSlides();
 live = Live.start();
 
-// Initial script application:
-runSlideScripts();
+const initialRevision = await initialSlide;
+const initialView = document.querySelector('live-view');
+if (initialView && initialRevision === slideRevision) dispatchSlideChange(initialView);
 
 // Jump-to select: forward the selected slide index to the presenter view.
 document.addEventListener('change', (event) => {
