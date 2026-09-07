@@ -204,7 +204,6 @@ audio.play()
 
 slide.defer(() => {
   audio.pause()
-  audio.currentTime = 0
 })
 ```
 
