@@ -33,7 +33,7 @@ function updateControls() {
 }
 
 function stopCurrent() {
-	currentScript?.cancelTimeouts();
+	currentScript?.dispose();
 	currentScript = null;
 
 	if (currentAudio) {

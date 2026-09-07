@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
+
 ## v0.16.0
 
   - Add support for organizing slides in nested directories. Every directory and slide filename must begin with a numeric prefix, and slides are ordered by relative path.

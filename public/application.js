@@ -16,25 +16,32 @@ async function highlightAndApplyCodeFocus() {
 }
 
 // A page can render multiple slides, such as the current slide and presenter preview.
-// Track their active Slide instances so we can cancel their timeouts on slide change.
+// Track their active Slide instances so we can dispose their resources on slide change.
 let activeSlides = [];
-let slideRevision = 0;
+let activeRendering = null;
 
-async function initializeSlides() {
-	const revision = ++slideRevision;
+function activateRendering(view, detail = {}) {
+	const rendering = Object.freeze({view, ...detail});
+	activeRendering = rendering;
 
-	activeSlides.forEach(slide => slide.cancelTimeouts());
+	return rendering;
+}
+
+function disposeSlides() {
+	activeSlides.forEach(slide => slide.dispose());
 	activeSlides = [];
+}
 
+async function initializeSlides(rendering) {
 	await highlightAndApplyCodeFocus();
-	if (revision !== slideRevision) return null;
+	if (rendering !== activeRendering) return false;
 
 	document.querySelectorAll('.slide').forEach(slideEl => {
 		const slide = runScript(slideEl);
 		if (slide) activeSlides.push(slide);
 	});
 
-	return revision;
+	return true;
 }
 
 // Track the active view transition so we can skip overlapping ones.
@@ -48,12 +55,14 @@ async function renderSlide(event) {
 	const view = event.target.closest?.('live-view');
 	if (!view) return;
 
-	const {html, transition} = event.detail;
-	let revision = null;
+	const rendering = activateRendering(view, event.detail);
+	const {html, transition} = rendering;
+	let initialized = false;
 
 	const render = async () => {
+		disposeSlides();
 		live.update(view.id, html);
-		revision = await initializeSlides();
+		initialized = await initializeSlides(rendering);
 	};
 	
 	if (transition && document.startViewTransition && !activeTransition) {
@@ -64,14 +73,14 @@ async function renderSlide(event) {
 
 		try {
 			await viewTransition.finished;
-			if (revision === slideRevision) dispatchSlideChange(view);
+			if (initialized && rendering === activeRendering) dispatchSlideChange(view);
 		} finally {
 			delete document.documentElement.dataset.transition;
 			activeTransition = null;
 		}
 	} else {
 		await render();
-		if (revision === slideRevision) dispatchSlideChange(view);
+		if (initialized && rendering === activeRendering) dispatchSlideChange(view);
 	}
 }
 
@@ -80,13 +89,13 @@ document.addEventListener(SLIDE_RENDER_EVENT, (event) => {
 });
 
 // Begin initializing the server-rendered slide before connecting. If the server
-// sends a newer render while this is in progress, its revision takes precedence.
-const initialSlide = initializeSlides();
+// sends a newer render while this is in progress, its rendering takes precedence.
+const initialView = document.querySelector('live-view');
+const initialRendering = activateRendering(initialView);
+const initialSlide = initializeSlides(initialRendering);
 live = Live.start();
 
-const initialRevision = await initialSlide;
-const initialView = document.querySelector('live-view');
-if (initialView && initialRevision === slideRevision) dispatchSlideChange(initialView);
+if (initialView && await initialSlide) dispatchSlideChange(initialView);
 
 // Jump-to select: forward the selected slide index to the presenter view.
 document.addEventListener('change', (event) => {

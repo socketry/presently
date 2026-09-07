@@ -40,12 +40,7 @@ export class SlideBuilder {
 
 		if (revealedElement) {
 			const animationClass = `build-${effect}`;
-			return new Promise((resolve) => {
-				revealedElement.addEventListener('animationend', () => {
-					revealedElement.classList.remove(animationClass);
-					resolve();
-				}, {once: true});
-			});
+			return this.#waitForAnimation(revealedElement, animationClass);
 		}
 
 		return Promise.resolve();
@@ -69,12 +64,7 @@ export class SlideBuilder {
 		if (effect) {
 			const animationClass = `build-${effect}`;
 			element.classList.add(animationClass);
-			return new Promise((resolve) => {
-				element.addEventListener('animationend', () => {
-					element.classList.remove(animationClass);
-					resolve();
-				}, {once: true});
-			});
+			return this.#waitForAnimation(element, animationClass);
 		}
 
 		return Promise.resolve();
@@ -108,6 +98,23 @@ export class SlideBuilder {
 	// Returns true when all elements have been revealed.
 	get finished() {
 		return this.#step >= this.#elements.length;
+	}
+
+	#waitForAnimation(element, animationClass) {
+		return new Promise((resolve) => {
+			const signal = this.#slide.signal;
+			const finish = () => {
+				element.removeEventListener('animationend', finish);
+				signal.removeEventListener('abort', finish);
+				element.classList.remove(animationClass);
+				resolve();
+			};
+
+			element.addEventListener('animationend', finish, {once: true});
+			signal.addEventListener('abort', finish, {once: true});
+
+			if (signal.aborted) finish();
+		});
 	}
 }
 
@@ -207,6 +214,9 @@ export class SlideContext {
 export class Slide {
 	#element;
 	#timeouts = [];
+	#deferred = [];
+	#abortController = new AbortController();
+	#disposed = false;
 	#animated;
 
 	constructor(element, {animated = true} = {}) {
@@ -227,6 +237,29 @@ export class Slide {
 		return this.#element;
 	}
 
+	// An AbortSignal which is aborted when the slide is disposed.
+	// Pass this signal to compatible browser APIs to bind their lifetime to the slide.
+	// @returns [AbortSignal]
+	get signal() {
+		return this.#abortController.signal;
+	}
+
+	// Register a callback to run when the slide is disposed.
+	// Callbacks run in reverse registration order. If the slide has already been
+	// disposed, the callback runs immediately.
+	// @parameter callback [Function] A callback which releases a slide-scoped resource.
+	defer(callback) {
+		if (typeof callback !== 'function') {
+			throw new TypeError('Deferred slide cleanup must be a function.');
+		}
+
+		if (this.#disposed) {
+			this.#runDeferred(callback);
+		} else {
+			this.#deferred.push(callback);
+		}
+	}
+
 	// Find elements within this slide matching the given CSS selector.
 	// Use comma-separated selectors to combine multiple element types, e.g. "h2, li".
 	// @parameter selector [String] A CSS selector scoped to the slide body.
@@ -240,8 +273,10 @@ export class Slide {
 	// Registered timeouts are automatically cancelled when the slide changes.
 	// @parameter callback [Function] The function to call after the delay.
 	// @parameter delay [Number] Delay in milliseconds.
-	// @returns [Number] The timeout ID.
+	// @returns [Number | null] The timeout ID, or `null` if the slide is already disposed.
 	setTimeout(callback, delay) {
+		if (this.#disposed) return null;
+
 		const timeoutId = window.setTimeout(callback, delay);
 		this.#timeouts.push(timeoutId);
 		return timeoutId;
@@ -286,5 +321,27 @@ export class Slide {
 	cancelTimeouts() {
 		this.#timeouts.forEach(timeoutId => clearTimeout(timeoutId));
 		this.#timeouts = [];
+	}
+
+	// Dispose the slide and release all resources bound to its lifetime.
+	// Disposal is idempotent so callers can safely invoke it more than once.
+	dispose() {
+		if (this.#disposed) return;
+		this.#disposed = true;
+
+		this.#abortController.abort();
+		this.cancelTimeouts();
+
+		while (this.#deferred.length > 0) {
+			this.#runDeferred(this.#deferred.pop());
+		}
+	}
+
+	#runDeferred(callback) {
+		try {
+			callback();
+		} catch (error) {
+			console.error('Could not dispose slide resource:', error);
+		}
 	}
 }
