@@ -194,6 +194,30 @@ All timeouts registered via `slide.after()` (and the underlying `slide.setTimeou
 
 The global `setTimeout` in slide scripts is also automatically tracked — you can use it directly and it will be cancelled on slide change.
 
+## Slide Lifetime and Cleanup
+
+Slide scripts can start resources other than timers, including audio, video, observers, animations, and event listeners. Use `slide.defer(callback)` to release those resources when the slide is deactivated:
+
+``` javascript
+const audio = new Audio("introduction.mp3")
+audio.play()
+
+slide.defer(() => {
+  audio.pause()
+})
+```
+
+Deferred callbacks run in reverse registration order when the slide changes. Registering a callback after the slide has already been deactivated runs it immediately, preventing asynchronously-created resources from escaping the slide's lifetime.
+
+The `slide.signal` getter exposes an `AbortSignal` which is aborted at the same time. Browser APIs which support abort signals can therefore be bound directly to the slide:
+
+``` javascript
+const button = slide.element.querySelector("button")
+button.addEventListener("click", handleClick, {signal: slide.signal})
+```
+
+Aborting the signal removes this event listener; it does not invoke `handleClick`. Use `slide.defer(...)` for resources which do not accept an `AbortSignal`.
+
 ## Looping Animations with `slide.loop()`
 
 To repeat an animation indefinitely, use `slide.loop()`. The callback receives a fresh `SlideContext` each iteration and can use `after()` to schedule steps in the same way as a regular chain. The loop waits for all steps to complete and then restarts, with an optional extra pause between iterations.

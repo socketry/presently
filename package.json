@@ -1,6 +1,10 @@
 {
 	"name": "@socketry/presently",
 	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "node --test test/javascript/*.js"
+	},
 	"dependencies": {
 		"@socketry/syntax": "^0.6.1"
 	}

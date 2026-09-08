@@ -7,6 +7,7 @@ source "https://rubygems.org"
 
 gemspec
 
+gem "bake-node"
 gem "io-watch"
 gem "async-webdriver"
 
