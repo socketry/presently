@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Web Packages
+
+Presently now uses `web-packages` v0.2 after the project was renamed from `bake-node`. Client package configuration now uses the `web-packages` key, package tasks use the `web:packages` Bake namespace, and the unchanged projection manifest is now stored as `.manifest.json`.
+
   - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
 
 ## v0.16.0
