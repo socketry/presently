@@ -178,7 +178,8 @@ module Presently
 		# @parameter parameters [Hash] The decoded query parameters.
 		# @returns [Integer | Nil]
 		def recording_index(parameters)
-			Integer(parameters.fetch("index"))
+			index = Integer(parameters.fetch("index"))
+			index if index >= 0
 		rescue ArgumentError, KeyError
 			nil
 		end
