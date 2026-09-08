@@ -24,8 +24,6 @@ A web-based presentation tool built with [Lively](https://github.com/socketry/li
 
 Please see the [project documentation](https://socketry.github.io/presently/) for more details.
 
-After starting Presently, open `http://localhost:9292/` to choose between the audience display, presenter console, narration recorder, and narrated playback interfaces.
-
   - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
 
   - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the slide scripting system.
@@ -66,6 +64,11 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
+
+### v0.17.1
+
+  - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
+  - [Web Packages](https://socketry.github.io/presently/releases/index#web-packages)
 
 ### v0.16.0
 
@@ -108,19 +111,6 @@ q
 ### v0.8.0
 
   - Add optional `translation` section to the `default` template.
-
-### v0.7.0
-
-  - Rework build effects to use direct CSS class animation rather than `view-transition-class`. `build-fade`, `build-fly-up`, etc. are now regular `@keyframes` classes applied to the revealed element, rather than view transition pseudo-element selectors. This decouples in-slide sequential animation from slide-level morph transitions.
-  - Rename `SlideElements#build` to `SlideElements#show` for clarity — `boxes.show(0)` / `boxes.show(3)` more clearly describes the outcome from the audience's perspective.
-  - Add `SlideElements#builder(options)` — returns a `SlideBuilder` with default options (group, effect) and a cached position, so callers can use `next()` instead of tracking the step count manually.
-  - Add `SlideBuilder#show(count, overrides)` — set visibility state to an arbitrary position. Returns a `Promise` that resolves when the reveal animation completes (or immediately when no effect is given).
-  - Add `SlideBuilder#next(overrides)` — reveal the next element with the builder's default effect, optionally overridden per call. O(1): only touches the single newly revealed element. Returns a `Promise`.
-  - Add `SlideBuilder#play(interval, callback)` — reveals all remaining elements in sequence with `interval` milliseconds between each. An optional callback is invoked after each reveal; return `false` to stop playback early. Requires the builder to be created via `slide.find(...).builder()` so timeouts are tracked and cancelled on slide change.
-  - Add `SlideBuilder#finished` getter — returns `true` when all elements have been revealed.
-  - Add `Slide#after(delay, callback)` — schedules a callback after a delay in milliseconds and returns a `SlideChain`. Subsequent `.after(delay, callback)` calls on the chain fire relative to the previous step, making sequential reveal timing easy to read and adjust.
-  - Add `Slide#setTimeout(callback, delay)` — a tracked replacement for the global `setTimeout`. All timeouts registered this way are automatically cancelled when the slide changes, preventing stale callbacks from firing after navigation. The global `setTimeout` in slide scripts is shadowed by this method automatically.
-  - Add `Slide#cancelTimeouts()` — cancels all pending timeouts registered by the slide's script. Called automatically by the presentation engine on every slide change.
 
 ## See Also
 
