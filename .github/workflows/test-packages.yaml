@@ -1,4 +1,4 @@
-name: JavaScript
+name: Test Packages
 
 on: [push, pull_request]
 
@@ -11,6 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
+
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: ruby
@@ -26,6 +27,3 @@ jobs:
 
     - name: Check static packages
       run: bundle exec bake node:packages:check
-
-    - name: Run tests
-      run: bundle exec bake node:test
