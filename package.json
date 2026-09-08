@@ -1,11 +1,29 @@
 {
-	"name": "@socketry/presently",
+	"name": "@socketry/presently-workspace",
 	"private": true,
 	"type": "module",
+	"workspaces": [
+		"components/*"
+	],
 	"scripts": {
-		"test": "node --test test/javascript/*.js"
+		"test": "npm test --workspaces --if-present"
 	},
-	"dependencies": {
-		"@socketry/syntax": "^0.6.1"
+	"bake-node": {
+		"packages": {
+			"@socketry/presently": {
+				"include": [
+					"Presently.js",
+					"Presently/**/*.js"
+				],
+				"imports": {
+					"@socketry/presently": "Presently.js"
+				}
+			},
+			"@socketry/syntax": {
+				"imports": {
+					"@socketry/syntax": "Syntax.js"
+				}
+			}
+		}
 	}
 }

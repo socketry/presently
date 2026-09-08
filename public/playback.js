@@ -1,6 +1,5 @@
+import {applyCodeFocus, runScript} from '@socketry/presently';
 import Syntax from '@socketry/syntax';
-import {runScript} from './slide-scripts.js';
-import {applyCodeFocus} from './code-focus.js';
 
 const frames = Array.from(document.querySelectorAll('.playback-frame'));
 const audioTracks = new Map(

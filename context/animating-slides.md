@@ -25,7 +25,7 @@ slide.find("li").show(1)
 ```
 ~~~
 
-The script receives a `slide` object — an instance of the `Slide` class from `slide.js` — scoped to the current slide's body.
+The script receives a `slide` object — an instance of the `Slide` class exported by `@socketry/presently` — scoped to the current slide's body.
 
 If the script contains a syntax error or throws an exception, the error is logged to the browser console and the presentation continues unaffected.
 

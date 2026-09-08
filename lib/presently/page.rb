@@ -22,6 +22,7 @@ module Presently
 			"live" => "/_components/@socketry/live/Live.js",
 			"live-audio" => "/_components/@socketry/live-audio/Live/Audio.js",
 			"morphdom" => "/_components/morphdom/morphdom-esm.js",
+			"@socketry/presently" => "/_components/@socketry/presently/Presently.js",
 			"@socketry/syntax" => "/_components/@socketry/syntax/Syntax.js",
 		}.freeze
 		MODULES = ["/application.js"].freeze

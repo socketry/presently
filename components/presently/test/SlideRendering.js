@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import Syntax from '@socketry/syntax';
-import {SlideRendering} from '../../public/slide-rendering.js';
+import {SlideRendering} from '../Presently/SlideRendering.js';
 
 globalThis.window = globalThis;
 

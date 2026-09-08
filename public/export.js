@@ -1,7 +1,5 @@
+import {applyCodeFocus, runAllSlideScripts} from '@socketry/presently';
 import Syntax from '@socketry/syntax';
-import {runAllSlideScripts} from '/slide-scripts.js';
-import {applyCodeFocus} from '/code-focus.js';
-
 
 // Wait for two animation frames, ensuring the browser has processed all pending
 // style recalculations and committed DOM mutations to a rendered frame.

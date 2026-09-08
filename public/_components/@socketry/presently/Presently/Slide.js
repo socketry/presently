@@ -1,0 +1,347 @@
+// Stateful builder for a set of slide elements.
+// Wraps a raw element array with a cached position so callers can use next()
+// instead of tracking count manually. Created via SlideElements#builder(options).
+export class SlideBuilder {
+	#elements;
+	#defaultEffect;
+	#slide;
+	#step = 0;
+
+	constructor(slide, elements, options = {}) {
+		this.#slide = slide;
+		this.#elements = elements;
+		this.#defaultEffect = options.effect || null;
+	}
+
+	// Reveal elements up to `count`, using the default effect unless overridden.
+	// Assigns view-transition-names, sets visibility, and applies entry animation.
+	// In export mode all animations are skipped so every call resolves instantly.
+	// @parameter count [Integer] Number of elements to show.
+	// @parameter overrides [Object] Option overrides for this step (e.g. a different effect).
+	// @returns [Promise] Resolves when the animation completes (or immediately if no effect).
+	show(count, overrides = {}) {
+		const effect = this.#slide.animated ? (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect) : null;
+		let revealedElement = null;
+
+		this.#elements.forEach((element, index) => {
+			if (index < count) {
+				element.style.visibility = 'visible';
+
+				if (index === count - 1 && effect) {
+					element.classList.add(`build-${effect}`);
+					revealedElement = element;
+				}
+			} else {
+				element.style.visibility = 'hidden';
+			}
+		});
+
+		this.#step = count;
+
+		if (revealedElement) {
+			const animationClass = `build-${effect}`;
+			return this.#waitForAnimation(revealedElement, animationClass);
+		}
+
+		return Promise.resolve();
+	}
+
+	// Reveal the next element. Only touches the single newly revealed element —
+	// all others are already in the correct state from the previous call.
+	// In export mode animations are skipped.
+	// @parameter overrides [Object] Option overrides for this step.
+	// @returns [Promise]
+	next(overrides = {}) {
+		if (this.finished) return Promise.resolve();
+
+		const effect = this.#slide.animated ? (overrides.effect !== undefined ? overrides.effect : this.#defaultEffect) : null;
+		const element = this.#elements[this.#step];
+
+		element.style.visibility = 'visible';
+
+		this.#step += 1;
+
+		if (effect) {
+			const animationClass = `build-${effect}`;
+			element.classList.add(animationClass);
+			return this.#waitForAnimation(element, animationClass);
+		}
+
+		return Promise.resolve();
+	}
+
+	// Reveal all remaining elements in sequence, with `interval` milliseconds between each.
+	// An optional callback is invoked after each reveal — if it returns false, playback stops.
+	// In export mode all remaining elements are revealed instantly without any timeouts.
+	// @parameter interval [Number] Delay in milliseconds between each reveal.
+	// @parameter callback [Function | null] Optional. Receives the builder after each next().
+	//   Return false to stop playback early.
+	play(interval, callback = null) {
+		if (this.finished) return;
+
+		if (!this.#slide.animated) {
+			while (!this.finished) this.next();
+			return;
+		}
+
+		const playNext = () => {
+			this.next();
+			const shouldContinue = callback ? callback(this) !== false : true;
+			if (!this.finished && shouldContinue) {
+				this.#slide.setTimeout(playNext, interval);
+			}
+		};
+
+		this.#slide.setTimeout(playNext, interval);
+	}
+
+	// Returns true when all elements have been revealed.
+	get finished() {
+		return this.#step >= this.#elements.length;
+	}
+
+	#waitForAnimation(element, animationClass) {
+		return new Promise((resolve) => {
+			const signal = this.#slide.signal;
+			const finish = () => {
+				element.removeEventListener('animationend', finish);
+				signal.removeEventListener('abort', finish);
+				element.classList.remove(animationClass);
+				resolve();
+			};
+
+			element.addEventListener('animationend', finish, {once: true});
+			signal.addEventListener('abort', finish, {once: true});
+
+			if (signal.aborted) finish();
+		});
+	}
+}
+
+// Represents a collection of elements within a slide to be revealed sequentially.
+// Has no side effects until show() is called.
+export class SlideElements {
+	#elements;
+	#slide;
+
+	constructor(slide, elements) {
+		this.#slide = slide;
+		this.#elements = elements;
+	}
+
+	// Create a stateful SlideBuilder for this element collection with default options.
+	// @parameter options [Object] Default options applied to every show() / next() call.
+	//   effect: "fade", "fly-up", "fly-down", "fly-left", "fly-right", "scale"
+	// @returns [SlideBuilder]
+	builder(options = {}) {
+		return new SlideBuilder(this.#slide, this.#elements, options);
+	}
+
+	// Show the first `count` elements and hide the rest.
+	// Delegates to SlideBuilder for the actual implementation.
+	// @parameter count [Integer] Number of elements to show.
+	// @parameter options [Object]
+	//   effect: "fade", "fly-up", "fly-down", "fly-left", "fly-right", "scale"
+	// @returns [Promise] Resolves when the animation completes (or immediately if no effect).
+	show(count, options = {}) {
+		return new SlideBuilder(this.#slide, this.#elements, options).show(count);
+	}
+}
+
+// Scoped scripting context used both for chaining after() calls and as the
+// argument passed to slide.loop() callbacks. Accumulates elapsed time across
+// after() calls so each delay is relative to the previous step. Delegates
+// find() and setTimeout() to the parent Slide so element queries are scoped
+// correctly and all timeouts are cancelled automatically on slide change.
+export class SlideContext {
+	#slide;
+	#elapsed;
+
+	constructor(slide, elapsed = 0) {
+		this.#slide = slide;
+		this.#elapsed = elapsed;
+	}
+
+	// The slide body element.
+	// Delegates to the parent Slide.
+	// @returns [HTMLElement]
+	get element() {
+		return this.#slide.element;
+	}
+
+	// Find elements within the slide matching the given CSS selector.
+	// Delegates to the parent Slide.
+	// @parameter selector [String] A CSS selector scoped to the slide body.
+	// @returns [SlideElements]
+	find(selector) {
+		return this.#slide.find(selector);
+	}
+
+	// Tracked setTimeout — delegates to the parent Slide so timeouts are
+	// cancelled automatically when the slide changes.
+	// @parameter callback [Function] The function to call after the delay.
+	// @parameter delay [Number] Delay in milliseconds.
+	// @returns [Number] The timeout ID.
+	setTimeout(callback, delay) {
+		return this.#slide.setTimeout(callback, delay);
+	}
+
+	// Schedule a callback relative to the previous step, accumulating elapsed time.
+	// In export mode the callback is invoked synchronously with no delay.
+	// @parameter delay [Number] Delay in milliseconds after the previous step.
+	// @parameter callback [Function] The function to call.
+	// @returns [SlideContext]
+	after(delay, callback) {
+		if (!this.#slide.animated) {
+			callback(this);
+			return this;
+		}
+		this.#elapsed += delay;
+		this.#slide.setTimeout(callback, this.#elapsed);
+		return this;
+	}
+
+	// Total time accumulated across all after() calls.
+	// Used by slide.loop() to know when to schedule the next iteration.
+	// @returns [Number] Elapsed time in milliseconds.
+	get elapsed() {
+		return this.#elapsed;
+	}
+}
+
+// The scripting context passed to each slide's javascript block.
+// Scopes element queries to the slide body.
+export class Slide {
+	#element;
+	#timeouts = [];
+	#deferred = [];
+	#abortController = new AbortController();
+	#disposed = false;
+	#animated;
+
+	constructor(element, {animated = true} = {}) {
+		this.#element = element;
+		this.#animated = animated;
+	}
+
+	// Whether animations and timeouts are active for this slide.
+	// When false, all builds and delays resolve instantly.
+	// @returns [Boolean]
+	get animated() {
+		return this.#animated;
+	}
+
+	// The slide body element.
+	// @returns [HTMLElement]
+	get element() {
+		return this.#element;
+	}
+
+	// An AbortSignal which is aborted when the slide is disposed.
+	// Pass this signal to compatible browser APIs to bind their lifetime to the slide.
+	// @returns [AbortSignal]
+	get signal() {
+		return this.#abortController.signal;
+	}
+
+	// Register a callback to run when the slide is disposed.
+	// Callbacks run in reverse registration order. If the slide has already been
+	// disposed, the callback runs immediately.
+	// @parameter callback [Function] A callback which releases a slide-scoped resource.
+	defer(callback) {
+		if (typeof callback !== 'function') {
+			throw new TypeError('Deferred slide cleanup must be a function.');
+		}
+
+		if (this.#disposed) {
+			this.#runDeferred(callback);
+		} else {
+			this.#deferred.push(callback);
+		}
+	}
+
+	// Find elements within this slide matching the given CSS selector.
+	// Use comma-separated selectors to combine multiple element types, e.g. "h2, li".
+	// @parameter selector [String] A CSS selector scoped to the slide body.
+	// @returns [SlideElements]
+	find(selector) {
+		const elements = Array.from(this.#element.querySelectorAll(selector));
+		return new SlideElements(this, elements);
+	}
+
+	// Tracked setTimeout — use this in slide scripts instead of the global.
+	// Registered timeouts are automatically cancelled when the slide changes.
+	// @parameter callback [Function] The function to call after the delay.
+	// @parameter delay [Number] Delay in milliseconds.
+	// @returns [Number | null] The timeout ID, or `null` if the slide is already disposed.
+	setTimeout(callback, delay) {
+		if (this.#disposed) return null;
+
+		const timeoutId = window.setTimeout(callback, delay);
+		this.#timeouts.push(timeoutId);
+		return timeoutId;
+	}
+
+	// Schedule a callback after a delay, returning a SlideContext so
+	// subsequent .after(delay) calls are relative to the previous step.
+	// In export mode the callback is invoked synchronously with no delay.
+	// @parameter delay [Number] Delay in milliseconds from now.
+	// @parameter callback [Function] The function to call after the delay.
+	// @returns [SlideContext]
+	after(delay, callback) {
+		if (!this.#animated) {
+			callback();
+			return new SlideContext(this, 0);
+		}
+		this.setTimeout(callback, delay);
+		return new SlideContext(this, delay);
+	}
+
+	// Run a callback in a loop, repeating indefinitely until the slide changes.
+	// The callback receives a SlideContext so it can use after() to schedule
+	// steps within each iteration. The loop waits for all steps to complete
+	// (ctx.elapsed) plus an optional extra delay before starting the next iteration.
+	// In export mode the callback is run exactly once with instant after() steps.
+	// @parameter callback [Function] Receives a fresh SlideContext as `context` each iteration.
+	// @parameter delay [Number] Extra pause in milliseconds after the last step before restarting.
+	loop(callback, { delay = 0 } = {}) {
+		if (!this.#animated) {
+			callback(new SlideContext(this));
+			return;
+		}
+		const iterate = () => {
+			const context = new SlideContext(this);
+			callback(context);
+			this.setTimeout(iterate, context.elapsed + delay);
+		};
+		iterate();
+	}
+
+	// Cancel all pending timeouts registered by this slide's script.
+	cancelTimeouts() {
+		this.#timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+		this.#timeouts = [];
+	}
+
+	// Dispose the slide and release all resources bound to its lifetime.
+	// Disposal is idempotent so callers can safely invoke it more than once.
+	dispose() {
+		if (this.#disposed) return;
+		this.#disposed = true;
+
+		this.#abortController.abort();
+		this.cancelTimeouts();
+
+		while (this.#deferred.length > 0) {
+			this.#runDeferred(this.#deferred.pop());
+		}
+	}
+
+	#runDeferred(callback) {
+		try {
+			callback();
+		} catch (error) {
+			console.error('Could not dispose slide resource:', error);
+		}
+	}
+}

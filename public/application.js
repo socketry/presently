@@ -1,5 +1,5 @@
 import { Live } from 'live';
-import {SlideRendering} from './slide-rendering.js';
+import {SlideRendering} from '@socketry/presently';
 
 import './recorder.js';
 
