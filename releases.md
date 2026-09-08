@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Fix slide rendering events for generated view identifiers that begin with a digit.
+
 ## v0.17.1
 
   - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
