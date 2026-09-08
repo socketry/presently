@@ -7,6 +7,7 @@ permissions:
 
 jobs:
   test:
+    name: Test Packages
     runs-on: ubuntu-latest
 
     steps:
