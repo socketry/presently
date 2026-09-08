@@ -65,6 +65,10 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.17.2
+
+  - Fix slide rendering events for generated view identifiers that begin with a digit.
+
 ### v0.17.1
 
   - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
@@ -107,10 +111,6 @@ q
 ### v0.9.0
 
   - `SlideBuilder#show` and `SlideBuilder#next` no longer overwrite `view-transition-name` on elements that already have one set. This allows elements with explicit names (for morph transitions to other slides) to coexist with the build system — they still get `visibility` and `viewTransitionClass` managed, but keep their own name.
-
-### v0.8.0
-
-  - Add optional `translation` section to the `default` template.
 
 ## See Also
 

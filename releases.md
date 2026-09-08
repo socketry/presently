@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.17.2
 
   - Fix slide rendering events for generated view identifiers that begin with a digit.
 
