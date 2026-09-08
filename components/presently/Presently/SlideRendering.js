@@ -1,6 +1,6 @@
 import Syntax from '@socketry/syntax';
-import {runScript} from './slide-scripts.js';
-import {applyCodeFocus} from './code-focus.js';
+import {applyCodeFocus} from './CodeFocus.js';
+import {runScript} from './Scripts.js';
 
 const SLIDE_CHANGE_EVENT = 'presently:slide:change';
 

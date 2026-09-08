@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {Slide} from '../../public/slide.js';
+import {Slide} from '../Presently/Slide.js';
 
 globalThis.window = globalThis;
 

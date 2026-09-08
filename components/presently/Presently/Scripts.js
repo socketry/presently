@@ -1,4 +1,4 @@
-import {Slide} from './slide.js';
+import {Slide} from './Slide.js';
 
 // Run the inline slide script for a single slide element.
 //

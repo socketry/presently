@@ -1,8 +1,22 @@
 {
   "format": 1,
   "base": "/_components/",
-  "imports": {},
+  "imports": {
+    "@socketry/presently": "/_components/@socketry/presently/Presently.js",
+    "@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
+  },
   "packages": {
+    "@socketry/presently": {
+      "version": null,
+      "source": ".",
+      "files": {
+        "Presently.js": "552a41737db0e67cde2f4555cf686ddb6a5de8da28c64d0404b8d7b2c10152c9",
+        "Presently/CodeFocus.js": "05fb95308f012cab92655671050279149fc4aa683450932e27fc77bd51f8ce29",
+        "Presently/Scripts.js": "0df541921f711b8421b3f14e62084d60e435230f439a35af89747c9be76d0912",
+        "Presently/Slide.js": "fb5c1c50ef03f36847ea4d3a31aa7e84cf9a7465e7f362099f4d8580363f4d1d",
+        "Presently/SlideRendering.js": "2bb1ad46bab648731744307fc4bd845b706e1592acb0ac68d6babb941c63388d"
+      }
+    },
     "@socketry/syntax": {
       "version": "0.6.1",
       "source": ".",
@@ -103,5 +117,5 @@
       }
     }
   },
-  "digest": "c8c102bbe53729fe27ad95408c2826f881f605d40199207fbafad6329bb03d05"
+  "digest": "ea64238dded9ab0ee179cf4be5a75dfee8ca556eafd66eb00bbd0811ed860acf"
 }

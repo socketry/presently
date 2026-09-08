@@ -13,6 +13,7 @@
 		<script type="importmap">
 		{
 			"imports": {
+				"@socketry/presently": "/_components/@socketry/presently/Presently.js",
 				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
 			}
 		}

@@ -1,0 +1,18 @@
+{
+	"name": "@socketry/presently",
+	"private": true,
+	"description": "Presently's client-side slide runtime.",
+	"license": "MIT",
+	"type": "module",
+	"exports": "./Presently.js",
+	"files": [
+		"Presently.js",
+		"Presently/"
+	],
+	"scripts": {
+		"test": "node --test test/*.js"
+	},
+	"dependencies": {
+		"@socketry/syntax": "^0.6.1"
+	}
+}
