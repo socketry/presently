@@ -6,7 +6,7 @@
 require "presently/slide_view"
 
 describe Presently::SlideView do
-	let(:view) {subject.new("example", {})}
+	let(:view) {subject.new("2eef0b2c-fe65-4aba-ba90-0a6a83a6ce80", {})}
 	let(:updates) {[]}
 	let(:page) do
 		updates = self.updates
@@ -26,10 +26,10 @@ describe Presently::SlideView do
 			method, selector, event, options = updates.last
 			
 			expect(method).to be == :dispatchEvent
-			expect(selector).to be == "#example"
+			expect(selector).to be == '[id="2eef0b2c-fe65-4aba-ba90-0a6a83a6ce80"]'
 			expect(event).to be == "presently:slide:render"
 			expect(options[:bubbles]).to be == true
-			expect(options.dig(:detail, :html)).to be(:include?, '<live-view id="example"')
+			expect(options.dig(:detail, :html)).to be(:include?, '<live-view id="2eef0b2c-fe65-4aba-ba90-0a6a83a6ce80"')
 			expect(options.dig(:detail, :transition)).to be == "fade"
 		end
 	end

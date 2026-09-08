@@ -11,7 +11,7 @@ module Presently
 		# Ask the client to render the current slide view.
 		# @parameter transition [String | Nil] The transition to apply while rendering.
 		def render_slide!(transition: nil)
-			dispatch_event("##{@id}", "presently:slide:render",
+			dispatch_event(self.selector, "presently:slide:render",
 				bubbles: true,
 				detail: {
 					html: self.to_html.to_s,
