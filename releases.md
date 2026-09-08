@@ -4,6 +4,10 @@
 
   - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
 
+### Web Packages
+
+Presently now uses `web-packages` v0.2 after the project was renamed from `bake-node`. Client package configuration now uses the `web-packages` key, package tasks use the `web:packages` Bake namespace, and the unchanged projection manifest is now stored as `.manifest.json`.
+
 ## v0.16.0
 
   - Add support for organizing slides in nested directories. Every directory and slide filename must begin with a numeric prefix, and slides are ordered by relative path.

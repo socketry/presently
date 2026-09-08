@@ -7,7 +7,7 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "bake-node"
+gem "web-packages", "~> 0.2"
 gem "io-watch"
 gem "async-webdriver"
 
