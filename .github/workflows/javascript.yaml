@@ -11,13 +11,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ruby
+        bundler-cache: true
+
     - uses: actions/setup-node@v7
       with:
         node-version: 24
         cache: npm
 
     - name: Install dependencies
-      run: npm ci
+      run: bundle exec bake node:install frozen=true
+
+    - name: Check static packages
+      run: bundle exec bake node:packages:check
 
     - name: Run tests
-      run: npm test
+      run: bundle exec bake node:test
