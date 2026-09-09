@@ -69,16 +69,16 @@
 	text-align: center;
 }
 
-.browser-node,
-.edge-node {
+.live-js-node,
+.live-node {
 	--node-color: #4a9eff;
 }
 
-.worker-node {
+.lively-node {
 	--node-color: #a78bfa;
 }
 
-.store-node {
+.presently-node {
 	--node-color: #f90;
 }
 
@@ -111,7 +111,7 @@
 	transform: translate(-50%, -50%);
 }
 
-.response-packet {
+.render-packet {
 	left: 100%;
 	background: var(--on-time);
 }

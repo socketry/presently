@@ -12,36 +12,36 @@ Coordinated animation with Anime.js
 
 # Body
 
-<div class="anime-flow" role="img" aria-label="An animated request travels from a browser through an edge server and worker to a data store, then a response returns to the browser.">
+<div class="anime-flow" role="img" aria-label="A next-slide event travels from Live.js through Live and Lively to Presently, then a rendered slide update returns to Live.js.">
   <div class="anime-flow-network">
     <div class="anime-flow-nodes">
-      <div class="anime-flow-node browser-node">
+      <div class="anime-flow-node live-js-node">
         <span class="anime-flow-role">Client</span>
-        <strong>Browser</strong>
+        <strong>Live.js</strong>
       </div>
-      <div class="anime-flow-node edge-node">
-        <span class="anime-flow-role">Gateway</span>
-        <strong>Edge</strong>
+      <div class="anime-flow-node live-node">
+        <span class="anime-flow-role">Views</span>
+        <strong>Live</strong>
       </div>
-      <div class="anime-flow-node worker-node">
+      <div class="anime-flow-node lively-node">
         <span class="anime-flow-role">Application</span>
-        <strong>Worker</strong>
+        <strong>Lively</strong>
       </div>
-      <div class="anime-flow-node store-node">
-        <span class="anime-flow-role">Storage</span>
-        <strong>Database</strong>
+      <div class="anime-flow-node presently-node">
+        <span class="anime-flow-role">Presentation</span>
+        <strong>Presently</strong>
       </div>
     </div>
     <div class="anime-flow-lane" aria-hidden="true">
-      <span class="anime-flow-lane-label">Request / response</span>
-      <span class="anime-flow-packet request-packet">GET</span>
-      <span class="anime-flow-packet response-packet">200</span>
+      <span class="anime-flow-lane-label">Live WebSocket</span>
+      <span class="anime-flow-packet event-packet">NEXT</span>
+      <span class="anime-flow-packet render-packet">RENDER</span>
     </div>
   </div>
   <div class="anime-flow-events" aria-hidden="true">
-    <span>Route request</span>
-    <span>Load record</span>
-    <span>Render response</span>
+    <span>Dispatch input</span>
+    <span>Advance shared state</span>
+    <span>Render slide</span>
   </div>
 </div>
 
@@ -57,12 +57,12 @@ slide.anime(({createTimeline, stagger}) => {
     loopDelay: 900,
     defaults: {ease: "inOutQuad"},
   })
-    .add(".request-packet", {
+    .add(".event-packet", {
       left: ["0%", "100%"],
       opacity: [0, 1, 1, 0],
       duration: 2200,
     })
-    .add(".response-packet", {
+    .add(".render-packet", {
       left: ["100%", "0%"],
       opacity: [0, 1, 1, 0],
       duration: 1800,
