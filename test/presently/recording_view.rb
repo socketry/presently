@@ -33,7 +33,13 @@ describe Presently::RecordingView do
 	end
 	
 	it "renders a dedicated recording interface" do
-		html = Presently::Page.new(body: view).to_html
+		previous_editor = ENV["PRESENTLY_EDITOR"]
+		ENV["PRESENTLY_EDITOR"] = "code"
+		begin
+			html = Presently::Page.new(body: view).to_html
+		ensure
+			ENV["PRESENTLY_EDITOR"] = previous_editor
+		end
 		
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, "Narrate this slide.")
@@ -44,6 +50,7 @@ describe Presently::RecordingView do
 		expect(html).to be(:include?, "● Record")
 		expect(html).not.to be(:include?, 'class="recording-stop"')
 		expect(html).to be(:include?, 'class="recording-indicator"')
+		expect(html).to be(:include?, 'class="edit-link"')
 	end
 	
 	it "navigates independently of the presenter interface" do
