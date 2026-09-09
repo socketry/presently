@@ -240,6 +240,8 @@ slide.anime(({createTimeline, stagger}) => {
 
 The callback receives the Anime.js module API and runs inside a scope rooted at the slide body. Selectors cannot match elements in another slide. Presently reuses the scope across calls and automatically invokes `scope.revert()` when the slide is deactivated.
 
+Tracked delayed callbacks automatically re-enter this scope, so Anime.js resources created inside `slide.setTimeout()`, `slide.after()`, `slide.loop()`, or the script-local `setTimeout()` are also reverted with the slide.
+
 `slide.animated` is false during static export and when the browser requests reduced motion. Configure timelines not to autoplay or loop in that case, then seek to a meaningful static frame.
 
 See [Animated Diagrams](../animated-diagrams/) for layout, choreography, accessibility, and agent-authoring guidance.
