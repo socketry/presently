@@ -198,6 +198,12 @@ module Presently
 						builder.text("← Previous")
 					end
 					
+					builder.tag(:button,
+						onClick: forward_event(action: "next")
+					) do
+						builder.text("Next →")
+					end
+					
 					builder.tag(:span, class: "slide-info") do
 						builder.tag(:span, class: "slide-position") do
 							builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
@@ -212,12 +218,6 @@ module Presently
 								end
 							end
 						end
-					end
-					
-					builder.tag(:button,
-						onClick: forward_event(action: "next")
-					) do
-						builder.text("Next →")
 					end
 					
 					# Jump-to dropdown for marked slides

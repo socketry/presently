@@ -126,6 +126,7 @@ module Presently
 		def render_navigation(builder, slide)
 			builder.tag(:div, class: "toolbar controls recording-navigation") do
 				builder.tag(:button, onClick: forward_event(action: "previous")){builder.text("← Previous")}
+				builder.tag(:button, onClick: forward_event(action: "next")){builder.text("Next →")}
 				
 				builder.tag(:span, class: "slide-info") do
 					builder.tag(:span, class: "slide-position") do
@@ -137,8 +138,6 @@ module Presently
 						builder.tag(:a, href: editor_url, class: "edit-link"){builder.text("✎")}
 					end
 				end
-				
-				builder.tag(:button, onClick: forward_event(action: "next")){builder.text("Next →")}
 				
 				markers = @controller.slides.each_with_index.filter_map do |candidate, index|
 					[index, candidate.marker] if candidate.marker

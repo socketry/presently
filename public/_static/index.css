@@ -806,15 +806,11 @@ body.playback[data-controls="false"] .playback-start-screen {
 	background: var(--accent);
 }
 
-.controls button.reload {
-	margin-left: auto;
-}
-
 .controls .slide-info {
 	font-size: 1rem;
 	display: flex;
 	align-items: stretch;
-	flex: 0 1 auto;
+	flex: 1 1 0;
 	min-width: 0;
 	white-space: nowrap;
 	overflow: hidden;
