@@ -821,8 +821,8 @@ body.playback[data-controls="false"] .playback-start-screen {
 .controls .slide-position {
 	display: flex;
 	align-items: center;
-	padding: 0.4rem 0.6rem;
-	font-size: 0.8rem;
+	padding: 0.5rem 0.75rem;
+	font-size: 0.9rem;
 	opacity: 0.8;
 }
 
@@ -833,7 +833,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 	align-items: center;
 	flex: 0 1 auto;
 	min-width: 0;
-	padding: 0.4rem 0.6rem;
+	padding: 0.5rem 0.6rem;
 	border-left: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -856,7 +856,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 	display: flex;
 	align-items: center;
 	margin-left: 0;
-	padding: 0.4rem 0.5rem;
+	padding: 0.5rem;
 	border-left: 1px solid rgba(255,255,255,0.1);
 	text-decoration: none;
 	opacity: 0.6;
