@@ -1,3 +1,5 @@
+import * as Anime from 'animejs';
+
 // Stateful builder for a set of slide elements.
 // Wraps a raw element array with a cached position so callers can use next()
 // instead of tracking count manually. Created via SlideElements#builder(options).
@@ -215,13 +217,14 @@ export class Slide {
 	#element;
 	#timeouts = [];
 	#deferred = [];
+	#animeScope = null;
 	#abortController = new AbortController();
 	#disposed = false;
 	#animated;
 
 	constructor(element, {animated = true} = {}) {
 		this.#element = element;
-		this.#animated = animated;
+		this.#animated = animated && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 	}
 
 	// Whether animations and timeouts are active for this slide.
@@ -258,6 +261,41 @@ export class Slide {
 		} else {
 			this.#deferred.push(callback);
 		}
+	}
+
+	// Create or reuse an Anime.js scope rooted at this slide.
+	// The callback runs within the scope and receives the Anime.js API followed
+	// by the raw scope. The scope is reverted automatically when the slide is
+	// disposed, restoring animated properties and cancelling animations.
+	// @parameter callback [Function | null] Optional setup callback.
+	// @returns [Anime.Scope] The slide's Anime.js scope.
+	anime(callback = null) {
+		if (callback !== null && typeof callback !== 'function') {
+			throw new TypeError('Anime slide setup must be a function.');
+		}
+
+		if (this.#disposed) {
+			const scope = Anime.createScope({root: this.#element});
+			if (callback) scope.add(currentScope => callback(Anime, currentScope));
+			scope.revert();
+			return scope;
+		}
+
+		if (!this.#animeScope) {
+			const scope = Anime.createScope({root: this.#element});
+			this.#animeScope = scope;
+
+			this.defer(() => {
+				scope.revert();
+				if (this.#animeScope === scope) this.#animeScope = null;
+			});
+		}
+
+		if (callback) {
+			this.#animeScope.add(scope => callback(Anime, scope));
+		}
+
+		return this.#animeScope;
 	}
 
 	// Find elements within this slide matching the given CSS selector.

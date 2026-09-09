@@ -13,6 +13,7 @@
 		"test": "node --test test/*.js"
 	},
 	"dependencies": {
-		"@socketry/syntax": "^0.6.2"
+		"@socketry/syntax": "^0.6.2",
+		"animejs": "^4.5.0"
 	}
 }

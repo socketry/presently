@@ -48,6 +48,10 @@ describe Presently::Playback do
 			expect(playback.call).to be(:include?, "playback.js")
 		end
 		
+		it "loads Anime.js for slide scripts" do
+			expect(playback.call).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')
+		end
+		
 		it "loads presentation stylesheets" do
 			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
 			

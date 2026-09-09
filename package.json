@@ -19,6 +19,16 @@
 					"@socketry/presently": "Presently.js"
 				}
 			},
+			"animejs": {
+				"source": ".",
+				"include": [
+					"dist/bundles/anime.esm.min.js",
+					"LICENSE.md"
+				],
+				"imports": {
+					"animejs": "dist/bundles/anime.esm.min.js"
+				}
+			},
 			"@socketry/syntax": {
 				"imports": {
 					"@socketry/syntax": "Syntax.js"

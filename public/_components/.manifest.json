@@ -3,7 +3,8 @@
   "base": "/_components/",
   "imports": {
     "@socketry/presently": "/_components/@socketry/presently/Presently.js",
-    "@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
+    "@socketry/syntax": "/_components/@socketry/syntax/Syntax.js",
+    "animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"
   },
   "packages": {
     "@socketry/presently": {
@@ -13,7 +14,7 @@
         "Presently.js": "552a41737db0e67cde2f4555cf686ddb6a5de8da28c64d0404b8d7b2c10152c9",
         "Presently/CodeFocus.js": "05fb95308f012cab92655671050279149fc4aa683450932e27fc77bd51f8ce29",
         "Presently/Scripts.js": "0df541921f711b8421b3f14e62084d60e435230f439a35af89747c9be76d0912",
-        "Presently/Slide.js": "fb5c1c50ef03f36847ea4d3a31aa7e84cf9a7465e7f362099f4d8580363f4d1d",
+        "Presently/Slide.js": "5ed6b31d2373ce1944ea4c24773da82291e8a538802003a32736f430b8854baf",
         "Presently/SlideRendering.js": "2bb1ad46bab648731744307fc4bd845b706e1592acb0ac68d6babb941c63388d"
       }
     },
@@ -115,7 +116,15 @@
         "themes/base/yaml.css": "d50532f375ebdff41217a8fd55314ae7d714bed9fb105921e95217d51a0e6a31",
         "themes/theming.md": "a5d9b42e7d885a4ad56730957b883213b6cb550e530d5a06a97eae0e902ec493"
       }
+    },
+    "animejs": {
+      "version": "4.5.0",
+      "source": ".",
+      "files": {
+        "LICENSE.md": "3f3e835a9952cfc2a6ca836fb95b3257c981f24fa3ef51249055acb09931897b",
+        "dist/bundles/anime.esm.min.js": "a19015a1a92d52025a2fb6703b6d67eadd1cc2aeaf880770e96e04cf6aa07be1"
+      }
     }
   },
-  "digest": "e33cb31256e3bdbb275db6b20506f38454da1ec7f4fe1352f47decbab640614c"
+  "digest": "54003caa0a93482d7f7182b3e993e6f146f60a0991ebadd3d3b14195457e6446"
 }
