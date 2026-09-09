@@ -67,6 +67,10 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.20.1
+
+  - Keep presenter toolbars within the viewport when slide paths are long.
+
 ### v0.19.0
 
   - Keep Anime.js resources created by delayed slide callbacks bound to the slide lifecycle.
@@ -115,10 +119,6 @@ q
 ### v0.12.0
 
   - Add support for translation to code slide.
-
-### v0.11.0
-
-  - Add `Slide#element` and `SlideContext#element` getters — expose the slide body DOM element directly for cases where `find()` is not sufficient, such as measuring dimensions, attaching event listeners, or integrating third-party libraries.
 
 ## See Also
 

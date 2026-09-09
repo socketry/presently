@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.20.1
 
   - Keep presenter toolbars within the viewport when slide paths are long.
 
