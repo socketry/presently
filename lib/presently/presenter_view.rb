@@ -231,7 +231,7 @@ module Presently
 					unless markers.empty?
 						builder.tag(:select,
 							class: "jump-to",
-							data: {live_id: @id}
+							"data-live-id": @id
 						) do
 							builder.tag(:option, value: "", disabled: true, selected: true) do
 								builder.text("Jump to…")
