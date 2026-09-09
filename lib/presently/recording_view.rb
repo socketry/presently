@@ -80,7 +80,7 @@ module Presently
 				render_navigation(builder, slide)
 				
 				builder.tag(:div, class: "recording-workspace") do
-					builder.tag(:div, class: "recording-preview") do
+					builder.tag(:div, class: "recording-preview slide-viewport") do
 						@slide_renderer.render(builder, slide)
 					end
 					

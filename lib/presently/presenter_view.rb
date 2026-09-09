@@ -259,7 +259,7 @@ module Presently
 					# Current slide
 					builder.tag(:div, class: "preview current-preview") do
 						builder.tag(:h3){builder.text("Current")}
-						builder.tag(:div, class: "preview-frame") do
+						builder.tag(:div, class: "preview-frame slide-viewport") do
 							@preview_renderer.render(builder, slide)
 						end
 					end
@@ -267,7 +267,7 @@ module Presently
 					# Next slide
 					builder.tag(:div, class: "preview next-preview") do
 						builder.tag(:h3){builder.text("Next")}
-						builder.tag(:div, class: "preview-frame") do
+						builder.tag(:div, class: "preview-frame slide-viewport") do
 							if next_slide
 								@preview_renderer.render(builder, next_slide)
 							else

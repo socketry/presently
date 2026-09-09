@@ -133,6 +133,7 @@ describe Presently::Export do
 			html = export.call
 			expect(html).to be(:include?, "Hello")
 			expect(html).to be(:include?, "Second slide")
+			expect(html.scan('class="export-slide-area slide-viewport"').size).to be == 2
 		end
 		
 		it "loads export.js" do

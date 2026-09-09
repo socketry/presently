@@ -31,12 +31,48 @@ html, body {
    SLIDE STYLES (shared)
    ======================== */
 
-.slide {
+.slide-viewport {
+	position: relative;
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+	container-type: size;
+}
+
+.slide-surface {
 	width: 100%;
 	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+	display: grid;
+	place-items: center;
+	container-type: size;
+	background: var(--slide-bg);
+}
+
+.slide {
+	--slide-font-size: 2.2cqi;
+	--slide-font-body: 1em;
+	--slide-font-title: 1.8em;
+	--slide-font-heading: 1.6em;
+	--slide-font-statement: 1.5em;
+	--slide-font-secondary: 0.8em;
+	--slide-font-column: 0.84em;
+	--slide-font-code: 0.75em;
+	--slide-gutter: 3.333cqi;
+	--slide-gap: 1.667cqi;
+	--slide-radius: 0.417cqi;
+	
+	flex: none;
+	width: 100cqw;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	container-type: size;
+}
+
+@container (min-aspect-ratio: 16 / 9) {
+	.slide {
+		width: auto;
+		height: 100cqh;
+	}
 }
 
 .slide-inner {
@@ -47,13 +83,15 @@ html, body {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 4rem;
+	padding: var(--slide-gutter);
+	font-size: var(--slide-font-size);
+	line-height: 1.5;
 }
 
 /* Default template */
 .default-template .slide-body {
-	font-size: 1.8rem;
-	line-height: 1.6;
+	font-size: var(--slide-font-body);
+	line-height: 1.5;
 	width: 100%;
 }
 
@@ -80,9 +118,9 @@ html, body {
 }
 
 .title-template .slide-title {
-	font-size: 3.5rem;
+	font-size: var(--slide-font-title);
 	font-weight: 700;
-	margin-bottom: 1rem;
+	margin-bottom: calc(var(--slide-gap) * 0.75);
 }
 
 .title-template .slide-title p {
@@ -90,7 +128,7 @@ html, body {
 }
 
 .title-template .slide-subtitle {
-	font-size: 1.8rem;
+	font-size: var(--slide-font-body);
 	opacity: 0.7;
 }
 
@@ -99,13 +137,16 @@ html, body {
 }
 
 /* Section template */
-.section-template {
+.slide-surface[data-template="section"] {
 	background: linear-gradient(135deg, var(--accent), var(--surface-light));
+}
+
+.section-template {
 	text-align: center;
 }
 
 .section-template .slide-heading {
-	font-size: 3rem;
+	font-size: var(--slide-font-heading);
 	font-weight: 700;
 }
 
@@ -116,14 +157,15 @@ html, body {
 /* Two column template */
 .two-column-template {
 	flex-direction: row;
-	gap: 3rem;
-	padding: 3rem 4rem;
+	gap: calc(var(--slide-gap) * 1.5);
+	padding: calc(var(--slide-gutter) * 0.75) var(--slide-gutter);
 }
 
 .two-column-template .column {
 	flex: 1;
-	font-size: 1.4rem;
-	line-height: 1.6;
+	min-width: 0;
+	font-size: var(--slide-font-column);
+	line-height: 1.5;
 }
 
 .two-column-template .column ul {
@@ -136,30 +178,60 @@ html, body {
 
 /* Diagram template */
 .diagram-template {
-	padding: 0;
+	padding: var(--slide-gutter);
 }
 
-.diagram-template .slide-body > div {
+.diagram-template .slide-title {
+	flex: none;
+	width: 100%;
+	margin-bottom: var(--slide-gap);
+	font-size: var(--slide-font-body);
+	font-weight: 700;
+	text-align: center;
+}
+
+.diagram-template .slide-title p {
+	margin: 0;
+}
+
+.diagram-template .slide-body {
+	display: grid;
+	flex: 1;
+	place-items: center;
+	width: 100%;
+	min-height: 0;
+}
+
+.diagram-template .diagram-freeform {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.diagram-template .diagram-freeform > * {
 	position: absolute;
 	box-sizing: border-box;
 }
 
 /* Image template */
 .image-template .slide-caption {
-	font-size: 1.6rem;
-	margin-bottom: 2rem;
+	font-size: var(--slide-font-secondary);
+	margin-bottom: var(--slide-gap);
 	text-align: center;
 }
 
 .image-template .slide-image {
-	max-width: 80%;
+	display: grid;
+	place-items: center;
+	width: min(80cqi, 100%);
+	max-height: 65cqb;
 	text-align: center;
 }
 
-.image-template .slide-image img {
+.image-template .slide-image :is(img, video, svg, iframe) {
 	max-width: 100%;
-	max-height: 60vh;
-	border-radius: 8px;
+	max-height: 65cqb;
+	border-radius: var(--slide-radius);
 }
 
 /* Hide raw code blocks until syntax-js upgrades them */
@@ -273,11 +345,11 @@ pre > syntax-code {
 /* Statement template */
 .statement-template {
 	text-align: center;
-	gap: 2rem;
+	gap: var(--slide-gap);
 }
 
 .statement-template .slide-statement {
-	font-size: 2.5rem;
+	font-size: var(--slide-font-statement);
 	font-weight: 600;
 	line-height: 1.4;
 	width: 100%;
@@ -293,9 +365,9 @@ pre > syntax-code {
 
 /* Shared translation style — works in any template */
 .slide-translation {
-	font-size: 1.6rem;
+	font-size: var(--slide-font-secondary);
 	opacity: 0.7;
-	margin-top: 1rem;
+	margin-top: calc(var(--slide-gap) * 0.5);
 }
 
 .slide-translation p {
@@ -337,14 +409,14 @@ mermaid-diagram {
 
 /* Code template */
 .code-template {
-	padding: 2rem 3rem;
+	padding: var(--slide-gap) calc(var(--slide-gutter) * 0.75);
 	align-items: stretch;
 }
 
 .code-template .code-title {
-	font-size: 1.6rem;
+	font-size: var(--slide-font-secondary);
 	font-weight: 600;
-	margin-bottom: 1rem;
+	margin-bottom: calc(var(--slide-gap) * 0.5);
 }
 
 .code-template .code-title p {
@@ -355,21 +427,21 @@ mermaid-diagram {
 	position: relative;
 	flex: 1;
 	overflow: hidden;
-	border-radius: 8px;
+	border-radius: var(--slide-radius);
 	background: rgba(0, 0, 0, 0.3);
 }
 
 .code-scroll {
 	transition: transform 0.6s ease-in-out;
-	padding: 1rem;
+	padding: calc(var(--slide-gap) * 0.5);
 }
 
 .code-scroll pre {
 	margin: 0;
 	background: none;
 	padding: 0;
-	line-height: 1.6;
-	font-size: 1.5rem;
+	line-height: 1.5;
+	font-size: var(--slide-font-code);
 }
 
 /* Dim overlays */
@@ -472,8 +544,7 @@ html[data-transition="slide-right"]::view-transition-new(slide-container) {
 
 body.playback,
 .playback-stage,
-.playback-frame,
-.playback-frame > .slide {
+.playback-frame {
 	width: 100vw;
 	height: 100vh;
 }
@@ -782,10 +853,6 @@ body.playback[data-controls="false"] .playback-start-screen {
 	overflow: hidden;
 	position: relative;
 	min-height: 0;
-}
-
-.preview-frame .slide {
-	zoom: 0.5;
 }
 
 .preview-frame .no-slide {
@@ -1138,12 +1205,6 @@ body.export {
 .export-slide-area {
 	position: relative;
 	overflow: hidden;
-}
-
-/* Slide fills its container, which is sized by inline style. */
-.export-slide-area .slide {
-	width: 100%;
-	height: 100%;
 }
 
 /* Notes panel below the slide. */

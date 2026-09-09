@@ -77,5 +77,36 @@ describe Presently::SlideRenderer do
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, 'data-slide-path="010-example.md"')
+		expect(html.scan("data-slide-path=").size).to be == 1
+	end
+	
+	it "renders a fixed-aspect slide within a full-size surface" do
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, 'class="slide-surface"')
+	end
+	
+	it "renders an optional diagram title" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: diagram
+			---
+			
+			# Title
+			
+			Request lifecycle
+			
+			# Body
+			
+			<div>Diagram</div>
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, 'class="slide-title"')
+		expect(html).to be(:include?, "Request lifecycle")
+		expect(html).to be(:include?, "Diagram")
 	end
 end

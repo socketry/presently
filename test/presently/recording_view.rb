@@ -30,6 +30,7 @@ describe Presently::RecordingView do
 		
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, "Narrate this slide.")
+		expect(html).to be(:include?, 'class="recording-preview slide-viewport"')
 		expect(html).to be(:include?, "<presently-recorder")
 		expect(html).to be(:include?, 'data-recording-url="/recordings?index=0"')
 		expect(html).to be(:include?, 'class="recording-toggle"')
