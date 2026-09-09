@@ -513,29 +513,26 @@ live-view:has(.display) {
 
 /* Fade */
 html[data-transition="fade"]::view-transition-old(slide-container) {
-	animation: vt-fade-out 0.4s ease-in-out;
-}
-
-html[data-transition="fade"]::view-transition-new(slide-container) {
-	animation: vt-fade-in 0.4s ease-in-out;
+	animation: vt-fade-out 0.4s ease-in-out both;
+	z-index: 1;
 }
 
 /* Slide left */
 html[data-transition="slide-left"]::view-transition-old(slide-container) {
-	animation: vt-slide-out-left 0.4s ease-in-out;
+	animation: vt-slide-out-left 0.4s ease-in-out both;
 }
 
 html[data-transition="slide-left"]::view-transition-new(slide-container) {
-	animation: vt-slide-in-right 0.4s ease-in-out;
+	animation: vt-slide-in-right 0.4s ease-in-out both;
 }
 
 /* Slide right */
 html[data-transition="slide-right"]::view-transition-old(slide-container) {
-	animation: vt-slide-out-right 0.4s ease-in-out;
+	animation: vt-slide-out-right 0.4s ease-in-out both;
 }
 
 html[data-transition="slide-right"]::view-transition-new(slide-container) {
-	animation: vt-slide-in-left 0.4s ease-in-out;
+	animation: vt-slide-in-left 0.4s ease-in-out both;
 }
 
 /* ========================
