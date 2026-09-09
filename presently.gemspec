@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
 	
 	spec.add_dependency "lively", "~> 0.22"
 	spec.add_dependency "live", "~> 0.21"
-	spec.add_dependency "markly", "~> 0.18"
+	spec.add_dependency "markly", "~> 0.19"
 	spec.add_dependency "async-webdriver", "~> 0.12"
 	spec.add_dependency "protocol-media-registry", "~> 0.0"
 end
