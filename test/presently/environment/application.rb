@@ -21,6 +21,16 @@ describe Presently::Environment::Application do
 		expect(environment.evaluator.application).to be == Presently::Application
 	end
 	
+	it "defaults the slides root relative to the environment root" do
+		environment = Async::Service::Environment.build(
+			Presently::Environment::Application,
+			root: Dir.pwd,
+			endpoint: Async::HTTP::Endpoint.parse("http://localhost:0")
+		)
+		
+		expect(environment.evaluator.slides_root).to be == File.expand_path("slides", Dir.pwd)
+	end
+	
 	# `make_server` comes from `Falcon::Environment::Server`, which this module
 	# does not include directly. Anything wanting to run a server (e.g. the
 	# `presently:export:pdf` task) has to compose the HTTP environment first.

@@ -158,6 +158,11 @@ describe Presently::Application do
 		expect(response.read).to be == "Example slide\n"
 	end
 	
+	it "rejects malformed and missing presentation assets" do
+		expect(application.call(request("GET", "/_slides/%")).status).to be == 404
+		expect(application.call(request("GET", "/_slides/missing.svg")).status).to be == 404
+	end
+	
 	it "only reads presentation assets" do
 		response = application.call(request("POST", "/_slides/010-example.css"))
 		
@@ -186,6 +191,20 @@ describe Presently::Application do
 	it "rejects unsupported recording formats" do
 		response = application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/mpeg"}, "audio data"))
 		expect(response.status).to be == 415
+	end
+	
+	it "requires a recording body" do
+		response = application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}))
+		
+		expect(response.status).to be == 400
+	end
+	
+	it "rejects oversized recordings" do
+		application.instance_variable_set(:@recordings, Presently::Recordings.new(recordings_root, maximum_size: 4))
+		response = application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
+		
+		expect(response.status).to be == 413
+		expect(response.read).to be(:include?, "4 bytes")
 	end
 	
 	it "rejects an invalid slide index" do
@@ -226,6 +245,19 @@ describe Presently::Application do
 		
 		expect(response.status).to be == 200
 		expect(response.read).to be == "source audio"
+	end
+	
+	it "reports missing narration" do
+		response = application.call(request("GET", "/playback/recordings?index=0"))
+		
+		expect(response.status).to be == 404
+	end
+	
+	it "serves the printable export interface" do
+		response = application.call(request("GET", "/export?notes=true"))
+		
+		expect(response.status).to be == 200
+		expect(response.read).to be(:include?, "Example slide")
 	end
 	
 	it "only reads playback narration" do

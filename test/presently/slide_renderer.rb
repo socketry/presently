@@ -33,6 +33,10 @@ describe Presently::TemplateScope do
 			expect(scope.section("title")).to be(:include?, "Hello World")
 		end
 		
+		it "exposes the slide content" do
+			expect(scope.content).to be == slide.content
+		end
+		
 		it "returns true for section? when section exists" do
 			expect(scope.section?("title")).to be_truthy
 		end
@@ -131,5 +135,22 @@ describe Presently::SlideRenderer do
 		expect(html.scan('type="text/slide-script"').size).to be == 2
 		expect(html).to be(:include?, "globalThis.setup")
 		expect(html).to be(:include?, "globalThis.control")
+	end
+	
+	it "renders translation content" do
+		File.write(path, "Example slide\n\n# Translation\n\nTranslated slide\n")
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, 'class="slide-translation"')
+		expect(html).to be(:include?, "Translated slide")
+	end
+end
+
+describe Presently::Templates do
+	it "raises a useful error for a missing template" do
+		templates = subject.new([])
+		
+		expect{templates.resolve("missing")}.to raise_exception(Errno::ENOENT, message: be(:include?, "Template 'missing' not found"))
 	end
 end
