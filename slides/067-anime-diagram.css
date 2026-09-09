@@ -1,0 +1,132 @@
+.anime-flow {
+	display: grid;
+	grid-template-rows: 1fr auto;
+	width: 92%;
+	height: 100%;
+	gap: 1.2em;
+	font-family: var(--font-mono);
+}
+
+.anime-flow-network {
+	display: grid;
+	grid-template-rows: repeat(2, 1fr);
+	align-content: center;
+}
+
+.anime-flow-lane {
+	position: relative;
+	height: 1.5em;
+	margin-inline: 12.5%;
+	align-self: center;
+	border: 0.04em solid rgba(255, 255, 255, 0.12);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.035);
+	transform-origin: center;
+}
+
+.anime-flow-lane::before {
+	position: absolute;
+	left: 0.55em;
+	right: 0.55em;
+	top: 50%;
+	height: 0.06em;
+	background: repeating-linear-gradient(90deg, #667 0 0.35em, transparent 0.35em 0.7em);
+	content: "";
+	transform: translateY(-50%);
+}
+
+.anime-flow-lane-label {
+	position: absolute;
+	left: 50%;
+	bottom: calc(100% + 0.4em);
+	color: #99a;
+	font-size: 0.38em;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	transform: translateX(-50%);
+}
+
+.anime-flow-nodes {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	align-items: center;
+	gap: 2.2em;
+}
+
+.anime-flow-node {
+	position: relative;
+	z-index: 1;
+	display: grid;
+	place-content: center;
+	min-width: 0;
+	min-height: 5.5em;
+	gap: 0.35em;
+	border: 0.08em solid color-mix(in srgb, var(--node-color) 70%, transparent);
+	border-radius: 0.35em;
+	background: color-mix(in srgb, var(--node-color) 10%, var(--slide-bg));
+	box-shadow: 0 0 1.2em color-mix(in srgb, var(--node-color) 12%, transparent);
+	text-align: center;
+}
+
+.live-js-node,
+.live-node {
+	--node-color: #4a9eff;
+}
+
+.lively-node {
+	--node-color: #a78bfa;
+}
+
+.presently-node {
+	--node-color: #f90;
+}
+
+.anime-flow-role {
+	color: var(--node-color);
+	font-size: 0.5em;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.anime-flow-node strong {
+	font-size: 0.8em;
+}
+
+.anime-flow-packet {
+	position: absolute;
+	z-index: 2;
+	top: 50%;
+	left: 0;
+	opacity: 0;
+	min-width: 3.2em;
+	padding: 0.3em 0.55em;
+	border-radius: 999px;
+	background: var(--accent);
+	color: white;
+	font-size: 0.48em;
+	font-weight: 700;
+	text-align: center;
+	transform: translate(-50%, -50%);
+}
+
+.render-packet {
+	left: 100%;
+	background: var(--on-time);
+}
+
+.anime-flow-events {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 0.8em;
+	padding: 0.65em;
+	border: 0.06em solid rgba(255, 255, 255, 0.1);
+	border-radius: 0.3em;
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.anime-flow-events span {
+	font-size: 0.55em;
+	text-align: center;
+}

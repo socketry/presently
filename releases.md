@@ -5,6 +5,7 @@
   - Render slides on a responsive 16:9 canvas across the display, presenter, recording, playback, and export interfaces.
   - Center diagram content by default, add optional diagram titles, and make free-form absolute positioning explicit with `.diagram-freeform`.
   - Prevent slide backgrounds and content from flickering during view transitions.
+  - Add lifecycle-managed Anime.js animation scopes, reusable diagram setup scripts, and guidance for authoring animated diagrams.
 
 ## v0.17.2
 

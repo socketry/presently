@@ -14,7 +14,8 @@
 		{
 			"imports": {
 				"@socketry/presently": "/_components/@socketry/presently/Presently.js",
-				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js"
+				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js",
+				"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"
 			}
 		}
 		</script>

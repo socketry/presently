@@ -109,4 +109,27 @@ describe Presently::SlideRenderer do
 		expect(html).to be(:include?, "Request lifecycle")
 		expect(html).to be(:include?, "Diagram")
 	end
+	
+	it "renders each slide script separately" do
+		File.write(path, <<~MARKDOWN)
+			```javascript presently
+			globalThis.setup = true
+			```
+			
+			Example slide
+			
+			---
+			
+			```javascript
+			globalThis.control = true
+			```
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html.scan('type="text/slide-script"').size).to be == 2
+		expect(html).to be(:include?, "globalThis.setup")
+		expect(html).to be(:include?, "globalThis.control")
+	end
 end

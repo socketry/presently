@@ -50,3 +50,41 @@ test('disposes slide resources', async () => {
 	assert.deepEqual(cleanup, ['second', 'first', 'late']);
 	assert.equal(slide.setTimeout(() => {}, 0), null);
 });
+
+test('manages a slide-scoped Anime.js scope', () => {
+	const element = new FakeElement();
+	const slide = new Slide(element);
+	let animeApi = null;
+	let callbackScope = null;
+	let cleaned = false;
+
+	const scope = slide.anime((anime, currentScope) => {
+		animeApi = anime;
+		callbackScope = currentScope;
+		return () => cleaned = true;
+	});
+
+	assert.strictEqual(scope, slide.anime());
+	assert.strictEqual(scope.root, element);
+	assert.strictEqual(callbackScope, scope);
+	assert.equal(typeof animeApi.createTimeline, 'function');
+
+	slide.dispose();
+	assert.equal(cleaned, true);
+
+	let lateCleanup = false;
+	slide.anime(() => () => lateCleanup = true);
+	assert.equal(lateCleanup, true);
+});
+
+test('disables animation when reduced motion is preferred', () => {
+	const matchMedia = window.matchMedia;
+	window.matchMedia = () => ({matches: true});
+
+	try {
+		const slide = new Slide(new FakeElement());
+		assert.equal(slide.animated, false);
+	} finally {
+		window.matchMedia = matchMedia;
+	}
+});

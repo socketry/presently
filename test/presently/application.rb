@@ -61,6 +61,7 @@ describe Presently::Application do
 		expect(response.status).to be == 200
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, 'class="slide-container slide-viewport"')
+		expect(html).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')
 	end
 	
 	it "uses responsive slide viewports in the presenter interface" do

@@ -218,6 +218,32 @@ button.addEventListener("click", handleClick, {signal: slide.signal})
 
 Aborting the signal removes this event listener; it does not invoke `handleClick`. Use `slide.defer(...)` for resources which do not accept an `AbortSignal`.
 
+## Anime.js
+
+Build effects and `slide.after()` work well for simple reveals. For coordinated motion, path animation, staggered elements, or a longer visual narrative, use `slide.anime(callback)` to create a lifecycle-managed [Anime.js](https://animejs.com/) scope.
+
+``` javascript
+slide.anime(({createTimeline, stagger}) => {
+  const timeline = createTimeline({
+    autoplay: slide.animated,
+    loop: slide.animated,
+  })
+    .add(".diagram-node", {
+      opacity: [0, 1],
+      y: [12, 0],
+      delay: stagger(100),
+    })
+
+  if (!slide.animated) timeline.seek(timeline.duration)
+})
+```
+
+The callback receives the Anime.js module API and runs inside a scope rooted at the slide body. Selectors cannot match elements in another slide. Presently reuses the scope across calls and automatically invokes `scope.revert()` when the slide is deactivated.
+
+`slide.animated` is false during static export and when the browser requests reduced motion. Configure timelines not to autoplay or loop in that case, then seek to a meaningful static frame.
+
+See [Animated Diagrams](../animated-diagrams/) for layout, choreography, accessibility, and agent-authoring guidance.
+
 ## Looping Animations with `slide.loop()`
 
 To repeat an animation indefinitely, use `slide.loop()`. The callback receives a fresh `SlideContext` each iteration and can use `after()` to schedule steps in the same way as a regular chain. The loop waits for all steps to complete and then restarts, with an optional extra pause between iterations.

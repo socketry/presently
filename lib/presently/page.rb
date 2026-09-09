@@ -24,6 +24,7 @@ module Presently
 			"morphdom" => "/_components/morphdom/morphdom-esm.js",
 			"@socketry/presently" => "/_components/@socketry/presently/Presently.js",
 			"@socketry/syntax" => "/_components/@socketry/syntax/Syntax.js",
+			"animejs" => "/_components/animejs/dist/bundles/anime.esm.min.js",
 		}.freeze
 		MODULES = ["/application.js"].freeze
 		

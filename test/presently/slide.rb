@@ -209,6 +209,77 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "an included reusable setup script" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		let(:shared_path) {File.join(dir, "shared", "diagram.md")}
+		
+		before do
+			FileUtils.mkdir_p(File.dirname(shared_path))
+			File.write(shared_path, <<~MARKDOWN)
+				<div class="diagram">Shared diagram</div>
+				
+				```javascript presently
+				slide.anime().data.timeline = "shared"
+				```
+			MARKDOWN
+			File.write(path, <<~MARKDOWN)
+				![[shared/diagram.md]]
+				
+				---
+				
+				Slide-specific notes.
+				
+				```javascript
+				slide.anime().data.timeline.play()
+				```
+			MARKDOWN
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "extracts setup and slide scripts in execution order" do
+			expect(slide.scripts.size).to be == 2
+			expect(slide.scripts.first).to be(:include?, 'timeline = "shared"')
+			expect(slide.scripts.last).to be(:include?, "timeline.play()")
+		end
+		
+		it "combines scripts through the compatibility accessor" do
+			expect(slide.script).to be(:include?, 'timeline = "shared"')
+			expect(slide.script).to be(:include?, "timeline.play()")
+		end
+		
+		it "removes the setup script from rendered content" do
+			html = slide.content["body"].to_html
+			expect(html).to be(:include?, "Shared diagram")
+			expect(html).not.to be(:include?, "timeline")
+		end
+	end
+	
+	with "a javascript example in slide content" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		
+		before do
+			File.write(path, "```javascript\nconsole.log('example')\n```\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "renders rather than executes the example" do
+			expect(slide.scripts).to be(:empty?)
+			expect(slide.content["body"].to_html).to be(:include?, "console.log")
+		end
+	end
+	
 	with "a slide with a nested ![[include]] directive" do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "main.md")}

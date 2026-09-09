@@ -141,6 +141,11 @@ describe Presently::Export do
 			expect(html).to be(:include?, "export.js")
 		end
 		
+		it "loads Anime.js for slide scripts" do
+			html = export.call
+			expect(html).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')
+		end
+		
 		it "loads presentation stylesheets" do
 			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
 			

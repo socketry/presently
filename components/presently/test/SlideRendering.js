@@ -13,9 +13,13 @@ class SlideElement {
 	}
 
 	querySelector(selector) {
-		if (selector === 'script[type="text/slide-script"]') return this.script;
 		if (selector === '.slide-body') return this.body;
 		return null;
+	}
+
+	querySelectorAll(selector) {
+		if (selector === 'script[type="text/slide-script"]') return [this.script];
+		return [];
 	}
 }
 
