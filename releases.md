@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Support language-prefixed inline code such as `ruby:` for syntax highlighting.
+  - Preserve blank lines within consistently indented HTML blocks in slide Markdown.
 
 ## v0.18.0
 

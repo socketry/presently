@@ -301,6 +301,45 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "blank lines in HTML blocks" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		let(:slide) {load_slide(path)}
+		let(:html) {slide.content["body"].to_html}
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		it "preserves consistently indented slide HTML" do
+			File.write(path, <<~MARKDOWN)
+				<div class="diagram">
+					<div class="first">First</div>
+					
+					<div class="second">Second</div>
+				</div>
+			MARKDOWN
+			
+			expect(html).to be(:include?, '<div class="second">Second</div>')
+			expect(html).not.to be(:include?, "<pre><code>")
+		end
+		
+		it "preserves consistently indented included HTML" do
+			included_path = File.join(dir, "diagram.md")
+			File.write(included_path, <<~MARKDOWN)
+				<div class="diagram">
+					<div class="first">First</div>
+					
+					<div class="second">Second</div>
+				</div>
+			MARKDOWN
+			File.write(path, "![[diagram.md]]\n")
+			
+			expect(html).to be(:include?, '<div class="second">Second</div>')
+			expect(html).not.to be(:include?, "<pre><code>")
+		end
+	end
+	
 	with "a slide with a nested ![[include]] directive" do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "main.md")}
