@@ -77,6 +77,7 @@ describe Presently::SlideRenderer do
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, 'data-slide-path="010-example.md"')
+		expect(html.scan("data-slide-path=").size).to be == 1
 	end
 	
 	it "renders a fixed-aspect slide within a full-size surface" do

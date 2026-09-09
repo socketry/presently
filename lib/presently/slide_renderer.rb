@@ -48,7 +48,7 @@ module Presently
 			classes = [@css_class, extra_class].compact.join(" ")
 			path = Stylesheet.encode_path(slide.path)
 			
-			builder.tag(:div, class: "slide-surface", data: {template: slide.template}, "data-slide-path": path) do
+			builder.tag(:div, class: "slide-surface", data: {template: slide.template}) do
 				builder.tag(:div, class: classes, data: {template: slide.template}, "data-slide-path": path) do
 					builder.raw(html)
 					
