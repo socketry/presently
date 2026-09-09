@@ -759,6 +759,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 .toolbar {
 	display: flex;
 	align-items: center;
+	gap: 1rem;
 }
 
 .toolbar > button,
@@ -771,7 +772,6 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls {
-	gap: 1rem;
 	padding: 0.5rem 1rem;
 	background: var(--surface);
 	border-radius: 8px;
@@ -931,7 +931,6 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .timing-info {
-	gap: 2rem;
 	font-size: 1rem;
 }
 
