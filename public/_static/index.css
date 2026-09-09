@@ -756,6 +756,8 @@ body.playback[data-controls="false"] .playback-start-screen {
 
 /* Controls */
 .controls {
+	--control-height: 2.25rem;
+	
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -765,10 +767,14 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: var(--control-height);
 	background: var(--surface-light);
 	color: var(--slide-text);
 	border: 1px solid rgba(255,255,255,0.1);
-	padding: 0.5rem 1rem;
+	padding: 0 1rem;
 	border-radius: 6px;
 	cursor: pointer;
 	font-size: 0.9rem;
@@ -781,10 +787,11 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls .jump-to {
+	height: var(--control-height);
 	background: var(--surface-light);
 	color: var(--slide-text);
 	border: 1px solid rgba(255,255,255,0.1);
-	padding: 0.5rem 0.75rem;
+	padding: 0 0.75rem;
 	border-radius: 6px;
 	font-size: 0.9rem;
 	font-family: var(--font-sans);
@@ -801,6 +808,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls .slide-info {
+	height: var(--control-height);
 	font-size: 1rem;
 	display: flex;
 	align-items: stretch;
@@ -821,7 +829,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 .controls .slide-position {
 	display: flex;
 	align-items: center;
-	padding: 0.5rem 0.75rem;
+	padding: 0 0.75rem;
 	font-size: 0.9rem;
 	opacity: 0.8;
 }
@@ -833,7 +841,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 	align-items: center;
 	flex: 0 1 auto;
 	min-width: 0;
-	padding: 0.5rem 0.6rem;
+	padding: 0 0.6rem;
 	border-left: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -856,7 +864,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 	display: flex;
 	align-items: center;
 	margin-left: 0;
-	padding: 0.5rem;
+	padding: 0 0.5rem;
 	border-left: 1px solid rgba(255,255,255,0.1);
 	text-decoration: none;
 	opacity: 0.6;
