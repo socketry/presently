@@ -110,7 +110,7 @@ module Presently
 				else "on-time"
 				end
 				
-				builder.tag(:div, class: "timing-info #{pacing_class}") do
+				builder.tag(:div, class: "toolbar timing-info #{pacing_class}") do
 					builder.tag(:button,
 						class: "pause-button",
 						onClick: forward_event(action: "pause")
@@ -151,7 +151,7 @@ module Presently
 					
 					if slide
 						builder.tag(:span, class: "slide-duration") do
-							builder.text("Slide: #{format_duration(slide.duration)}")
+							builder.text("Duration: #{format_duration(slide.duration)}")
 						end
 					end
 					
@@ -191,21 +191,26 @@ module Presently
 			
 			builder.tag(:div, class: "presenter") do
 				# Controls bar
-				builder.tag(:div, class: "controls") do
+				builder.tag(:div, class: "toolbar controls") do
 					builder.tag(:button,
 						onClick: forward_event(action: "previous")
 					) do
 						builder.text("← Previous")
 					end
 					
+					builder.tag(:button,
+						onClick: forward_event(action: "next")
+					) do
+						builder.text("Next →")
+					end
+					
 					builder.tag(:span, class: "slide-info") do
-						builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
+						builder.tag(:span, class: "slide-position") do
+							builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
+						end
 						
 						if slide
-							builder.text(" · ")
-							builder.tag(:code, class: "slide-path") do
-								builder.text(slide.path)
-							end
+							render_slide_path(builder, slide.path)
 							
 							if editor_url = editor_url_for(slide.source_path)
 								builder.tag(:a, href: editor_url, class: "edit-link") do
@@ -213,12 +218,6 @@ module Presently
 								end
 							end
 						end
-					end
-					
-					builder.tag(:button,
-						onClick: forward_event(action: "next")
-					) do
-						builder.text("Next →")
 					end
 					
 					# Jump-to dropdown for marked slides
@@ -232,7 +231,7 @@ module Presently
 					unless markers.empty?
 						builder.tag(:select,
 							class: "jump-to",
-							data: {live_id: @id}
+							"data-live-id": @id
 						) do
 							builder.tag(:option, value: "", disabled: true, selected: true) do
 								builder.text("Jump to…")

@@ -124,19 +124,20 @@ module Presently
 		# @parameter builder [XRB::Builder] The HTML builder.
 		# @parameter slide [Slide] The current slide.
 		def render_navigation(builder, slide)
-			builder.tag(:div, class: "controls recording-navigation") do
+			builder.tag(:div, class: "toolbar controls recording-navigation") do
 				builder.tag(:button, onClick: forward_event(action: "previous")){builder.text("← Previous")}
+				builder.tag(:button, onClick: forward_event(action: "next")){builder.text("Next →")}
 				
 				builder.tag(:span, class: "slide-info") do
-					builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count} · ")
-					builder.tag(:code, class: "slide-path"){builder.text(slide.path)}
+					builder.tag(:span, class: "slide-position") do
+						builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
+					end
+					render_slide_path(builder, slide.path)
 					
 					if editor_url = editor_url_for(slide.source_path)
 						builder.tag(:a, href: editor_url, class: "edit-link"){builder.text("✎")}
 					end
 				end
-				
-				builder.tag(:button, onClick: forward_event(action: "next")){builder.text("Next →")}
 				
 				markers = @controller.slides.each_with_index.filter_map do |candidate, index|
 					[index, candidate.marker] if candidate.marker

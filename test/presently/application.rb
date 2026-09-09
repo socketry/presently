@@ -72,6 +72,17 @@ describe Presently::Application do
 		expect(html.scan('class="preview-frame slide-viewport"').size).to be == 2
 	end
 	
+	it "connects the presenter jump control to its live view" do
+		File.write(File.join(slides_root, "010-example.md"), "---\nmarker: Example\n---\nExample slide\n")
+		
+		response = application.call(request("GET", "/presenter"))
+		html = response.read
+		
+		expect(response.status).to be == 200
+		expect(html).to be(:match?, /<select class="jump-to" data-live-id="[^"]+">/)
+		expect(html).not.to be(:include?, "data-live_id")
+	end
+	
 	it "serves the recording interface separately from the presenter" do
 		response = application.call(request("GET", "/record"))
 		
