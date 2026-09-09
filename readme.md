@@ -67,6 +67,11 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.19.0
+
+  - Support language-prefixed inline code such as `ruby:` for syntax highlighting.
+  - Preserve blank lines within consistently indented HTML blocks in slide Markdown.
+
 ### v0.18.0
 
   - Render slides on a responsive 16:9 canvas across the display, presenter, recording, playback, and export interfaces.
@@ -113,11 +118,6 @@ q
 ### v0.11.0
 
   - Add `Slide#element` and `SlideContext#element` getters — expose the slide body DOM element directly for cases where `find()` is not sufficient, such as measuring dimensions, attaching event listeners, or integrating third-party libraries.
-
-### v0.10.0
-
-  - Replace internal `SlideChain` with an exported `SlideContext` class. `SlideContext` accumulates elapsed time across `after()` calls exactly as `SlideChain` did, but also exposes `find()`, `setTimeout()`, and a `get elapsed()` getter. `Slide#after()` now returns a `SlideContext` — existing slide scripts are unaffected.
-  - Add `Slide#loop(callback, {delay})` — runs a callback in a repeating loop until the slide changes. The callback receives a fresh `SlideContext` each iteration so it can schedule steps with `after()`. The loop waits for all steps to complete (`context.elapsed`) plus an optional extra `delay` before starting the next iteration. All timeouts flow through the slide's existing tracked `setTimeout`, so they are cancelled automatically on slide change.
 
 ## See Also
 
