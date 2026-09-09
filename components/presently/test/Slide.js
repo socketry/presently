@@ -77,6 +77,29 @@ test('manages a slide-scoped Anime.js scope', () => {
 	assert.equal(lateCleanup, true);
 });
 
+test('keeps delayed Anime.js resources within the slide scope', async () => {
+	const slide = new Slide(new FakeElement());
+	let complete;
+	const completed = new Promise(resolve => complete = resolve);
+	let cleaned = false;
+	let callbackArguments = null;
+
+	slide.anime((anime) => {
+		slide.setTimeout((...arguments_) => {
+			callbackArguments = arguments_;
+			const nestedScope = anime.createScope();
+			nestedScope.add(() => () => cleaned = true);
+			complete();
+		}, 0);
+	});
+
+	await completed;
+	slide.dispose();
+
+	assert.deepEqual(callbackArguments, []);
+	assert.equal(cleaned, true);
+});
+
 test('disables animation when reduced motion is preferred', () => {
 	const matchMedia = window.matchMedia;
 	window.matchMedia = () => ({matches: true});

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+  - Keep Anime.js resources created by delayed slide callbacks bound to the slide lifecycle.
   - Support language-prefixed inline code such as `ruby:` for syntax highlighting.
   - Preserve blank lines within consistently indented HTML blocks in slide Markdown.
 

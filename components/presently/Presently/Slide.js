@@ -315,7 +315,13 @@ export class Slide {
 	setTimeout(callback, delay) {
 		if (this.#disposed) return null;
 
-		const timeoutId = window.setTimeout(callback, delay);
+		const timeoutId = window.setTimeout(() => {
+			if (this.#animeScope) {
+				this.#animeScope.execute(() => callback());
+			} else {
+				callback();
+			}
+		}, delay);
 		this.#timeouts.push(timeoutId);
 		return timeoutId;
 	}
