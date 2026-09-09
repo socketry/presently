@@ -199,13 +199,13 @@ module Presently
 					end
 					
 					builder.tag(:span, class: "slide-info") do
-						builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
+						builder.tag(:span, class: "slide-position") do
+							builder.text("Slide #{@controller.current_index + 1} of #{@controller.slide_count}")
+						end
 						
 						if slide
 							builder.text(" · ")
-							builder.tag(:code, class: "slide-path") do
-								builder.text(slide.path)
-							end
+							render_slide_path(builder, slide.path)
 							
 							if editor_url = editor_url_for(slide.source_path)
 								builder.tag(:a, href: editor_url, class: "edit-link") do

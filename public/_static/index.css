@@ -803,11 +803,39 @@ body.playback[data-controls="false"] .playback-start-screen {
 .controls .slide-info {
 	font-size: 1rem;
 	opacity: 0.8;
+	display: flex;
+	align-items: baseline;
+	flex: 1 1 auto;
+	min-width: 0;
+	white-space: nowrap;
+}
+
+.controls .slide-position,
+.controls .edit-link {
+	flex: 0 0 auto;
 }
 
 .controls .slide-path {
 	font-size: 0.8rem;
 	opacity: 0.6;
+	display: inline-flex;
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.controls .slide-path-directory,
+.controls .slide-path-filename {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.controls .slide-path-directory {
+	flex: 1 1 0;
+}
+
+.controls .slide-path-filename {
+	flex: 0 1 auto;
 }
 
 .controls .edit-link {
