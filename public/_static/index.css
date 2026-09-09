@@ -802,12 +802,15 @@ body.playback[data-controls="false"] .playback-start-screen {
 
 .controls .slide-info {
 	font-size: 1rem;
-	opacity: 0.8;
 	display: flex;
-	align-items: baseline;
+	align-items: stretch;
 	flex: 0 1 auto;
 	min-width: 0;
 	white-space: nowrap;
+	background: var(--surface-light);
+	border: 1px solid rgba(255,255,255,0.1);
+	border-radius: 6px;
+	overflow: hidden;
 }
 
 .controls .slide-position,
@@ -815,12 +818,23 @@ body.playback[data-controls="false"] .playback-start-screen {
 	flex: 0 0 auto;
 }
 
+.controls .slide-position {
+	display: flex;
+	align-items: center;
+	padding: 0.4rem 0.6rem;
+	font-size: 0.8rem;
+	opacity: 0.8;
+}
+
 .controls .slide-path {
 	font-size: 0.8rem;
 	opacity: 0.6;
 	display: inline-flex;
+	align-items: center;
 	flex: 0 1 auto;
 	min-width: 0;
+	padding: 0.4rem 0.6rem;
+	border-left: 1px solid rgba(255,255,255,0.1);
 }
 
 .controls .slide-path-directory,
@@ -839,7 +853,11 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls .edit-link {
-	margin-left: 0.3rem;
+	display: flex;
+	align-items: center;
+	margin-left: 0;
+	padding: 0.4rem 0.5rem;
+	border-left: 1px solid rgba(255,255,255,0.1);
 	text-decoration: none;
 	opacity: 0.6;
 	transition: opacity 0.2s;

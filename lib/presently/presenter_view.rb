@@ -204,7 +204,6 @@ module Presently
 						end
 						
 						if slide
-							builder.text(" · ")
 							render_slide_path(builder, slide.path)
 							
 							if editor_url = editor_url_for(slide.source_path)
