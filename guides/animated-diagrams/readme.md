@@ -88,35 +88,64 @@ If individual controls are interactive, keep them accessible instead of hiding t
 
 ## Choreograph Meaning, Not Decoration
 
-Organize the timeline into meaningful phases. The following example sends a request across a stable set of nodes, reveals the work performed, then returns a response:
+Organize the timeline into meaningful phases. Introduce the structure once, then repeat only the activity that represents ongoing work. The following example reveals a stable diagram before repeatedly sending a request and response through a traffic lane:
 
 ``` javascript
 slide.anime(({createTimeline, stagger}) => {
-  const timeline = createTimeline({
-    autoplay: slide.animated,
-    loop: slide.animated,
-    loopDelay: 1400,
+  const traffic = createTimeline({
+    autoplay: false,
+    loop: true,
+    loopDelay: 900,
     defaults: {ease: "inOutQuad"},
   })
     .add(".request", {
-      left: ["12.5%", "87.5%"],
+      left: ["0%", "100%"],
       opacity: [0, 1, 1, 0],
-      duration: 2400,
-    }, 0)
+      duration: 2200,
+    })
+    .add(".response", {
+      left: ["100%", "0%"],
+      opacity: [0, 1, 1, 0],
+      duration: 1800,
+    }, "+=350")
+
+  const intro = createTimeline({
+    autoplay: slide.animated,
+    onComplete: () => {
+      if (slide.animated) traffic.restart()
+    },
+  })
+    .add(".diagram-lane", {
+      opacity: [0, 1],
+      scaleX: [0.85, 1],
+      duration: 450,
+    })
+    .add(".diagram-node", {
+      opacity: [0.35, 1],
+      y: [10, 0],
+      delay: stagger(120),
+      duration: 500,
+    }, 150)
     .add(".event", {
       opacity: [0, 1],
       y: [8, 0],
-      delay: stagger(200),
+      delay: stagger(180),
       duration: 450,
-    }, 1000)
-    .add(".response", {
-      left: ["87.5%", "12.5%"],
-      opacity: [0, 1, 1, 0],
-      duration: 1800,
-    }, 2600)
+    }, 550)
 
-  if (!slide.animated) timeline.seek(timeline.duration)
+  if (!slide.animated) intro.seek(intro.duration)
 })
+```
+
+Place each moving element inside the lane which defines its path. This makes `0%` and `100%` meaningful endpoints and keeps traffic from obscuring node labels. Use separate lanes only when they communicate a meaningful distinction, such as concurrent channels or different routes.
+
+Give moving elements a hidden initial state in the sidecar stylesheet, since the repeating timeline remains paused while the scene is introduced:
+
+``` css
+.request,
+.response {
+  opacity: 0;
+}
 ```
 
 Prefer transformations and opacity for continuous movement. Use CSS Grid, Flexbox, percentages, container query units, or an SVG `viewBox` to keep geometry responsive. Avoid repeatedly measuring layout inside animation callbacks.

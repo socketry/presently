@@ -8,20 +8,50 @@
 }
 
 .anime-flow-network {
+	display: grid;
+	grid-template-rows: 1fr auto;
+	align-content: center;
+	gap: 1.4em;
+}
+
+.anime-flow-lane {
 	position: relative;
+	height: 1.5em;
+	margin-inline: 12.5%;
+	border: 0.04em solid rgba(255, 255, 255, 0.12);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.035);
+	transform-origin: center;
+}
+
+.anime-flow-lane::before {
+	position: absolute;
+	left: 0.55em;
+	right: 0.55em;
+	top: 50%;
+	height: 0.06em;
+	background: repeating-linear-gradient(90deg, #667 0 0.35em, transparent 0.35em 0.7em);
+	content: "";
+	transform: translateY(-50%);
+}
+
+.anime-flow-lane-label {
+	position: absolute;
+	left: 50%;
+	top: -1.15em;
+	color: #99a;
+	font-size: 0.38em;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	transform: translateX(-50%);
+}
+
+.anime-flow-nodes {
 	display: grid;
 	grid-template-columns: repeat(4, minmax(0, 1fr));
 	align-items: center;
 	gap: 2.2em;
-}
-
-.anime-flow-lane {
-	position: absolute;
-	left: 12.5%;
-	right: 12.5%;
-	top: 50%;
-	height: 0.08em;
-	background: repeating-linear-gradient(90deg, #667 0 0.35em, transparent 0.35em 0.7em);
 }
 
 .anime-flow-node {
@@ -67,8 +97,9 @@
 .anime-flow-packet {
 	position: absolute;
 	z-index: 2;
-	top: calc(50% - 1.8em);
-	left: 12.5%;
+	top: 50%;
+	left: 0;
+	opacity: 0;
 	min-width: 3.2em;
 	padding: 0.3em 0.55em;
 	border-radius: 999px;
@@ -77,12 +108,11 @@
 	font-size: 0.48em;
 	font-weight: 700;
 	text-align: center;
-	transform: translateX(-50%);
+	transform: translate(-50%, -50%);
 }
 
 .response-packet {
-	top: calc(50% + 1.2em);
-	left: 87.5%;
+	left: 100%;
 	background: var(--on-time);
 }
 
