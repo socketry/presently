@@ -13,6 +13,7 @@
 	--on-time: #2ed573;
 	--behind: #ff4757;
 	--ahead: #ffa502;
+	--control-height: 2.25rem;
 	--font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
 	--font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
@@ -756,8 +757,6 @@ body.playback[data-controls="false"] .playback-start-screen {
 
 /* Controls */
 .controls {
-	--control-height: 2.25rem;
-	
 	display: flex;
 	align-items: center;
 	gap: 1rem;
@@ -766,16 +765,22 @@ body.playback[data-controls="false"] .playback-start-screen {
 	border-radius: 8px;
 }
 
+.controls > button,
+.controls > .jump-to,
+.controls > .slide-info,
+.timing-info > button {
+	height: var(--control-height);
+	background: var(--surface-light);
+	border: 1px solid rgba(255,255,255,0.1);
+	border-radius: 6px;
+}
+
 .controls button {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: var(--control-height);
-	background: var(--surface-light);
 	color: var(--slide-text);
-	border: 1px solid rgba(255,255,255,0.1);
 	padding: 0 1rem;
-	border-radius: 6px;
 	cursor: pointer;
 	font-size: 0.9rem;
 	font-family: var(--font-sans);
@@ -787,12 +792,8 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls .jump-to {
-	height: var(--control-height);
-	background: var(--surface-light);
 	color: var(--slide-text);
-	border: 1px solid rgba(255,255,255,0.1);
 	padding: 0 0.75rem;
-	border-radius: 6px;
 	font-size: 0.9rem;
 	font-family: var(--font-sans);
 	cursor: pointer;
@@ -808,16 +809,12 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .controls .slide-info {
-	height: var(--control-height);
 	font-size: 1rem;
 	display: flex;
 	align-items: stretch;
 	flex: 0 1 auto;
 	min-width: 0;
 	white-space: nowrap;
-	background: var(--surface-light);
-	border: 1px solid rgba(255,255,255,0.1);
-	border-radius: 6px;
 	overflow: hidden;
 }
 
@@ -958,11 +955,8 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .timing-info .pause-button {
-	background: var(--surface-light);
 	color: var(--slide-text);
-	border: 1px solid rgba(255,255,255,0.1);
 	padding: 0.3rem 0.75rem;
-	border-radius: 6px;
 	cursor: pointer;
 	font-size: 0.9rem;
 	font-family: var(--font-sans);
