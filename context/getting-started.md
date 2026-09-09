@@ -336,7 +336,7 @@ System architecture overview
 
 ### Diagram
 
-A free-form layout slide with a `position: relative` container. Direct `<div>` children are `position: absolute` by default, so you can place elements precisely using inline styles. Use this for custom diagrams, annotated layouts, or any slide that doesn't fit a standard template.
+A centered canvas for diagrams and other custom visual layouts, with an optional title. A single grid or flex container is usually enough to create a diagram that remains centered as the slide scales:
 
 ``` markdown
 ---
@@ -344,14 +344,20 @@ template: diagram
 duration: 60
 ---
 
-<div style="left: 10%; top: 20%; width: 35%; height: 25%;">
-  Browser
-</div>
+# Title
 
-<div style="left: 55%; top: 20%; width: 35%; height: 25%;">
-  Server
+Request lifecycle
+
+# Body
+
+<div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 2em; width: 80%;">
+  <div>Browser</div>
+  <div>→</div>
+  <div>Server</div>
 </div>
 ```
+
+For coordinate-based layouts, wrap the elements in `<div class="diagram-freeform">`. The wrapper fills the canvas and absolutely positions each direct child.
 
 All other templates also support absolutely positioned overlays since the slide container is `position: relative`. This lets you add callouts, badges, or annotations on top of any template's normal content.
 

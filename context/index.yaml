@@ -14,3 +14,8 @@ files:
   title: Animating Slides
   description: This guide explains how to animate content within slides using the
     slide scripting system.
+- path: animated-diagrams.md
+  title: Animated Diagrams
+  description: This guide explains how to design responsive, lifecycle-safe animated
+    diagrams in Presently using semantic markup, slide-specific CSS, and Anime.js
+    choreography.

@@ -28,6 +28,8 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
   - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the slide scripting system.
 
+  - [Animated Diagrams](https://socketry.github.io/presently/guides/animated-diagrams/index) - This guide explains how to design responsive, lifecycle-safe animated diagrams in Presently using semantic markup, slide-specific CSS, and Anime.js choreography.
+
 ### Recording Narration
 
 Open `http://localhost:9292/record` to record narration separately from the live presenter interface. Presently stores one WebM/Opus recording per slide under `audio/`, mirroring the slide's relative path:
@@ -64,6 +66,15 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 ## Releases
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
+
+### v0.18.0
+
+  - Render slides on a responsive 16:9 canvas across the display, presenter, recording, playback, and export interfaces.
+  - Center diagram content by default, add optional diagram titles, and make free-form absolute positioning explicit with `.diagram-freeform`.
+  - Prevent slide backgrounds and content from flickering during view transitions.
+  - Add lifecycle-managed Anime.js animation scopes, reusable diagram setup scripts, and guidance for authoring animated diagrams.
+  - Truncate long slide paths responsively while preserving their filenames in presenter controls.
+  - Preserve the complete saved presentation state when restoring the controller.
 
 ### v0.17.2
 
@@ -107,10 +118,6 @@ q
 
   - Replace internal `SlideChain` with an exported `SlideContext` class. `SlideContext` accumulates elapsed time across `after()` calls exactly as `SlideChain` did, but also exposes `find()`, `setTimeout()`, and a `get elapsed()` getter. `Slide#after()` now returns a `SlideContext` — existing slide scripts are unaffected.
   - Add `Slide#loop(callback, {delay})` — runs a callback in a repeating loop until the slide changes. The callback receives a fresh `SlideContext` each iteration so it can schedule steps with `after()`. The loop waits for all steps to complete (`context.elapsed`) plus an optional extra `delay` before starting the next iteration. All timeouts flow through the slide's existing tracked `setTimeout`, so they are cancelled automatically on slide change.
-
-### v0.9.0
-
-  - `SlideBuilder#show` and `SlideBuilder#next` no longer overwrite `view-transition-name` on elements that already have one set. This allows elements with explicit names (for morph transitions to other slides) to coexist with the build system — they still get `visibility` and `viewTransitionClass` managed, but keep their own name.
 
 ## See Also
 
