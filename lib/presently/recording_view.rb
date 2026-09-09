@@ -124,7 +124,7 @@ module Presently
 		# @parameter builder [XRB::Builder] The HTML builder.
 		# @parameter slide [Slide] The current slide.
 		def render_navigation(builder, slide)
-			builder.tag(:div, class: "controls recording-navigation") do
+			builder.tag(:div, class: "toolbar controls recording-navigation") do
 				builder.tag(:button, onClick: forward_event(action: "previous")){builder.text("← Previous")}
 				
 				builder.tag(:span, class: "slide-info") do

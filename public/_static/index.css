@@ -756,23 +756,25 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 /* Controls */
-.controls {
+.toolbar {
 	display: flex;
 	align-items: center;
-	gap: 1rem;
-	padding: 0.5rem 1rem;
-	background: var(--surface);
-	border-radius: 8px;
 }
 
-.controls > button,
-.controls > .jump-to,
-.controls > .slide-info,
-.timing-info > button {
+.toolbar > button,
+.toolbar > select,
+.toolbar > .slide-info {
 	height: var(--control-height);
 	background: var(--surface-light);
 	border: 1px solid rgba(255,255,255,0.1);
 	border-radius: 6px;
+}
+
+.controls {
+	gap: 1rem;
+	padding: 0.5rem 1rem;
+	background: var(--surface);
+	border-radius: 8px;
 }
 
 .controls button {
@@ -929,9 +931,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .timing-info {
-	display: flex;
 	gap: 2rem;
-	align-items: center;
 	font-size: 1rem;
 }
 

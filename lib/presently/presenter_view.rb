@@ -110,7 +110,7 @@ module Presently
 				else "on-time"
 				end
 				
-				builder.tag(:div, class: "timing-info #{pacing_class}") do
+				builder.tag(:div, class: "toolbar timing-info #{pacing_class}") do
 					builder.tag(:button,
 						class: "pause-button",
 						onClick: forward_event(action: "pause")
@@ -191,7 +191,7 @@ module Presently
 			
 			builder.tag(:div, class: "presenter") do
 				# Controls bar
-				builder.tag(:div, class: "controls") do
+				builder.tag(:div, class: "toolbar controls") do
 					builder.tag(:button,
 						onClick: forward_event(action: "previous")
 					) do
