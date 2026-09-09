@@ -76,6 +76,7 @@ module Presently
 				
 				expand_includes!(document, File.dirname(source_path), presentation.root)
 				rewrite_image_urls!(document, source_path, presentation.root)
+				scripts = extract_setup_scripts!(document)
 				
 				# Extract front matter from the first AST node if present.
 				front_matter = nil
@@ -103,9 +104,8 @@ module Presently
 						end
 					end
 					
-					script = nil
 					if script_node
-						script = script_node.string_content
+						scripts << script_node.string_content
 						script_node.delete
 					end
 					
@@ -114,10 +114,32 @@ module Presently
 				else
 					content = parse_sections(document)
 					notes = nil
-					script = nil
 				end
 				
-				Slide.new(presentation, path, front_matter: front_matter, content: content, notes: notes, script: script)
+				Slide.new(presentation, path, front_matter: front_matter, content: content, notes: notes, scripts: scripts)
+			end
+			
+			# Extract reusable setup scripts from the expanded slide document.
+			#
+			# Setup scripts use a `javascript presently` fenced code block. They are
+			# removed from rendered Markdown and executed in document order before the
+			# slide-specific script from the presenter notes.
+			# @parameter document [Markly::Node] The expanded slide document.
+			# @returns [Array(String)] The extracted JavaScript sources.
+			def extract_setup_scripts!(document)
+				script_nodes = []
+				
+				document.each do |node|
+					if node.type == :code_block && node.fence_info.to_s.strip == "javascript presently"
+						script_nodes << node
+					end
+				end
+				
+				script_nodes.map do |node|
+					script = node.string_content
+					node.delete
+					script
+				end
 			end
 			
 			# Expand `![[path/to/file.md]]` include directives in a parsed document.
@@ -230,14 +252,16 @@ module Presently
 		# @parameter front_matter [Hash | Nil] The parsed YAML front_matter.
 		# @parameter content [Hash(String, Fragment)] Content sections keyed by heading name.
 		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
-		# @parameter script [String | Nil] JavaScript to execute after the slide renders.
-		def initialize(presentation, path, front_matter: nil, content: {}, notes: nil, script: nil)
+		# @parameter scripts [Array(String)] JavaScript sources to execute after the slide renders.
+		# @parameter script [String | Nil] A single JavaScript source retained for compatibility.
+		def initialize(presentation, path, front_matter: nil, content: {}, notes: nil, scripts: [], script: nil)
 			@presentation = presentation
 			@path = path
 			@front_matter = front_matter
 			@content = content
 			@notes = notes
-			@script = script
+			@scripts = scripts.dup
+			@scripts << script if script
 		end
 		
 		# @attribute [Presentation] The presentation which owns the slide.
@@ -261,8 +285,16 @@ module Presently
 		# @attribute [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		attr :notes
 		
-		# @attribute [String | Nil] JavaScript to execute after the slide renders on the display.
-		attr :script
+		# @attribute [Array(String)] JavaScript sources to execute after the slide renders on the display.
+		attr :scripts
+		
+		# All JavaScript sources combined into a single string.
+		# @returns [String | Nil] The combined JavaScript, or `nil` when the slide has no scripts.
+		def script
+			return if @scripts.empty?
+			
+			@scripts.join("\n\n")
+		end
 		
 		# The template to use for rendering this slide.
 		# @returns [String] The template name from front_matter, or `"default"`.

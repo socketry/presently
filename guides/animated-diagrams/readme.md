@@ -68,6 +68,40 @@ const scope = slide.anime()
 
 Presently calls `scope.revert()` when the slide is deactivated. This cancels its animations and restores properties modified through the scope. Additional resources such as audio, observers, and third-party controls should still use `slide.defer()` or `slide.signal`.
 
+## Reuse a Diagram Across Slides
+
+Shared Markdown can define both a diagram and its Anime.js timeline. Mark the reusable setup with a `javascript presently` fence so Presently removes it from the rendered diagram and executes it before the slide-specific script:
+
+```` markdown
+<div class="request-flow">
+  <!-- Shared diagram structure. -->
+</div>
+
+```javascript presently
+slide.anime(({createTimeline}, scope) => {
+  scope.data.timeline = createTimeline({autoplay: false})
+    .label("request")
+    // Define the complete shared choreography.
+})
+```
+````
+
+Include that fragment in each slide:
+
+``` markdown
+![[shared/request-flow.md]]
+```
+
+The ordinary JavaScript block in the slide's presenter notes runs afterward and can select the state appropriate for that slide:
+
+``` javascript
+const timeline = slide.anime().data.timeline
+timeline.seek("request")
+timeline.play()
+```
+
+Every executable block has its own JavaScript lexical scope but receives the same `slide` object. Use the Anime scope's `data` or `methods` properties for intentional communication between shared setup and slide-specific control. All of those resources remain local to the rendered slide and are reverted together when it is deactivated.
+
 ## Design the Static Scene First
 
 Build and style the final diagram before adding animation. Every node should have a stable position, and hidden elements should still reserve the space they require.

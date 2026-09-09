@@ -12,15 +12,17 @@ import {Slide} from './Slide.js';
 // @parameter animated [Boolean] Whether animations are active. Default: true.
 // @returns [Slide | null]
 export function runScript(slideEl, {animated = true} = {}) {
-	const scriptEl = slideEl.querySelector('script[type="text/slide-script"]');
-	if (!scriptEl) return null;
+	const scriptElements = slideEl.querySelectorAll('script[type="text/slide-script"]');
+	if (!scriptElements.length) return null;
 
 	const container = slideEl.querySelector('.slide-body') ?? slideEl;
 	const slide = new Slide(container, {animated});
 
 	try {
-		const fn = new Function('slide', 'setTimeout', scriptEl.textContent);
-		fn(slide, slide.setTimeout.bind(slide));
+		for (const scriptElement of scriptElements) {
+			const fn = new Function('slide', 'setTimeout', scriptElement.textContent);
+			fn(slide, slide.setTimeout.bind(slide));
+		}
 	} catch (error) {
 		console.error('Slide script error:', error);
 	}

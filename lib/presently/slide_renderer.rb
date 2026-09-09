@@ -52,9 +52,9 @@ module Presently
 				builder.tag(:div, class: classes, data: {template: slide.template}, "data-slide-path": path) do
 					builder.raw(html)
 					
-					if slide.script
+					slide.scripts.each do |script|
 						builder.tag(:script, type: "text/slide-script") do
-							builder.raw(slide.script)
+							builder.raw(script)
 						end
 					end
 				end
