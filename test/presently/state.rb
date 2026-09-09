@@ -103,5 +103,19 @@ describe Presently::State do
 			restored = Presently::PresentationController.new(presentation, state: state)
 			expect(restored.current_index).to be == 4
 		end
+		
+		it "does not overwrite state while restoring it" do
+			controller = Presently::PresentationController.new(presentation, state: state)
+			controller.go_to(4)
+			controller.clock.restore!(120.0, running: false)
+			controller.save_state!
+			saved = File.read(path)
+			
+			restored = Presently::PresentationController.new(presentation, state: state)
+			
+			expect(restored.current_index).to be == 4
+			expect(restored.clock.elapsed).to be == 120.0
+			expect(File.read(path)).to be == saved
+		end
 	end
 end

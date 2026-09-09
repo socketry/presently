@@ -7,6 +7,7 @@
   - Prevent slide backgrounds and content from flickering during view transitions.
   - Add lifecycle-managed Anime.js animation scopes, reusable diagram setup scripts, and guidance for authoring animated diagrams.
   - Truncate long slide paths responsively while preserving their filenames in presenter controls.
+  - Preserve the complete saved presentation state when restoring the controller.
 
 ## v0.17.2
 
