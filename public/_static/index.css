@@ -760,6 +760,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	min-width: 0;
 }
 
 .toolbar > button,

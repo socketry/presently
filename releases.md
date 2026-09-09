@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Keep presenter toolbars within the viewport when slide paths are long.
+
 ## v0.19.0
 
   - Keep Anime.js resources created by delayed slide callbacks bound to the slide lifecycle.
