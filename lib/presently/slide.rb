@@ -72,7 +72,7 @@ module Presently
 				raw = File.read(source_path)
 				
 				# Parse once, with native front matter support.
-				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
+				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER | Markly::INLINE_CODE_INFO, extensions: Fragment::EXTENSIONS)
 				
 				expand_includes!(document, File.dirname(source_path), presentation.root)
 				rewrite_image_urls!(document, source_path, presentation.root)
@@ -169,7 +169,7 @@ module Presently
 				to_replace.each do |paragraph, relative_path|
 					included_path = File.expand_path(relative_path, base_dir)
 					included_raw = File.read(included_path)
-					included_document = Markly.parse(included_raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER, extensions: Fragment::EXTENSIONS)
+					included_document = Markly.parse(included_raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER | Markly::INLINE_CODE_INFO, extensions: Fragment::EXTENSIONS)
 					
 					# Strip front matter from included file if present.
 					front_matter_node = included_document.first_child

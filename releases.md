@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Support language-prefixed inline code such as `ruby:` for syntax highlighting.
+
 ## v0.18.0
 
   - Render slides on a responsive 16:9 canvas across the display, presenter, recording, playback, and export interfaces.

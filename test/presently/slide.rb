@@ -280,6 +280,27 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "inline code language prefixes" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "main.md")}
+		
+		before do
+			File.write(path, "Call ruby:`Object.new` to create an object.\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "renders the language as a class" do
+			html = slide.content["body"].to_html
+			expect(html).to be(:include?, '<code class="language-ruby">Object.new</code>')
+			expect(html).not.to be(:include?, "ruby:")
+		end
+	end
+	
 	with "a slide with a nested ![[include]] directive" do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "main.md")}
@@ -287,7 +308,7 @@ describe Presently::Slide do
 		let(:inner_path) {File.join(dir, "inner.md")}
 		
 		before do
-			File.write(inner_path, "Deeply nested content.\n")
+			File.write(inner_path, "Deeply nested ruby:`Object.new` content.\n")
 			File.write(middle_path, "Middle content.\n\n![[inner.md]]\n")
 			File.write(path, "![[middle.md]]\n")
 		end
@@ -301,7 +322,8 @@ describe Presently::Slide do
 		it "recursively expands nested includes" do
 			html = slide.content["body"].to_html
 			expect(html).to be(:include?, "Middle content")
-			expect(html).to be(:include?, "Deeply nested content")
+			expect(html).to be(:include?, "Deeply nested")
+			expect(html).to be(:include?, '<code class="language-ruby">Object.new</code>')
 		end
 	end
 	
