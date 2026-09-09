@@ -3,6 +3,8 @@
 # Released under the MIT License.
 # Copyright, 2026, by Samuel Williams.
 
+require "console"
+
 require_relative "clock"
 require_relative "presentation"
 require_relative "state"
@@ -21,9 +23,9 @@ module Presently
 			@current_index = 0
 			@clock = Clock.new
 			@listeners = []
-			@state = state
 			
-			@state&.restore(self)
+			state&.restore(self)
+			@state = state
 		end
 		
 		# @attribute [Presentation] The underlying presentation data.
