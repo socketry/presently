@@ -25,7 +25,7 @@
 	<body class="export">
 		<?r self.slides.each_with_index do |slide, index| ?>
 		<div class="export-page" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px + (self.notes ? self.page_size.notes_height_px : 0)}px;">
-			<div class="export-slide-area" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px}px;">
+			<div class="export-slide-area slide-viewport" style="width: #{self.page_size.slide_width_px}px; height: #{self.page_size.slide_height_px}px;">
 				#{self.render_slide(slide)}
 			</div>
 			<?r if self.notes ?>

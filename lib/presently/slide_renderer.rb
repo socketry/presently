@@ -46,11 +46,16 @@ module Presently
 			html = template.to_string(scope)
 			
 			classes = [@css_class, extra_class].compact.join(" ")
-			builder.tag(:div, class: classes, data: {template: slide.template}, "data-slide-path": Stylesheet.encode_path(slide.path)) do
-				builder.raw(html)
-				if slide.script
-					builder.tag(:script, type: "text/slide-script") do
-						builder.raw(slide.script)
+			path = Stylesheet.encode_path(slide.path)
+			
+			builder.tag(:div, class: "slide-surface", data: {template: slide.template}, "data-slide-path": path) do
+				builder.tag(:div, class: classes, data: {template: slide.template}, "data-slide-path": path) do
+					builder.raw(html)
+					
+					if slide.script
+						builder.tag(:script, type: "text/slide-script") do
+							builder.raw(slide.script)
+						end
 					end
 				end
 			end

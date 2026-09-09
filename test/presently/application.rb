@@ -56,9 +56,19 @@ describe Presently::Application do
 	
 	it "serves the audience display separately from the home page" do
 		response = application.call(request("GET", "/display"))
+		html = response.read
 		
 		expect(response.status).to be == 200
-		expect(response.read).to be(:include?, "Example slide")
+		expect(html).to be(:include?, "Example slide")
+		expect(html).to be(:include?, 'class="slide-container slide-viewport"')
+	end
+	
+	it "uses responsive slide viewports in the presenter interface" do
+		response = application.call(request("GET", "/presenter"))
+		html = response.read
+		
+		expect(response.status).to be == 200
+		expect(html.scan('class="preview-frame slide-viewport"').size).to be == 2
 	end
 	
 	it "serves the recording interface separately from the presenter" do

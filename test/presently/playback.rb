@@ -40,6 +40,7 @@ describe Presently::Playback do
 			
 			expect(html).to be(:include?, "First slide")
 			expect(html).to be(:include?, "Second slide")
+			expect(html.scan('class="playback-frame slide-viewport"').size).to be == 2
 			expect(html.scan("<audio ").size).to be == 2
 		end
 		

@@ -251,26 +251,28 @@ All slide templates support absolutely positioned elements since the slide conta
 </div>
 ~~~
 
-In the `diagram` template, all direct `<div>` children are `position: absolute` by default, so you can build free-form layouts without repeating the positioning declaration:
+The `diagram` template centers its content by default. For coordinate-based layouts, use a `.diagram-freeform` wrapper; it fills the slide canvas and absolutely positions each direct child:
 
 ~~~ markdown
 ---
 template: diagram
 ---
 
-<div style="left: 10%; top: 20%; width: 35%; height: 30%; background: var(--surface-light);">
-  Node A
-</div>
+<div class="diagram-freeform">
+  <div style="left: 10%; top: 20%; width: 35%; height: 30%; background: var(--surface-light);">
+    Node A
+  </div>
 
-<div style="left: 55%; top: 20%; width: 35%; height: 30%; background: var(--surface-light);">
-  Node B
+  <div style="left: 55%; top: 20%; width: 35%; height: 30%; background: var(--surface-light);">
+    Node B
+  </div>
 </div>
 ~~~
 
 Combine with the scripting system to animate diagram elements into place:
 
 ``` javascript
-const nodes = slide.find("div").builder({group: "node", effect: "fade"})
+const nodes = slide.find(".diagram-freeform > div").builder({group: "node", effect: "fade"})
 nodes.show(0)
 slide
   .after(400, () => nodes.next())

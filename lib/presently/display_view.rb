@@ -60,7 +60,7 @@ module Presently
 			return unless slide
 			
 			builder.tag(:div, class: "display", data: {transition: slide.transition}) do
-				builder.tag(:div, class: "slide-container") do
+				builder.tag(:div, class: "slide-container slide-viewport") do
 					@slide_renderer.render(builder, slide)
 				end
 				

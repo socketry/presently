@@ -1,4 +1,9 @@
 <div class="slide-inner diagram-template">
+	<?r if self.section?("title") ?>
+		<div class="slide-title">
+			#{self.section("title")}
+		</div>
+	<?r end ?>
 	<div class="slide-body">
 		#{self.section("body")}
 	</div>

@@ -30,7 +30,7 @@
 	<body class="playback" data-autoplay="#{self.autoplay}" data-controls="#{self.controls}">
 		<main class="playback-stage">
 			<?r self.slides.each_with_index do |slide, index| ?>
-			<div class="playback-frame" data-index="#{index}" data-transition="#{slide.transition}" data-duration="#{slide.duration}"<?r if index != 0 ?> hidden<?r end ?>>
+			<div class="playback-frame slide-viewport" data-index="#{index}" data-transition="#{slide.transition}" data-duration="#{slide.duration}"<?r if index != 0 ?> hidden<?r end ?>>
 				#{self.render_slide(slide)}
 			</div>
 			<?r end ?>
