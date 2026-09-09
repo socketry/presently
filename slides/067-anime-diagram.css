@@ -9,15 +9,15 @@
 
 .anime-flow-network {
 	display: grid;
-	grid-template-rows: 1fr auto;
+	grid-template-rows: repeat(2, 1fr);
 	align-content: center;
-	gap: 1.4em;
 }
 
 .anime-flow-lane {
 	position: relative;
 	height: 1.5em;
 	margin-inline: 12.5%;
+	align-self: center;
 	border: 0.04em solid rgba(255, 255, 255, 0.12);
 	border-radius: 999px;
 	background: rgba(255, 255, 255, 0.035);
@@ -38,7 +38,7 @@
 .anime-flow-lane-label {
 	position: absolute;
 	left: 50%;
-	top: -1.15em;
+	bottom: calc(100% + 0.4em);
 	color: #99a;
 	font-size: 0.38em;
 	font-weight: 700;
