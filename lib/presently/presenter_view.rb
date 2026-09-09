@@ -151,7 +151,7 @@ module Presently
 					
 					if slide
 						builder.tag(:span, class: "slide-duration") do
-							builder.text("Slide: #{format_duration(slide.duration)}")
+							builder.text("Duration: #{format_duration(slide.duration)}")
 						end
 					end
 					

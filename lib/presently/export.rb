@@ -117,7 +117,7 @@ module Presently
 						builder.text("Elapsed: #{format_duration(elapsed)}")
 					end
 					builder.tag(:span, class: "export-duration") do
-						builder.text("Slide: #{format_duration(slide.duration)}")
+						builder.text("Duration: #{format_duration(slide.duration)}")
 					end
 				end
 				
