@@ -158,6 +158,34 @@ describe Presently::PresentationController do
 		end
 	end
 	
+	with "#save_state!" do
+		it "saves through the configured state" do
+			saved = nil
+			state = Object.new
+			state.define_singleton_method(:restore){|controller|}
+			state.define_singleton_method(:save){|controller| saved = controller}
+			controller = subject.new(presentation, state: state)
+			
+			controller.save_state!
+			
+			expect(saved).to be == controller
+		end
+	end
+	
+	it "continues notifying listeners when one fails" do
+		failed = Object.new
+		failed.define_singleton_method(:slide_changed!){raise "Failed"}
+		notified = false
+		succeeded = Object.new
+		succeeded.define_singleton_method(:slide_changed!){notified = true}
+		controller.add_listener(failed)
+		controller.add_listener(succeeded)
+		
+		controller.advance!
+		
+		expect(notified).to be == true
+	end
+	
 	with "#reload!" do
 		it "reloads slides and notifies listeners" do
 			notified = false

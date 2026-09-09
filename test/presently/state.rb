@@ -68,6 +68,21 @@ describe Presently::State do
 			state.restore(controller)
 			expect(controller.current_index).to be == 0
 		end
+		
+		it "handles save failures gracefully" do
+			state = subject.new(File.join(dir, "missing", "state.json"))
+			controller = Presently::PresentationController.new(presentation)
+			
+			expect(state.save(controller)).to be_nil
+		end
+		
+		it "handles malformed state gracefully" do
+			File.write(path, "not json")
+			controller = Presently::PresentationController.new(presentation)
+			
+			expect(state.restore(controller)).to be_nil
+			expect(controller.current_index).to be == 0
+		end
 	end
 	
 	with "auto-save via controller" do
