@@ -40,7 +40,7 @@
 	left: 50%;
 	bottom: calc(100% + 0.4em);
 	color: #99a;
-	font-size: 0.38em;
+	font-size: 0.5em;
 	font-weight: 700;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -64,7 +64,7 @@
 	gap: 0.35em;
 	border: 0.08em solid color-mix(in srgb, var(--node-color) 70%, transparent);
 	border-radius: 0.35em;
-	background: color-mix(in srgb, var(--node-color) 10%, var(--slide-bg));
+	background: color-mix(in srgb, var(--node-color) 10%, var(--slide-background));
 	box-shadow: 0 0 1.2em color-mix(in srgb, var(--node-color) 12%, transparent);
 	text-align: center;
 }
@@ -90,10 +90,6 @@
 	text-transform: uppercase;
 }
 
-.anime-flow-node strong {
-	font-size: 0.8em;
-}
-
 .anime-flow-packet {
 	position: absolute;
 	z-index: 2;
@@ -113,7 +109,7 @@
 
 .render-packet {
 	left: 100%;
-	background: var(--on-time);
+	background: #2ed573;
 }
 
 .anime-flow-events {
