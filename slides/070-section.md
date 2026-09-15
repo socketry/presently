@@ -8,6 +8,8 @@ speaker: Samuel
 
 # Demo Time
 
+Let's see it running live.
+
 ---
 
 *Switch to the demo browser tab.*
