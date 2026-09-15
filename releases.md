@@ -8,6 +8,10 @@ Slides now use semantic Markdown instead of treating every heading as a named se
 
 Template-specific placeholders are exact, case-sensitive H2 headings: `## Translation`, `## Caption`, `## Left`, and `## Right`. Custom templates should replace `self.section(name)` with `self.extract(name)` before rendering `self.document`; extraction removes that placeholder so it can be positioned independently.
 
+### Slide Scripts
+
+Slide scripts are now exposed only through `Slide#scripts`. Replace the compatibility `Slide#script` accessor and `script:` initializer argument with the ordered `scripts` array.
+
 ## v0.20.1
 
   - Keep presenter toolbars within the viewport when slide paths are long.

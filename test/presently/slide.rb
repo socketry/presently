@@ -238,7 +238,7 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "extracts the script" do
-			expect(slide.script).to be(:include?, "console.log")
+			expect(slide.scripts).to have_value(be(:include?, "console.log"))
 		end
 		
 		it "removes the script block from notes" do
@@ -321,11 +321,6 @@ describe Presently::Slide do
 			expect(slide.scripts.size).to be == 2
 			expect(slide.scripts.first).to be(:include?, 'timeline = "shared"')
 			expect(slide.scripts.last).to be(:include?, "timeline.play()")
-		end
-		
-		it "combines scripts through the compatibility accessor" do
-			expect(slide.script).to be(:include?, 'timeline = "shared"')
-			expect(slide.script).to be(:include?, "timeline.play()")
 		end
 		
 		it "removes the setup script from rendered content" do
