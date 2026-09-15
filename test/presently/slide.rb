@@ -91,7 +91,7 @@ describe Presently::Slide do
 		
 		let(:slide) {load_slide(path)}
 		
-		it "extracts a named heading section from a duplicate document" do
+		it "extracts a named H2 placeholder from a duplicate document" do
 			document = slide.document.dup
 			translation = document.extract("translation")
 			
@@ -102,6 +102,13 @@ describe Presently::Slide do
 			expect(document.to_html).to be(:include?, "A caption")
 			expect(document.to_html).not.to be(:include?, "Translation")
 			expect(slide.document.to_html).to be(:include?, "Translation")
+		end
+		
+		it "does not extract headings at other levels" do
+			document = slide.document.dup
+			
+			expect(document.extract("request lifecycle")).to be_nil
+			expect(document.extract("attribution")).to be_nil
 		end
 	end
 	

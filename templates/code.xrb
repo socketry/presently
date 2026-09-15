@@ -1,6 +1,6 @@
 <?r translation = self.extract("translation") ?>
 <div class="slide-inner code-template">
-	#{self.slide_header(title: self.slide.title)}
+	#{self.slide_header}
 	<div class="code-viewport" data-focus-start="#{self.slide.focus&.first}" data-focus-end="#{self.slide.focus&.last}">
 		<div class="code-scroll">
 			#{self.document}

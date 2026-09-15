@@ -54,13 +54,7 @@ module Presently
 				Markly::Renderer::HTML.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(@node)
 			end
 			
-			# Render the fragment as plain text.
-			# @returns [String] The textual content of the fragment.
-			def to_plaintext
-				@node.to_plaintext
-			end
-			
-			# Extract the content belonging to a named heading.
+			# Extract the content belonging to a named H2 placeholder.
 			#
 			# The matching heading itself is removed. Following nodes are extracted up
 			# to the next heading of the same or a higher level. Lower-level headings
@@ -118,7 +112,7 @@ module Presently
 			def find_heading(name)
 				key = normalize_heading(name)
 				@node.each do |node|
-					return node if node.type == :header && normalize_heading(node.to_plaintext) == key
+					return node if node.type == :header && node.header_level == 2 && normalize_heading(node.to_plaintext) == key
 				end
 				
 				nil

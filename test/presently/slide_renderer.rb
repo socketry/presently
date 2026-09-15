@@ -63,8 +63,22 @@ describe Presently::TemplateScope do
 			expect(header).to be(:include?, '<header class="slide-header">')
 			expect(header).to be(:include?, '<div class="slide-section-heading">')
 			expect(header).to be(:include?, "Architecture")
-			expect(header).to be(:include?, '<h1 class="slide-heading">')
+			expect(header).to be(:include?, "<h1>")
 			expect(header).to be(:include?, "Request lifecycle")
+		end
+	end
+	
+	with "a title named Title" do
+		before do
+			File.write(path, "# Title\n\nMain content.\n")
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "does not treat the H1 as a legacy placeholder" do
+			expect(scope.slide_header).to be(:include?, "<h1>Title</h1>")
+			expect(scope.document).to be(:include?, "Main content")
 		end
 	end
 	
@@ -94,6 +108,21 @@ describe Presently::TemplateScope do
 			expect(body).to be(:include?, "Main content")
 			expect(body).not.to be(:include?, "Translation")
 			expect(slide.document.to_html).to be(:include?, "Translation")
+		end
+	end
+	
+	with "a title matching a placeholder name" do
+		before do
+			File.write(path, "# Translation\n\nMain content.\n")
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "reserves H1 for the semantic slide title" do
+			expect(scope.extract("translation")).to be_nil
+			expect(scope.slide_header).to be(:include?, "<h1>Translation</h1>")
+			expect(scope.document).to be(:include?, "Main content")
 		end
 	end
 	
@@ -172,9 +201,43 @@ describe Presently::SlideRenderer do
 		
 		expect(html).to be(:include?, '<div class="slide-section-heading">')
 		expect(html).to be(:include?, "Architecture")
-		expect(html).to be(:include?, '<h1 class="slide-heading">')
+		expect(html).to be(:include?, "<h1>")
 		expect(html).to be(:include?, "Request lifecycle")
-		expect(html).not.to be(:include?, '<div class="slide-title">')
+	end
+	
+	it "renders a section slide H1 literally" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: section
+			---
+			
+			# Heading
+			
+			Part Two
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, "<h1>Heading</h1>")
+		expect(html).not.to be(:include?, "<h1>Part Two</h1>")
+	end
+	
+	it "does not infer a code slide heading from its filename" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: code
+			---
+			
+			```ruby
+			puts "Hello"
+			```
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).not.to be(:include?, '<header class="slide-header">')
 	end
 	
 	it "renders each slide script separately" do

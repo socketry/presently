@@ -79,7 +79,7 @@ module Presently
 		attr :slide
 		
 		# The content sections of the slide.
-		# @returns [Hash(String, String)] Sections keyed by heading name.
+		# @returns [Hash(String, Slide::Fragment)] Sections keyed by heading name.
 		def content
 			@slide.content
 		end
@@ -90,7 +90,7 @@ module Presently
 			markup(@document)
 		end
 		
-		# Extract and render a named heading section from this render's document.
+		# Extract and render a named H2 placeholder from this render's document.
 		#
 		# Extraction is cached so a template can reference a placeholder more than
 		# once without mutating the document repeatedly.
@@ -118,22 +118,13 @@ module Presently
 			XRB::MarkupString.raw(@slide.content[name]&.to_html || "")
 		end
 		
-		# Render the slide's metadata header using semantic markup.
+		# Render the slide header using semantic markup.
 		# @parameter title [String | Nil] An explicit heading override.
-		# @parameter fallback [String | Nil] A legacy named section to use as the heading.
 		# @returns [XRB::MarkupString] The rendered header, or an empty string when no metadata is present.
-		def slide_header(title: @slide.heading, fallback: "title")
+		def slide_header(title: @slide.heading)
 			section_heading = @slide.section_heading
-			heading = nil
-			
-			if present?(title)
-				# Avoid rendering a Markdown H1 twice when metadata overrides it.
-				@document.extract_heading(1)
-			elsif fallback && (fragment = extract_fragment(fallback)) && !fragment.empty?
-				title = fragment.to_plaintext.strip
-			else
-				heading = @document.extract_heading(1)
-			end
+			heading = @document.extract_heading(1)
+			heading = nil if present?(title)
 			
 			return XRB::MarkupString.raw("") unless present?(section_heading) || present?(title) || heading
 			
@@ -148,7 +139,7 @@ module Presently
 				if heading
 					builder.raw(heading.to_html)
 				elsif present?(title)
-					builder.tag(:h1, class: "slide-heading") do
+					builder.tag(:h1) do
 						builder.text(title.to_s)
 					end
 				end

@@ -74,7 +74,7 @@ These are presenter notes — only visible in the presenter view.
 Each slide has three parts:
 
 1. **YAML frontmatter** between `---` markers at the top, specifying the template, duration, and other metadata.
-2. **Content** with an optional H1 title and any template placeholders, conventionally written as H2 sections.
+2. **Content** with an optional H1 title and any template placeholders written as H2 sections.
 3. **Presenter notes** after a `---` separator in the body (optional).
 
 ### Styling Slides
@@ -414,7 +414,7 @@ service "presently" do
 end
 ```
 
-Templates receive a {ruby Presently::TemplateScope}. `self.document` renders a private copy of the complete slide document, while `self.extract(name)` removes a named heading section from that copy and returns its rendered content. Extract placeholders before rendering the remaining document:
+Templates receive a {ruby Presently::TemplateScope}. `self.document` renders a private copy of the complete slide document, while `self.extract(name)` removes a named H2 placeholder from that copy and returns its rendered content. Extract placeholders before rendering the remaining document:
 
 ``` xrb
 <?r translation = self.extract("translation") ?>

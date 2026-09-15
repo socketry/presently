@@ -1,6 +1,6 @@
 <?r translation = self.extract("translation") ?>
 <div class="slide-inner section-template">
-	#{self.slide_header(fallback: "heading")}
+	#{self.slide_header}
 	<?r if translation ?>
 		<div class="slide-translation">
 			#{translation}
