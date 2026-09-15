@@ -39,6 +39,22 @@ describe Presently::TemplateScope do
 		end
 	end
 	
+	with "section metadata without a title" do
+		before do
+			File.write(path, "---\nsection: Architecture\n---\n\nContent\n")
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "renders a section-only header" do
+			header = scope.slide_header
+			expect(header).to be(:include?, '<div class="slide-section-heading">')
+			expect(header).to be(:include?, "Architecture")
+			expect(header).not.to be(:include?, "<h1>")
+		end
+	end
+	
 	with "front matter title metadata" do
 		before do
 			File.write(path, "---\ntitle: Navigation label\n---\n\nContent\n")
@@ -63,6 +79,24 @@ describe Presently::TemplateScope do
 		it "does not treat the H1 as a legacy placeholder" do
 			expect(scope.slide_header).to be(:include?, "<h1>Title</h1>")
 			expect(scope.document).to be(:include?, "Main content")
+		end
+	end
+	
+	with "a title containing inline markup" do
+		before do
+			File.write(path, "# <span style=\"view-transition-name: welcome-title\">Welcome</span>\n\nMain content.\n")
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "preserves title markup while removing the H1 from the body" do
+			header = scope.slide_header
+			body = scope.document
+			
+			expect(header).to be(:include?, '<h1><span style="view-transition-name: welcome-title">Welcome</span></h1>')
+			expect(body).to be(:include?, "Main content")
+			expect(body).not.to be(:include?, "welcome-title")
 		end
 	end
 	
@@ -92,6 +126,15 @@ describe Presently::TemplateScope do
 			expect(body).to be(:include?, "Main content")
 			expect(body).not.to be(:include?, "Translation")
 			expect(slide.document.to_html).to be(:include?, "Translation")
+		end
+		
+		it "returns the cached placeholder on repeated extraction" do
+			first = scope.extract("Translation")
+			second = scope.extract("Translation")
+			
+			expect(second).to be == first
+			expect(second).to be(:include?, "Translated content")
+			expect(scope.document).not.to be(:include?, "Translation")
 		end
 	end
 	
