@@ -259,7 +259,7 @@ describe Presently::SlideRenderer do
 		expect(html).to be(:include?, '<div class="slide-body">')
 		expect(html).to be(:include?, "A subtitle or tagline.")
 	end
-
+	
 	it "renders image captions from a named placeholder" do
 		File.write(path, <<~MARKDOWN)
 			---
