@@ -41,6 +41,78 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "display metadata" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "test.md")}
+		
+		before do
+			File.write(path, "---\ntitle: Request lifecycle\nsection: Architecture\n---\n\nContent\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "exposes the title and section" do
+			expect(slide.title).to be == "Request lifecycle"
+			expect(slide.section).to be == "Architecture"
+		end
+	end
+	
+	with "document extraction" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "test.md")}
+		
+		before do
+			File.write(path, <<~MARKDOWN)
+				# Request lifecycle
+				
+				Main content.
+				
+				## Translation
+				
+				Translated content.
+				
+				### Attribution
+				
+				A nested section.
+				
+				## Caption
+				
+				A caption.
+			MARKDOWN
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "extracts a named H2 placeholder from a duplicate document" do
+			document = slide.document.dup
+			expect(document.extract("translation")).to be_nil
+			translation = document.extract("Translation")
+			
+			expect(translation.to_html).to be(:include?, "Translated content")
+			expect(translation.to_html).to be(:include?, "Attribution")
+			expect(translation.to_html).not.to be(:include?, "Caption")
+			expect(document.to_html).to be(:include?, "Request lifecycle")
+			expect(document.to_html).to be(:include?, "A caption")
+			expect(document.to_html).not.to be(:include?, "Translation")
+			expect(slide.document.to_html).to be(:include?, "Translation")
+		end
+		
+		it "does not extract headings at other levels" do
+			document = slide.document.dup
+			
+			expect(document.extract("Request lifecycle")).to be_nil
+			expect(document.extract("Attribution")).to be_nil
+		end
+	end
+	
 	with "#marker" do
 		it "reads marker from front_matter" do
 			expect(slide.marker).to be == "Welcome"
@@ -59,13 +131,10 @@ describe Presently::Slide do
 		end
 	end
 	
-	with "#content" do
-		it "parses headings into named sections" do
-			expect(slide.content).to have_keys("title", "subtitle")
-		end
-		
-		it "renders markdown to HTML" do
-			expect(slide.content["title"].to_html).to be(:include?, "Welcome to Presently")
+	with "#document" do
+		it "retains the semantic slide title" do
+			expect(slide.document.to_html).to be(:include?, "<h1>")
+			expect(slide.document.to_html).to be(:include?, "Welcome to Presently")
 		end
 	end
 	
@@ -125,9 +194,12 @@ describe Presently::Slide do
 			expect(slide.title).to be == "test"
 		end
 		
-		it "puts content in body section" do
-			expect(slide.content).to have_keys("body")
-			expect(slide.content["body"].to_html).to be(:include?, "Just some content")
+		it "has no section" do
+			expect(slide.section).to be_nil
+		end
+		
+		it "preserves the slide document" do
+			expect(slide.document.to_html).to be(:include?, "Just some content")
 		end
 	end
 	
@@ -146,7 +218,7 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "separates content from notes" do
-			expect(slide.content["body"].to_html).to be(:include?, "Content here")
+			expect(slide.document.to_html).to be(:include?, "Content here")
 			expect(slide.notes.to_commonmark).to be(:include?, "These are notes")
 		end
 	end
@@ -193,19 +265,22 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "expands the include into the document" do
-			expect(slide.content).to have_keys("before", "included", "after")
+			html = slide.document.to_html
+			expect(html).to be(:include?, "<h1>Before</h1>")
+			expect(html).to be(:include?, "<h1>Included</h1>")
+			expect(html).to be(:include?, "<h1>After</h1>")
 		end
 		
 		it "preserves content before the include" do
-			expect(slide.content["before"].to_html).to be(:include?, "Intro text")
+			expect(slide.document.to_html).to be(:include?, "Intro text")
 		end
 		
 		it "inlines the included content" do
-			expect(slide.content["included"].to_html).to be(:include?, "This content was included")
+			expect(slide.document.to_html).to be(:include?, "This content was included")
 		end
 		
 		it "preserves content after the include" do
-			expect(slide.content["after"].to_html).to be(:include?, "Trailing text")
+			expect(slide.document.to_html).to be(:include?, "Trailing text")
 		end
 	end
 	
@@ -254,7 +329,7 @@ describe Presently::Slide do
 		end
 		
 		it "removes the setup script from rendered content" do
-			html = slide.content["body"].to_html
+			html = slide.document.to_html
 			expect(html).to be(:include?, "Shared diagram")
 			expect(html).not.to be(:include?, "timeline")
 		end
@@ -276,7 +351,7 @@ describe Presently::Slide do
 		
 		it "renders rather than executes the example" do
 			expect(slide.scripts).to be(:empty?)
-			expect(slide.content["body"].to_html).to be(:include?, "console.log")
+			expect(slide.document.to_html).to be(:include?, "console.log")
 		end
 	end
 	
@@ -295,7 +370,7 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "renders the language as a class" do
-			html = slide.content["body"].to_html
+			html = slide.document.to_html
 			expect(html).to be(:include?, '<code class="language-ruby">Object.new</code>')
 			expect(html).not.to be(:include?, "ruby:")
 		end
@@ -305,7 +380,7 @@ describe Presently::Slide do
 		let(:dir) {Dir.mktmpdir}
 		let(:path) {File.join(dir, "main.md")}
 		let(:slide) {load_slide(path)}
-		let(:html) {slide.content["body"].to_html}
+		let(:html) {slide.document.to_html}
 		
 		after do
 			FileUtils.remove_entry(dir)
@@ -359,7 +434,7 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "recursively expands nested includes" do
-			html = slide.content["body"].to_html
+			html = slide.document.to_html
 			expect(html).to be(:include?, "Middle content")
 			expect(html).to be(:include?, "Deeply nested")
 			expect(html).to be(:include?, '<code class="language-ruby">Object.new</code>')
@@ -383,7 +458,7 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "strips front matter from the included file" do
-			html = slide.content["body"].to_html
+			html = slide.document.to_html
 			expect(html).to be(:include?, "Shared body")
 			expect(html).not.to be(:include?, "Ignored")
 		end
@@ -408,7 +483,7 @@ describe Presently::Slide do
 		end
 		
 		let(:slide) {Presently::Presentation.new(dir).slides.first}
-		let(:html) {slide.content["body"].to_html}
+		let(:html) {slide.document.to_html}
 		
 		it "resolves local images relative to the slide source" do
 			expect(html).to be(:include?, 'src="/_slides/010-section/diagram.svg"')
@@ -439,7 +514,7 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "resolves the image relative to the included source" do
-			expect(slide.content["body"].to_html).to be(:include?, 'src="/_slides/shared/images/diagram.svg"')
+			expect(slide.document.to_html).to be(:include?, 'src="/_slides/shared/images/diagram.svg"')
 		end
 	end
 	

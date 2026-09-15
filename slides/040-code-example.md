@@ -2,10 +2,11 @@
 template: code
 duration: 60
 focus: 2-10
-title: Initialization
 marker: Code Walkthrough
 speaker: Samuel
 ---
+
+# Initialization
 
 ```ruby
 class Presentation
@@ -66,7 +67,7 @@ class Presentation
 end
 ```
 
-# Translation
+## Translation
 
 これは Presently の核心部分です — `Presentation` クラス。コンストラクタはスライドのディレクトリを受け取り、初期状態を設定してから `load_slides!` を呼び出してディスク上の Markdown ファイルをすべて読み込みます。タイミングを追跡する `Clock` が作成され、リスナー配列がオブザーバーパターンのために用意されます。
 

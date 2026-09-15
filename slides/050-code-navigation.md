@@ -2,9 +2,10 @@
 template: code
 duration: 60
 focus: 20-26
-title: Navigation
 speaker: Samuel
 ---
+
+# Navigation
 
 ```ruby
 class Presentation

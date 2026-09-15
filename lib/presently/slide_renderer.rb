@@ -64,36 +64,75 @@ module Presently
 	
 	# Provides the scope for XRB template rendering.
 	#
-	# Templates access slide content via `self.section(name)` and slide metadata via `self.slide`.
+	# Templates selectively extract placeholders with `self.extract(name)` and render the remainder
+	# with `self.document`.
 	class TemplateScope
 		# Initialize a new template scope for the given slide.
 		# @parameter slide [Slide] The slide being rendered.
 		def initialize(slide)
 			@slide = slide
+			@document = slide.document.dup
+			@extracted = {}
 		end
 		
 		# @attribute [Slide] The slide being rendered.
 		attr :slide
 		
-		# The content sections of the slide.
-		# @returns [Hash(String, String)] Sections keyed by heading name.
-		def content
-			@slide.content
+		# Render the remaining slide document after placeholder extraction.
+		# @returns [XRB::MarkupString] The remaining document as HTML.
+		def document
+			markup(@document)
 		end
 		
-		# Whether the named content section exists and has content.
-		# @parameter name [String] The section name (derived from the Markdown heading).
-		# @returns [Boolean]
-		def section?(name)
-			fragment = @slide.content[name]
-			fragment && !fragment.empty?
+		# Extract and render a named H2 placeholder from this render's document.
+		#
+		# Extraction is cached so a template can reference a placeholder more than
+		# once without mutating the document repeatedly.
+		# @parameter name [String] The heading name to extract.
+		# @returns [XRB::MarkupString | Nil] The extracted HTML, or `nil` when absent.
+		def extract(name)
+			fragment = extract_fragment(name)
+			return unless fragment && !fragment.empty?
+			
+			markup(fragment)
 		end
 		
-		# Get a named content section as raw HTML markup.
-		# @parameter name [String] The section name (derived from the Markdown heading).
-		# @returns [XRB::MarkupString] The rendered HTML content, safe for embedding.
-		def section(name)
-			XRB::MarkupString.raw(@slide.content[name]&.to_html || "")
+		# Render the slide header using semantic markup.
+		# @returns [XRB::MarkupString] The rendered header, or an empty string when no metadata is present.
+		def slide_header
+			section = @slide.section
+			heading = @document.extract_heading(1)
+			
+			return XRB::MarkupString.raw("") unless present?(section) || heading
+			
+			builder = XRB::Builder.new
+			builder.tag(:header, class: "slide-header") do
+				if present?(section)
+					builder.tag(:div, class: "slide-section-heading") do
+						builder.text(section.to_s)
+					end
+				end
+				
+				builder.raw(heading.to_html) if heading
+			end
+			
+			XRB::MarkupString.raw(builder.to_s)
+		end
+		
+		private
+		
+		def extract_fragment(name)
+			return @extracted[name] if @extracted.key?(name)
+			
+			@extracted[name] = @document.extract(name)
+		end
+		
+		def markup(fragment)
+			XRB::MarkupString.raw(fragment&.to_html || "")
+		end
+		
+		def present?(value)
+			value && !value.to_s.empty?
 		end
 	end
 end

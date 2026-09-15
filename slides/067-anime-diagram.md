@@ -6,11 +6,7 @@ transition: fade
 speaker: Samuel
 ---
 
-# Title
-
-Coordinated animation with Anime.js
-
-# Body
+# Coordinated animation with Anime.js
 
 <div class="anime-flow" role="img" aria-label="A next-slide event travels from Live.js through Live and Lively to Presently, then a rendered slide update returns to Live.js.">
   <div class="anime-flow-network">
