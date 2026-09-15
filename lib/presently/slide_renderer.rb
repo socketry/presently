@@ -98,14 +98,12 @@ module Presently
 		end
 		
 		# Render the slide header using semantic markup.
-		# @parameter title [String | Nil] An explicit heading override.
 		# @returns [XRB::MarkupString] The rendered header, or an empty string when no metadata is present.
-		def slide_header(title: @slide.front_matter&.fetch("title", nil))
+		def slide_header
 			section = @slide.section
 			heading = @document.extract_heading(1)
-			heading = nil if present?(title)
 			
-			return XRB::MarkupString.raw("") unless present?(section) || present?(title) || heading
+			return XRB::MarkupString.raw("") unless present?(section) || heading
 			
 			builder = XRB::Builder.new
 			builder.tag(:header, class: "slide-header") do
@@ -115,13 +113,7 @@ module Presently
 					end
 				end
 				
-				if heading
-					builder.raw(heading.to_html)
-				elsif present?(title)
-					builder.tag(:h1) do
-						builder.text(title.to_s)
-					end
-				end
+				builder.raw(heading.to_html) if heading
 			end
 			
 			XRB::MarkupString.raw(builder.to_s)

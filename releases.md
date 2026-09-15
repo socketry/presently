@@ -4,7 +4,7 @@
 
 ### Semantic Slides
 
-Slides now use semantic Markdown instead of treating every heading as a named section. Use a single H1 for the slide title, write the body directly after it, and replace structural sections such as `# Title`, `# Body`, `# Subtitle`, and `# Heading` with ordinary title and body content. For example, replace `# Title` followed by the title text with `# The actual title`.
+Slides now use semantic Markdown instead of treating every heading as a named section. Use a single H1 for the slide title, write the body directly after it, and replace structural sections such as `# Title`, `# Body`, `# Subtitle`, and `# Heading` with ordinary title and body content. For example, replace `# Title` followed by the title text with `# The actual title`, and move any display title from front matter into the H1.
 
 Template-specific placeholders are exact, case-sensitive H2 headings: `## Translation`, `## Caption`, `## Left`, and `## Right`. Custom templates should replace `self.section(name)` with `self.extract(name)` before rendering `self.document`; extraction removes that placeholder so it can be positioned independently.
 

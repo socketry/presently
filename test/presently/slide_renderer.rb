@@ -23,7 +23,7 @@ describe Presently::TemplateScope do
 	
 	with "slide header metadata" do
 		before do
-			File.write(path, "---\ntitle: Request lifecycle\nsection: Architecture\n---\n\nContent\n")
+			File.write(path, "---\nsection: Architecture\n---\n\n# Request lifecycle\n\nContent\n")
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -36,6 +36,19 @@ describe Presently::TemplateScope do
 			expect(header).to be(:include?, "Architecture")
 			expect(header).to be(:include?, "<h1>")
 			expect(header).to be(:include?, "Request lifecycle")
+		end
+	end
+	
+	with "front matter title metadata" do
+		before do
+			File.write(path, "---\ntitle: Navigation label\n---\n\nContent\n")
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "does not use metadata as the displayed heading" do
+			expect(scope.slide_header).to be == ""
 		end
 	end
 	
@@ -148,9 +161,10 @@ describe Presently::SlideRenderer do
 		File.write(path, <<~MARKDOWN)
 			---
 			template: diagram
-			title: Request lifecycle
 			section: Architecture
 			---
+			
+			# Request lifecycle
 			
 			<div>Diagram</div>
 		MARKDOWN

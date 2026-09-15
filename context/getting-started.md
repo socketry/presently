@@ -275,8 +275,9 @@ A syntax-highlighted code slide with optional focus regions for code walkthrough
 template: code
 duration: 60
 focus: 2-8
-title: Constructor
 ---
+
+# Constructor
 
 ```ruby
 class Presentation
