@@ -51,7 +51,6 @@ html, body {
 
 .slide {
 	--slide-font-size: 2.2cqi;
-	--slide-font-body: 1em;
 	--slide-font-title: 1.8em;
 	--slide-font-heading: 1.6em;
 	--slide-font-statement: 1.5em;
@@ -116,8 +115,6 @@ html, body {
 
 /* Default template */
 .default-template .slide-body {
-	font-size: var(--slide-font-body);
-	line-height: 1.5;
 	width: 100%;
 }
 
@@ -152,7 +149,6 @@ html, body {
 }
 
 .title-template .slide-body {
-	font-size: var(--slide-font-body);
 	opacity: 0.7;
 }
 
@@ -174,13 +170,11 @@ html, body {
 }
 
 .section-template .slide-header > h1 {
-	font-size: var(--slide-font-heading);
 	font-weight: 700;
 }
 
 .section-template .slide-body {
 	margin-top: calc(var(--slide-gap) * 0.75);
-	font-size: var(--slide-font-body);
 	opacity: 0.7;
 }
 
@@ -230,10 +224,6 @@ html, body {
 }
 
 /* Diagram template */
-.diagram-template {
-	padding: var(--slide-gutter);
-}
-
 .diagram-template .slide-header {
 	text-align: center;
 }
@@ -433,8 +423,6 @@ mermaid-diagram {
 /* Fullscreen template */
 .fill-template {
 	padding: 0;
-	width: 100%;
-	height: 100%;
 }
 
 .fill-template .slide-header {
