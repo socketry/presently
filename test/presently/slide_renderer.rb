@@ -21,35 +21,6 @@ describe Presently::TemplateScope do
 		FileUtils.remove_entry(dir)
 	end
 	
-	with "a slide with named sections" do
-		before do
-			File.write(path, "# Title\n\nHello World\n\n# Subtitle\n\nA tagline\n")
-		end
-		
-		let(:slide) {load_slide(path)}
-		let(:scope) {Presently::TemplateScope.new(slide)}
-		
-		it "renders a section to HTML" do
-			expect(scope.section("Title")).to be(:include?, "Hello World")
-		end
-		
-		it "exposes the slide content" do
-			expect(scope.content).to be == slide.content
-		end
-		
-		it "returns true for section? when section exists" do
-			expect(scope.section?("Title")).to be_truthy
-		end
-		
-		it "returns nil for section? when section is missing" do
-			expect(scope.section?("missing")).to be_nil
-		end
-		
-		it "returns empty string for missing section" do
-			expect(scope.section("missing")).to be == ""
-		end
-	end
-	
 	with "slide header metadata" do
 		before do
 			File.write(path, "---\ntitle: Request lifecycle\nsection: Architecture\n---\n\nContent\n")
@@ -126,18 +97,6 @@ describe Presently::TemplateScope do
 		end
 	end
 	
-	with "a slide with no sections" do
-		before do
-			File.write(path, "Just some content\n")
-		end
-		
-		let(:slide) {load_slide(path)}
-		let(:scope) {Presently::TemplateScope.new(slide)}
-		
-		it "returns nil for any section?" do
-			expect(scope.section?("Title")).to be_nil
-		end
-	end
 end
 
 describe Presently::SlideRenderer do

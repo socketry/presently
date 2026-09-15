@@ -64,8 +64,8 @@ module Presently
 	
 	# Provides the scope for XRB template rendering.
 	#
-	# Templates selectively extract placeholders with `self.extract(name)`, render the remainder
-	# with `self.document`, and can access legacy sections with `self.section(name)`.
+	# Templates selectively extract placeholders with `self.extract(name)` and render the remainder
+	# with `self.document`.
 	class TemplateScope
 		# Initialize a new template scope for the given slide.
 		# @parameter slide [Slide] The slide being rendered.
@@ -77,12 +77,6 @@ module Presently
 		
 		# @attribute [Slide] The slide being rendered.
 		attr :slide
-		
-		# The content sections of the slide.
-		# @returns [Hash(String, Slide::Fragment)] Sections keyed by exact heading text.
-		def content
-			@slide.content
-		end
 		
 		# Render the remaining slide document after placeholder extraction.
 		# @returns [XRB::MarkupString] The remaining document as HTML.
@@ -103,36 +97,21 @@ module Presently
 			markup(fragment)
 		end
 		
-		# Whether the named content section exists and has content.
-		# @parameter name [String] The exact Markdown heading text.
-		# @returns [Boolean]
-		def section?(name)
-			fragment = @slide.content[name]
-			fragment && !fragment.empty?
-		end
-		
-		# Get a named content section as raw HTML markup.
-		# @parameter name [String] The exact Markdown heading text.
-		# @returns [XRB::MarkupString] The rendered HTML content, safe for embedding.
-		def section(name)
-			XRB::MarkupString.raw(@slide.content[name]&.to_html || "")
-		end
-		
 		# Render the slide header using semantic markup.
 		# @parameter title [String | Nil] An explicit heading override.
 		# @returns [XRB::MarkupString] The rendered header, or an empty string when no metadata is present.
-		def slide_header(title: @slide.heading)
-			section_heading = @slide.section_heading
+		def slide_header(title: @slide.front_matter&.fetch("title", nil))
+			section = @slide.section
 			heading = @document.extract_heading(1)
 			heading = nil if present?(title)
 			
-			return XRB::MarkupString.raw("") unless present?(section_heading) || present?(title) || heading
+			return XRB::MarkupString.raw("") unless present?(section) || present?(title) || heading
 			
 			builder = XRB::Builder.new
 			builder.tag(:header, class: "slide-header") do
-				if present?(section_heading)
+				if present?(section)
 					builder.tag(:div, class: "slide-section-heading") do
-						builder.text(section_heading.to_s)
+						builder.text(section.to_s)
 					end
 				end
 				

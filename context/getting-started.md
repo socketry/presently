@@ -426,7 +426,7 @@ Templates receive a {ruby Presently::TemplateScope}. `self.document` renders a p
 <?r end ?>
 ```
 
-Extraction stops at the next heading of the same or a higher level, so lower-level headings remain inside the extracted fragment. Only placeholders requested by the template are removed; other headings remain ordinary document content. Existing custom templates can continue using `self.section(name)` to access the legacy key-to-fragment section map.
+Extraction stops at the next heading of the same or a higher level, so lower-level headings remain inside the extracted fragment. Placeholder names are case-sensitive and must match the heading text exactly. Only placeholders requested by the template are removed; other headings remain ordinary document content.
 
 ## Customizing the Application
 

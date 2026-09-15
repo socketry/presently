@@ -56,7 +56,7 @@ describe Presently::Presentation do
 			end
 			
 			it "requires every path component to have a numeric prefix" do
-				contents = presentation.slides.map{|slide| slide.content.fetch("body").to_commonmark}
+				contents = presentation.slides.map{|slide| slide.document.to_commonmark}
 				expect(contents).not.to have_value(be(:include?, "Not a slide"))
 			end
 		end
