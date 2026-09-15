@@ -62,8 +62,6 @@ duration: 30
 
 # Welcome to My Talk
 
-## Subtitle
-
 A presentation built with Presently
 
 ---
@@ -211,7 +209,7 @@ duration: 60
 
 ### Title
 
-A large title with a subtitle, centered on the slide.
+A large title with a short body, centered on the slide.
 
 ``` markdown
 ---
@@ -220,8 +218,6 @@ duration: 30
 ---
 
 # My Presentation Title
-
-## Subtitle
 
 A subtitle or tagline
 ```

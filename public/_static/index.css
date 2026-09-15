@@ -151,12 +151,12 @@ html, body {
 	font-size: var(--slide-font-title);
 }
 
-.title-template .slide-subtitle {
+.title-template .slide-body {
 	font-size: var(--slide-font-body);
 	opacity: 0.7;
 }
 
-.title-template .slide-subtitle p {
+.title-template .slide-body p {
 	margin: 0;
 }
 

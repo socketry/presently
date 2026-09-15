@@ -7,8 +7,6 @@ speaker: Samuel
 
 # Thank You!
 
-## Subtitle
-
 Questions?
 
 ---

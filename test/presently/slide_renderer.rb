@@ -240,6 +240,24 @@ describe Presently::SlideRenderer do
 		expect(html).not.to be(:include?, '<header class="slide-header">')
 	end
 	
+	it "renders the title slide document as its body" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: title
+			---
+			
+			# My Presentation
+			
+			A subtitle or tagline.
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, '<div class="slide-body">')
+		expect(html).to be(:include?, "A subtitle or tagline.")
+	end
+	
 	it "renders each slide script separately" do
 		File.write(path, <<~MARKDOWN)
 			```javascript presently

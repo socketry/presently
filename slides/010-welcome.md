@@ -7,8 +7,6 @@ speaker: Samuel
 
 # <span style="view-transition-name: welcome-title">Welcome to Presently</span>
 
-## Subtitle
-
 A web-based presentation tool built with Lively
 
 ---
