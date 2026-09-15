@@ -36,8 +36,8 @@ describe Presently::Slide do
 	end
 	
 	with "#title" do
-		it "uses filename when not set in front_matter" do
-			expect(slide.title).to be == "010-welcome"
+		it "uses the semantic H1 text" do
+			expect(slide.title).to be == "Welcome to Presently"
 		end
 	end
 	
@@ -58,6 +58,25 @@ describe Presently::Slide do
 		it "exposes the title and section" do
 			expect(slide.title).to be == "Request lifecycle"
 			expect(slide.section).to be == "Architecture"
+		end
+	end
+	
+	with "an H1 and title metadata" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "test.md")}
+		
+		before do
+			File.write(path, "---\ntitle: Navigation label\n---\n\n# Display title\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "prefers the semantic H1" do
+			expect(slide.title).to be == "Display title"
 		end
 	end
 	

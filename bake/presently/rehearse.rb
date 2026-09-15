@@ -82,7 +82,7 @@ def rehearse(slides_root: "slides", speaker: nil, from: nil, to: nil, resume: fa
 	offset = prior_records.length
 	slides.each_with_index do |slide, index|
 		relative_path = slide.path
-		headline = extract_headline(slide)
+		headline = slide.title
 		absolute = offset + index + 1
 		total = offset + slides.length
 		
@@ -198,14 +198,6 @@ end
 private
 
 UPDATE_THRESHOLD = 1.0
-
-def extract_headline(slide)
-	body = slide.content["body"]
-	return slide.title unless body && !body.empty?
-	
-	first_line = body.to_commonmark.strip.lines.first.to_s.strip
-	first_line.empty? ? slide.title : first_line
-end
 
 def print_report(records, log_path)
 	planned_total = records.sum{|record| record[:planned]}

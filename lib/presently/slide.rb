@@ -107,6 +107,17 @@ module Presently
 			
 			alias to_s to_commonmark
 			
+			# Return the plain text of the first heading at the given level.
+			# @parameter level [Integer] The Markdown heading level.
+			# @returns [String | Nil] The heading text, or `nil` when not found.
+			def heading_text(level = 1)
+				@node.each do |node|
+					if node.type == :header && node.header_level == level
+						return node.dup.extract_children.to_plaintext
+					end
+				end
+			end
+			
 			private
 			
 			def find_heading(name)
@@ -344,9 +355,9 @@ module Presently
 		end
 		
 		# The title of this slide.
-		# @returns [String] The title from front_matter, or the filename without extension.
+		# @returns [String] The H1 text, front matter title, or filename without extension.
 		def title
-			@front_matter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
+			@document.heading_text(1) || @front_matter&.fetch("title", nil) || File.basename(@path, ".md")
 		end
 		
 		# The section name for this slide.
