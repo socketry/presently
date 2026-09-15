@@ -37,6 +37,18 @@ describe Presently::TemplateScope do
 			expect(header).to be(:include?, "<h1>")
 			expect(header).to be(:include?, "Request lifecycle")
 		end
+		
+		it "extracts the title before the document is rendered" do
+			expect(scope.document).not.to be(:include?, "<h1>")
+			expect(scope.slide_header).to be(:include?, "<h1>Request lifecycle</h1>")
+		end
+		
+		it "renders the same header repeatedly" do
+			first = scope.slide_header
+			second = scope.slide_header
+			
+			expect(second).to be == first
+		end
 	end
 	
 	with "section metadata without a title" do

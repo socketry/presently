@@ -415,10 +415,11 @@ service "presently" do
 end
 ```
 
-Templates receive a {ruby Presently::TemplateScope}. `self.document` renders a private copy of the complete slide document, while `self.extract(name)` removes an H2 placeholder with that exact heading text from the copy and returns its rendered content. Extract placeholders before rendering the remaining document:
+Templates receive a {ruby Presently::TemplateScope}. `self.slide_header` renders the semantic H1 title and optional section metadata, while `self.document` renders the remaining slide body. `self.extract(name)` removes an H2 placeholder with that exact heading text from the body and returns its rendered content. Extract placeholders before rendering the remaining document:
 
 ``` xrb
 <?r translation = self.extract("Translation") ?>
+#{self.slide_header}
 <div class="slide-body">
 	#{self.document}
 </div>

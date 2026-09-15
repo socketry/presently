@@ -72,13 +72,14 @@ module Presently
 		def initialize(slide)
 			@slide = slide
 			@document = slide.document.dup
+			@heading = @document.extract_heading(1)
 			@extracted = {}
 		end
 		
 		# @attribute [Slide] The slide being rendered.
 		attr :slide
 		
-		# Render the remaining slide document after placeholder extraction.
+		# Render the slide body after title and placeholder extraction.
 		# @returns [XRB::MarkupString] The remaining document as HTML.
 		def document
 			markup(@document)
@@ -101,9 +102,8 @@ module Presently
 		# @returns [XRB::MarkupString] The rendered header, or an empty string when no metadata is present.
 		def slide_header
 			section = @slide.section
-			heading = @document.extract_heading(1)
 			
-			return XRB::MarkupString.raw("") unless present?(section) || heading
+			return XRB::MarkupString.raw("") unless present?(section) || @heading
 			
 			builder = XRB::Builder.new
 			builder.tag(:header, class: "slide-header") do
@@ -113,7 +113,7 @@ module Presently
 					end
 				end
 				
-				builder.raw(heading.to_html) if heading
+				builder.raw(@heading.to_html) if @heading
 			end
 			
 			XRB::MarkupString.raw(builder.to_s)
