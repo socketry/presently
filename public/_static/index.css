@@ -109,9 +109,6 @@ html, body {
 .slide-header {
 	flex: none;
 	width: 100%;
-	padding: 0;
-	background: none;
-	border: 0;
 	margin-bottom: var(--slide-gap);
 }
 
