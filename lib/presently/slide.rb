@@ -111,7 +111,7 @@ module Presently
 			
 			def find_heading(name)
 				@node.each do |node|
-					return node if node.type == :header && node.header_level == 2 && node.to_plaintext.chomp == name
+					return node if node.type == :header && node.header_level == 2 && node.dup.extract_children.to_plaintext == name
 				end
 				
 				nil
@@ -289,7 +289,7 @@ module Presently
 				document.each do |node|
 					if node.type == :header
 						sections[current_key] = Fragment.new(current_node) unless current_node.first_child.nil?
-						current_key = node.to_plaintext.chomp
+						current_key = node.dup.extract_children.to_plaintext
 						current_node = Markly::Node.new(:document)
 					else
 						current_node.append_child(node.dup)
