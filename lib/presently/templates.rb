@@ -24,7 +24,7 @@ module Presently
 		end
 		
 		# Initialize with a fully-resolved root list.
-		# Prefer {.build} for normal use; use this when you already have the complete list.
+		# Prefer {.for} for normal use; use this when you already have the complete list.
 		# @parameter roots [Array(String)] The complete ordered list of directories to search.
 		def initialize(roots = [DEFAULT_ROOT])
 			@roots = roots
