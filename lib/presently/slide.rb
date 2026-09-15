@@ -123,7 +123,16 @@ module Presently
 		# Handles YAML front_matter extraction, presenter note separation, and
 		# Markdown AST construction via Markly.
 		module Parser
+			FLAGS = Markly::UNSAFE | Markly::FRONT_MATTER | Markly::INLINE_CODE_INFO | Markly::HTML_BLOCK_BLANK_LINES
+			
 			module_function
+			
+			# Parse slide Markdown with the standard flags and extensions.
+			# @parameter source [String] The Markdown source.
+			# @returns [Markly::Node] The parsed document.
+			def parse(source)
+				Markly.parse(source, flags: FLAGS, extensions: Fragment::EXTENSIONS)
+			end
 			
 			# Parse the file and return a {Slide}.
 			# @parameter presentation [Presentation] The presentation which owns the slide.
@@ -134,7 +143,7 @@ module Presently
 				raw = File.read(source_path)
 				
 				# Parse once, with native front matter support.
-				document = Markly.parse(raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER | Markly::INLINE_CODE_INFO | Markly::HTML_BLOCK_BLANK_LINES, extensions: Fragment::EXTENSIONS)
+				document = parse(raw)
 				
 				expand_includes!(document, File.dirname(source_path), presentation.root)
 				rewrite_image_urls!(document, source_path, presentation.root)
@@ -229,7 +238,7 @@ module Presently
 				to_replace.each do |paragraph, relative_path|
 					included_path = File.expand_path(relative_path, base_dir)
 					included_raw = File.read(included_path)
-					included_document = Markly.parse(included_raw, flags: Markly::UNSAFE | Markly::FRONT_MATTER | Markly::INLINE_CODE_INFO | Markly::HTML_BLOCK_BLANK_LINES, extensions: Fragment::EXTENSIONS)
+					included_document = parse(included_raw)
 					
 					# Strip front matter from included file if present.
 					front_matter_node = included_document.first_child
