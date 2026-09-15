@@ -12,6 +12,11 @@ Template-specific placeholders are exact, case-sensitive H2 headings: `## Transl
 
 Slide scripts are now exposed only through `Slide#scripts`. Replace the compatibility `Slide#script` accessor and `script:` initializer argument with the ordered `scripts` array.
 
+### Styling
+
+  - Rename the slide background customization property from `--slide-bg` to `--slide-background`.
+  - Add `--slide-font-diagram`, defaulting to `0.75em`, for controlling diagram content independently from normal body text.
+
 ## v0.20.1
 
   - Keep presenter toolbars within the viewport when slide paths are long.

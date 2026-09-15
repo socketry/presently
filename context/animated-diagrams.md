@@ -192,7 +192,7 @@ Use semantic classes and CSS custom properties so that meaning remains separate 
 .diagram-node {
   --node-color: var(--accent);
   border: 0.08em solid var(--node-color);
-  background: color-mix(in srgb, var(--node-color) 10%, var(--slide-bg));
+  background: color-mix(in srgb, var(--node-color) 10%, var(--slide-background));
 }
 
 .diagram-node[data-tone="storage"] {

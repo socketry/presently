@@ -4,16 +4,12 @@
 }
 
 :root {
-	--slide-bg: #1a1a2e;
+	--slide-background: #1a1a2e;
 	--slide-text: #eee;
 	--accent: #e94560;
 	--accent-light: #ff6b81;
 	--surface: #16213e;
 	--surface-light: #0f3460;
-	--on-time: #2ed573;
-	--behind: #ff4757;
-	--ahead: #ffa502;
-	--control-height: 2.25rem;
 	--font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
 	--font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
@@ -46,20 +42,42 @@ html, body {
 	display: grid;
 	place-items: center;
 	container-type: size;
-	background: var(--slide-bg);
+	background: var(--slide-background);
 }
 
 .slide {
+	/* Base font size inherited by all slide content. */
 	--slide-font-size: 2.2cqi;
+
+	/* Heading size used by the title template. */
 	--slide-font-title: 1.8em;
+	
+	/* Heading size used by standard slide headers. */
 	--slide-font-heading: 1.6em;
+	
+	/* Primary text size used by the statement template. */
 	--slide-font-statement: 1.5em;
+	
+	/* Supporting text size used by captions, translations, and compact headings. */
 	--slide-font-secondary: 0.8em;
-	--slide-font-column: 0.84em;
+	
+	/* Content size used within each column of the two-column template. */
+	--slide-font-column: 0.85em;
+	
+	/* Preformatted code size used by the code template. */
 	--slide-font-code: 0.75em;
-	--slide-gutter: 3.333cqi;
-	--slide-gap: 1.667cqi;
-	--slide-radius: 0.417cqi;
+	
+	/* Content size used by the diagram template. */
+	--slide-font-diagram: 0.75em;
+	
+	/* Space between the slide edge and its content. */
+	--slide-gutter: 3cqi;
+	
+	/* Base spacing between major elements within a slide. */
+	--slide-gap: 1.5cqi;
+	
+	/* Corner radius used by framed slide content such as images and code. */
+	--slide-radius: 0.4cqi;
 	
 	flex: none;
 	width: 100cqw;
@@ -91,9 +109,6 @@ html, body {
 .slide-header {
 	flex: none;
 	width: 100%;
-	padding: 0;
-	background: none;
-	border: 0;
 	margin-bottom: var(--slide-gap);
 }
 
@@ -234,6 +249,7 @@ html, body {
 	place-items: center;
 	width: 100%;
 	min-height: 0;
+	font-size: var(--slide-font-diagram);
 }
 
 .diagram-template .diagram-freeform {
@@ -244,7 +260,6 @@ html, body {
 
 .diagram-template .diagram-freeform > * {
 	position: absolute;
-	box-sizing: border-box;
 }
 
 /* Image template */
@@ -268,6 +283,122 @@ html, body {
 	border-radius: var(--slide-radius);
 }
 
+/* Statement template */
+.statement-template {
+	text-align: center;
+	gap: var(--slide-gap);
+}
+
+.statement-template .slide-statement {
+	font-size: var(--slide-font-statement);
+	font-weight: 600;
+	line-height: 1.4;
+	width: 100%;
+}
+
+.statement-template .slide-header {
+	margin-bottom: 0;
+}
+
+.statement-template .slide-statement mermaid-diagram {
+	font-weight: normal;
+}
+
+.statement-template .slide-statement p {
+	margin: 0;
+}
+
+/* Shared translation style — works in any template */
+.slide-translation {
+	font-size: var(--slide-font-secondary);
+	opacity: 0.7;
+	margin-top: calc(var(--slide-gap) * 0.5);
+}
+
+.slide-translation p {
+	margin: 0;
+}
+
+/* Mermaid diagrams */
+mermaid-diagram {
+	display: block;
+	width: 100%;
+	text-align: center;
+	color: transparent;
+}
+
+/* Fill template */
+.fill-template {
+	padding: 0;
+}
+
+.fill-template .slide-header {
+	position: absolute;
+	top: var(--slide-gutter);
+	left: var(--slide-gutter);
+	z-index: 1;
+	width: calc(100% - var(--slide-gutter) * 2);
+}
+
+.fill-template .slide-body {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fill-template .slide-translation {
+	position: absolute;
+	bottom: var(--slide-gutter);
+	left: var(--slide-gutter);
+	z-index: 1;
+	width: calc(100% - var(--slide-gutter) * 2);
+	text-align: center;
+}
+
+.fill-template .slide-body :is(img, iframe, svg, video) {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border: none;
+}
+
+/* Code template */
+.code-template {
+	padding: var(--slide-gap) calc(var(--slide-gutter) * 0.75);
+	align-items: stretch;
+}
+
+.code-template .slide-header {
+	margin-bottom: calc(var(--slide-gap) * 0.5);
+}
+
+.code-template .slide-header > h1 {
+	font-size: var(--slide-font-secondary);
+}
+
+.code-viewport {
+	position: relative;
+	flex: 1;
+	overflow: hidden;
+	border-radius: var(--slide-radius);
+	background: rgba(0, 0, 0, 0.3);
+}
+
+.code-scroll {
+	transition: transform 0.6s ease-in-out;
+	padding: calc(var(--slide-gap) * 0.5);
+}
+
+.code-scroll pre {
+	margin: 0;
+	background: none;
+	padding: 0;
+	line-height: 1.5;
+	font-size: var(--slide-font-code);
+}
+
 /* Hide raw code blocks until syntax-js upgrades them */
 pre > code[class*="language-"] {
 	opacity: 0;
@@ -276,6 +407,28 @@ pre > code[class*="language-"] {
 pre > syntax-code {
 	opacity: 1;
 	transition: opacity 0.15s ease-in;
+}
+
+/* Dim overlays */
+.code-dim {
+	position: absolute;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	transition: height 0.6s ease-in-out;
+	z-index: 1;
+}
+
+.code-dim-top {
+	top: 0;
+	height: 0;
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.code-dim-bottom {
+	bottom: 0;
+	height: 0;
+	background: rgba(0, 0, 0, 0.7);
 }
 
 /* ========================
@@ -292,7 +445,7 @@ pre > syntax-code {
 	padding: clamp(2rem, 8vw, 8rem);
 	background:
 		radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 20%, transparent), transparent 35rem),
-		var(--slide-bg);
+		var(--slide-background);
 }
 
 .home-heading,
@@ -376,147 +529,6 @@ pre > syntax-code {
 	}
 }
 
-/* Statement template */
-.statement-template {
-	text-align: center;
-	gap: var(--slide-gap);
-}
-
-.statement-template .slide-statement {
-	font-size: var(--slide-font-statement);
-	font-weight: 600;
-	line-height: 1.4;
-	width: 100%;
-}
-
-.statement-template .slide-header {
-	margin-bottom: 0;
-}
-
-.statement-template .slide-statement mermaid-diagram {
-	font-weight: normal;
-}
-
-.statement-template .slide-statement p {
-	margin: 0;
-}
-
-/* Shared translation style — works in any template */
-.slide-translation {
-	font-size: var(--slide-font-secondary);
-	opacity: 0.7;
-	margin-top: calc(var(--slide-gap) * 0.5);
-}
-
-.slide-translation p {
-	margin: 0;
-}
-
-/* Mermaid diagrams */
-mermaid-diagram {
-	display: block;
-	width: 100%;
-	text-align: center;
-	color: transparent;
-}
-
-/* Fullscreen template */
-.fill-template {
-	padding: 0;
-}
-
-.fill-template .slide-header {
-	position: absolute;
-	top: var(--slide-gutter);
-	left: var(--slide-gutter);
-	z-index: 1;
-	width: calc(100% - var(--slide-gutter) * 2);
-}
-
-.fill-template .slide-body {
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.fill-template .slide-translation {
-	position: absolute;
-	bottom: var(--slide-gutter);
-	left: var(--slide-gutter);
-	z-index: 1;
-	width: calc(100% - var(--slide-gutter) * 2);
-	text-align: center;
-}
-
-.fill-template .slide-body img,
-.fill-template .slide-body iframe,
-.fill-template .slide-body svg,
-.fill-template .slide-body video {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	border: none;
-}
-
-/* Code template */
-.code-template {
-	padding: var(--slide-gap) calc(var(--slide-gutter) * 0.75);
-	align-items: stretch;
-}
-
-.code-template .slide-header {
-	margin-bottom: calc(var(--slide-gap) * 0.5);
-}
-
-.code-template .slide-header > h1 {
-	font-size: var(--slide-font-secondary);
-}
-
-.code-viewport {
-	position: relative;
-	flex: 1;
-	overflow: hidden;
-	border-radius: var(--slide-radius);
-	background: rgba(0, 0, 0, 0.3);
-}
-
-.code-scroll {
-	transition: transform 0.6s ease-in-out;
-	padding: calc(var(--slide-gap) * 0.5);
-}
-
-.code-scroll pre {
-	margin: 0;
-	background: none;
-	padding: 0;
-	line-height: 1.5;
-	font-size: var(--slide-font-code);
-}
-
-/* Dim overlays */
-.code-dim {
-	position: absolute;
-	left: 0;
-	right: 0;
-	pointer-events: none;
-	transition: all 0.6s ease-in-out;
-	z-index: 1;
-}
-
-.code-dim-top {
-	top: 0;
-	height: 0;
-	background: rgba(0, 0, 0, 0.7);
-}
-
-.code-dim-bottom {
-	bottom: 0;
-	height: 0;
-	background: rgba(0, 0, 0, 0.7);
-}
-
 /* ========================
    DISPLAY VIEW (audience)
    ======================== */
@@ -524,7 +536,7 @@ mermaid-diagram {
 .display {
 	width: 100vw;
 	height: 100vh;
-	background: var(--slide-bg);
+	background: var(--slide-background);
 	position: relative;
 	outline: none;
 }
@@ -599,7 +611,7 @@ body.playback,
 
 .playback-stage {
 	position: relative;
-	background: var(--slide-bg);
+	background: var(--slide-background);
 }
 
 .playback-frame {
@@ -646,7 +658,7 @@ body.playback,
 }
 
 .playback-status.error {
-	color: var(--behind);
+	color: #ff4757;
 	opacity: 1;
 }
 
@@ -816,7 +828,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 .toolbar > button,
 .toolbar > select,
 .toolbar > .slide-info {
-	height: var(--control-height);
+	height: 2.25rem;
 	background: var(--surface-light);
 	border: 1px solid rgba(255,255,255,0.1);
 	border-radius: 6px;
@@ -945,7 +957,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 
 .preview-frame {
 	flex: 1;
-	background: var(--slide-bg);
+	background: var(--slide-background);
 	border-radius: 8px;
 	overflow: hidden;
 	position: relative;
@@ -982,17 +994,17 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .timing-info.on-time .pacing-indicator {
-	color: var(--on-time);
+	color: #2ed573;
 }
 
 .timing-info.behind .pacing-indicator {
-	color: var(--behind);
+	color: #ff4757;
 	font-weight: 700;
 	animation: pulse 1s infinite;
 }
 
 .timing-info.ahead .pacing-indicator {
-	color: var(--ahead);
+	color: #ffa502;
 }
 
 @keyframes pulse {
@@ -1073,7 +1085,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 }
 
 .notes-content em {
-	color: var(--ahead);
+	color: #ffa502;
 }
 
 .notes .no-notes {
@@ -1106,7 +1118,7 @@ body.playback[data-controls="false"] .playback-start-screen {
 	position: relative;
 	min-height: 0;
 	overflow: hidden;
-	background: var(--slide-bg);
+	background: var(--slide-background);
 	border: 2px solid var(--accent);
 	border-radius: 8px;
 }
@@ -1220,7 +1232,7 @@ presently-recorder[data-state="recording"] .recording-indicator {
 }
 
 .recording-status.error {
-	color: var(--behind);
+	color: #ff4757;
 	opacity: 1;
 }
 
@@ -1307,7 +1319,6 @@ body.export {
 	flex-direction: column;
 	gap: 0.4rem;
 	overflow: hidden;
-	box-sizing: border-box;
 }
 
 /* Meta strip — mirrors the timing bar in the presenter view. */

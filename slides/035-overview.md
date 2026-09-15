@@ -6,7 +6,7 @@ speaker: Samuel
 
 ![[shared/features.md]]
 
-<div class="callout" style="position: absolute; bottom: 3rem; right: 3rem; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 1rem; font-weight: 600;">You are here →</div>
+<div class="callout">You are here →</div>
 
 ---
 
