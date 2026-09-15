@@ -299,15 +299,13 @@ module Presently
 		# @parameter document [Fragment | Nil] The complete slide document.
 		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		# @parameter scripts [Array(String)] JavaScript sources to execute after the slide renders.
-		# @parameter script [String | Nil] A single JavaScript source retained for compatibility.
-		def initialize(presentation, path, front_matter: nil, document: nil, notes: nil, scripts: [], script: nil)
+		def initialize(presentation, path, front_matter: nil, document: nil, notes: nil, scripts: [])
 			@presentation = presentation
 			@path = path
 			@front_matter = front_matter
 			@document = document || Fragment.new(Markly::Node.new(:document))
 			@notes = notes
 			@scripts = scripts.dup
-			@scripts << script if script
 		end
 		
 		# @attribute [Presentation] The presentation which owns the slide.
@@ -333,14 +331,6 @@ module Presently
 		
 		# @attribute [Array(String)] JavaScript sources to execute after the slide renders on the display.
 		attr :scripts
-		
-		# All JavaScript sources combined into a single string.
-		# @returns [String | Nil] The combined JavaScript, or `nil` when the slide has no scripts.
-		def script
-			return if @scripts.empty?
-			
-			@scripts.join("\n\n")
-		end
 		
 		# The template to use for rendering this slide.
 		# @returns [String] The template name from front_matter, or `"default"`.
