@@ -221,6 +221,8 @@ describe Presently::SlideRenderer do
 		
 		expect(html).to be(:include?, "<h1>Heading</h1>")
 		expect(html).not.to be(:include?, "<h1>Part Two</h1>")
+		expect(html).to be(:include?, '<div class="slide-body">')
+		expect(html).to be(:include?, "Part Two")
 	end
 	
 	it "does not infer a code slide heading from its filename" do
@@ -256,6 +258,36 @@ describe Presently::SlideRenderer do
 		
 		expect(html).to be(:include?, '<div class="slide-body">')
 		expect(html).to be(:include?, "A subtitle or tagline.")
+	end
+	
+	it "renders two-column body content above independent columns" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: two_column
+			---
+			
+			# Responsibilities
+			
+			Shared context.
+			
+			## Left
+			
+			Server side.
+			
+			## Right
+			
+			Client side.
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, '<div class="slide-body">')
+		expect(html).to be(:include?, "Shared context.")
+		expect(html).to be(:include?, '<div class="column left-column">')
+		expect(html).to be(:include?, "Server side.")
+		expect(html).to be(:include?, '<div class="column right-column">')
+		expect(html).to be(:include?, "Client side.")
 	end
 	
 	it "renders each slide script separately" do

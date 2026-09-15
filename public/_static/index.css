@@ -169,9 +169,23 @@ html, body {
 	text-align: center;
 }
 
+.section-template .slide-header {
+	margin-bottom: 0;
+}
+
 .section-template .slide-header > h1 {
 	font-size: var(--slide-font-heading);
 	font-weight: 700;
+}
+
+.section-template .slide-body {
+	margin-top: calc(var(--slide-gap) * 0.75);
+	font-size: var(--slide-font-body);
+	opacity: 0.7;
+}
+
+.section-template .slide-body p {
+	margin: 0;
 }
 
 /* Two column template */
@@ -185,6 +199,19 @@ html, body {
 	flex: 1;
 	width: 100%;
 	gap: calc(var(--slide-gap) * 1.5);
+}
+
+.two-column-template > .slide-body {
+	width: 100%;
+	margin-bottom: var(--slide-gap);
+}
+
+.two-column-template > .slide-body > :first-child {
+	margin-top: 0;
+}
+
+.two-column-template > .slide-body > :last-child {
+	margin-bottom: 0;
 }
 
 .two-column-template .column {

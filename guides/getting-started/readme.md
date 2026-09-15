@@ -224,7 +224,7 @@ A subtitle or tagline
 
 ### Section
 
-A section divider slide with a large heading and accent background.
+A section divider slide with a large heading, optional supporting body, and accent background.
 
 ``` markdown
 ---
@@ -233,6 +233,8 @@ duration: 15
 ---
 
 # Part Two
+
+Architecture and design
 ```
 
 ### Two Column
@@ -246,6 +248,8 @@ duration: 90
 ---
 
 # Client and server responsibilities
+
+The application is split across two cooperating environments.
 
 ## Left
 
