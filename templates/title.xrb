@@ -1,15 +1,15 @@
+<?r subtitle = self.extract("subtitle") ?>
+<?r translation = self.extract("translation") ?>
 <div class="slide-inner title-template">
-	<div class="slide-title">
-		#{self.section("title")}
-	</div>
-	<?r if self.section?("subtitle") ?>
+	#{self.slide_header}
+	<?r if subtitle ?>
 		<div class="slide-subtitle">
-			#{self.section("subtitle")}
+			#{subtitle}
 		</div>
 	<?r end ?>
-	<?r if self.section?("translation") ?>
+	<?r if translation ?>
 		<div class="slide-translation">
-			#{self.section("translation")}
+			#{translation}
 		</div>
 	<?r end ?>
 </div>

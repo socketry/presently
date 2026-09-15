@@ -41,6 +41,70 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "display heading metadata" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "test.md")}
+		
+		before do
+			File.write(path, "---\ntitle: Request lifecycle\nsection: Architecture\n---\n\nContent\n")
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "exposes the explicit heading and section heading" do
+			expect(slide.heading).to be == "Request lifecycle"
+			expect(slide.section_heading).to be == "Architecture"
+		end
+	end
+	
+	with "document extraction" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "test.md")}
+		
+		before do
+			File.write(path, <<~MARKDOWN)
+				# Request lifecycle
+				
+				Main content.
+				
+				## Translation
+				
+				Translated content.
+				
+				### Attribution
+				
+				A nested section.
+				
+				## Caption
+				
+				A caption.
+			MARKDOWN
+		end
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		let(:slide) {load_slide(path)}
+		
+		it "extracts a named heading section from a duplicate document" do
+			document = slide.document.dup
+			translation = document.extract("translation")
+			
+			expect(translation.to_html).to be(:include?, "Translated content")
+			expect(translation.to_html).to be(:include?, "Attribution")
+			expect(translation.to_html).not.to be(:include?, "Caption")
+			expect(document.to_html).to be(:include?, "Request lifecycle")
+			expect(document.to_html).to be(:include?, "A caption")
+			expect(document.to_html).not.to be(:include?, "Translation")
+			expect(slide.document.to_html).to be(:include?, "Translation")
+		end
+	end
+	
 	with "#marker" do
 		it "reads marker from front_matter" do
 			expect(slide.marker).to be == "Welcome"
@@ -59,13 +123,10 @@ describe Presently::Slide do
 		end
 	end
 	
-	with "#content" do
-		it "parses headings into named sections" do
-			expect(slide.content).to have_keys("title", "subtitle")
-		end
-		
-		it "renders markdown to HTML" do
-			expect(slide.content["title"].to_html).to be(:include?, "Welcome to Presently")
+	with "#document" do
+		it "retains the semantic slide title" do
+			expect(slide.document.to_html).to be(:include?, "<h1>")
+			expect(slide.document.to_html).to be(:include?, "Welcome to Presently")
 		end
 	end
 	
@@ -123,6 +184,11 @@ describe Presently::Slide do
 		
 		it "uses filename as title" do
 			expect(slide.title).to be == "test"
+		end
+		
+		it "has no explicit heading or section heading" do
+			expect(slide.heading).to be_nil
+			expect(slide.section_heading).to be_nil
 		end
 		
 		it "puts content in body section" do

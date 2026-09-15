@@ -50,6 +50,53 @@ describe Presently::TemplateScope do
 		end
 	end
 	
+	with "slide header metadata" do
+		before do
+			File.write(path, "---\ntitle: Request lifecycle\nsection: Architecture\n---\n\nContent\n")
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "renders a semantic header" do
+			header = scope.slide_header
+			expect(header).to be(:include?, '<header class="slide-header">')
+			expect(header).to be(:include?, '<div class="slide-section-heading">')
+			expect(header).to be(:include?, "Architecture")
+			expect(header).to be(:include?, '<h1 class="slide-heading">')
+			expect(header).to be(:include?, "Request lifecycle")
+		end
+	end
+	
+	with "document placeholders" do
+		before do
+			File.write(path, <<~MARKDOWN)
+				# Request lifecycle
+				
+				Main content.
+				
+				## Translation
+				
+				Translated content.
+			MARKDOWN
+		end
+		
+		let(:slide) {load_slide(path)}
+		let(:scope) {Presently::TemplateScope.new(slide)}
+		
+		it "extracts placeholders before rendering the remaining document" do
+			translation = scope.extract("translation")
+			header = scope.slide_header
+			body = scope.document
+			
+			expect(translation).to be(:include?, "Translated content")
+			expect(header).to be(:include?, "<h1>Request lifecycle</h1>")
+			expect(body).to be(:include?, "Main content")
+			expect(body).not.to be(:include?, "Translation")
+			expect(slide.document.to_html).to be(:include?, "Translation")
+		end
+	end
+	
 	with "a slide with no sections" do
 		before do
 			File.write(path, "Just some content\n")
@@ -91,17 +138,13 @@ describe Presently::SlideRenderer do
 		expect(html).to be(:include?, 'class="slide-surface"')
 	end
 	
-	it "renders an optional diagram title" do
+	it "renders an H1 as the diagram title" do
 		File.write(path, <<~MARKDOWN)
 			---
 			template: diagram
 			---
 			
-			# Title
-			
-			Request lifecycle
-			
-			# Body
+			# Request lifecycle
 			
 			<div>Diagram</div>
 		MARKDOWN
@@ -109,9 +152,29 @@ describe Presently::SlideRenderer do
 		presentation = Presently::Presentation.load(dir)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
-		expect(html).to be(:include?, 'class="slide-title"')
-		expect(html).to be(:include?, "Request lifecycle")
+		expect(html).to be(:include?, "<h1>Request lifecycle</h1>")
 		expect(html).to be(:include?, "Diagram")
+	end
+	
+	it "renders diagram metadata as a semantic header" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: diagram
+			title: Request lifecycle
+			section: Architecture
+			---
+			
+			<div>Diagram</div>
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, '<div class="slide-section-heading">')
+		expect(html).to be(:include?, "Architecture")
+		expect(html).to be(:include?, '<h1 class="slide-heading">')
+		expect(html).to be(:include?, "Request lifecycle")
+		expect(html).not.to be(:include?, '<div class="slide-title">')
 	end
 	
 	it "renders each slide script separately" do
@@ -137,13 +200,26 @@ describe Presently::SlideRenderer do
 		expect(html).to be(:include?, "globalThis.control")
 	end
 	
-	it "renders translation content" do
-		File.write(path, "Example slide\n\n# Translation\n\nTranslated slide\n")
-		presentation = Presently::Presentation.load(dir)
-		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
-		
-		expect(html).to be(:include?, 'class="slide-translation"')
-		expect(html).to be(:include?, "Translated slide")
+	it "renders translation content in every standard template" do
+		%w[code default diagram fill image section statement title two_column].each do |template|
+			File.write(path, <<~MARKDOWN)
+				---
+				template: #{template}
+				---
+				
+				# Example slide
+				
+				## Translation
+				
+				Translated slide
+			MARKDOWN
+			
+			presentation = Presently::Presentation.load(dir)
+			html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+			
+			expect(html).to be(:include?, 'class="slide-translation"')
+			expect(html).to be(:include?, "Translated slide")
+		end
 	end
 end
 

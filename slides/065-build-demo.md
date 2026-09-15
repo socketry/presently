@@ -6,11 +6,7 @@ transition: fade
 speaker: Samuel
 ---
 
-# Title
-
-Presently Architecture
-
-# Body
+# Presently Architecture
 
 <div class="arch" style="width: 100%; border: 2px solid #555; border-radius: 0.25em; padding: 0.6em; font-family: monospace; font-size: 0.85em;">
   <div style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 0.5em;">

@@ -6,11 +6,7 @@ transition: fade
 speaker: Samuel
 ---
 
-# Title
-
-Slide change lifecycle
-
-# Body
+# Slide change lifecycle
 
 <div class="request-lifecycle">
   <div class="request-lifecycle-steps">

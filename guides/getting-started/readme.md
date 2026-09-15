@@ -60,11 +60,9 @@ template: title
 duration: 30
 ---
 
-# Title
+# Welcome to My Talk
 
-Welcome to My Talk
-
-# Subtitle
+## Subtitle
 
 A presentation built with Presently
 
@@ -76,7 +74,7 @@ These are presenter notes — only visible in the presenter view.
 Each slide has three parts:
 
 1. **YAML frontmatter** between `---` markers at the top, specifying the template, duration, and other metadata.
-2. **Content** with Markdown headings that become named sections for the template.
+2. **Content** with an optional H1 title and any template placeholders, conventionally written as H2 sections.
 3. **Presenter notes** after a `---` separator in the body (optional).
 
 ### Styling Slides
@@ -196,13 +194,15 @@ Templates define the visual layout of each slide. Select a template using the `t
 
 ### Default
 
-A general-purpose content slide. All content without a heading goes into the `body` section.
+A general-purpose content slide. An H1 becomes the slide title and the remaining document becomes its body.
 
 ``` markdown
 ---
 template: default
 duration: 60
 ---
+
+# Key points
 
 - First point
 - Second point
@@ -219,11 +219,9 @@ template: title
 duration: 30
 ---
 
-# Title
+# My Presentation Title
 
-My Presentation Title
-
-# Subtitle
+## Subtitle
 
 A subtitle or tagline
 ```
@@ -238,9 +236,7 @@ template: section
 duration: 15
 ---
 
-# Heading
-
-Part Two
+# Part Two
 ```
 
 ### Two Column
@@ -253,14 +249,16 @@ template: two_column
 duration: 90
 ---
 
-# Left
+# Client and server responsibilities
+
+## Left
 
 **Server Side**
 
 - Ruby + Lively
 - WebSocket connections
 
-# Right
+## Right
 
 **Client Side**
 
@@ -298,7 +296,7 @@ Create animated walkthroughs by using multiple slides with the same code but dif
 
 ### Statement
 
-A prominent statement or quote, centered on the slide. Supports an optional `# Translation` section.
+A prominent statement or quote, centered on the slide. Supports an optional `## Translation` placeholder.
 
 ``` markdown
 ---
@@ -308,14 +306,14 @@ duration: 30
 
 The best way to predict the future is to create it.
 
-# Translation
+## Translation
 
 未来を予測する最善の方法は、それを創ることである。
 ```
 
 ### Translations
 
-All templates support an optional `# Translation` section. When present, the translation is displayed below the main content in a lighter style. This works with `title`, `section`, `statement`, and `image` templates.
+Templates can extract an optional `## Translation` section and position it independently from the main document. Every standard template displays it separately in a lighter style.
 
 ### Image
 
@@ -329,7 +327,7 @@ duration: 30
 
 ![Architecture diagram](/images/architecture.png)
 
-# Caption
+## Caption
 
 System architecture overview
 ```
@@ -344,11 +342,7 @@ template: diagram
 duration: 60
 ---
 
-# Title
-
-Request lifecycle
-
-# Body
+# Request lifecycle
 
 <div style="display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 2em; width: 80%;">
   <div>Browser</div>
@@ -420,7 +414,19 @@ service "presently" do
 end
 ```
 
-Templates receive a {ruby Presently::TemplateScope} with access to `self.slide` (the {ruby Presently::Slide} instance) and `self.section(name)` for retrieving named content sections.
+Templates receive a {ruby Presently::TemplateScope}. `self.document` renders a private copy of the complete slide document, while `self.extract(name)` removes a named heading section from that copy and returns its rendered content. Extract placeholders before rendering the remaining document:
+
+``` xrb
+<?r translation = self.extract("translation") ?>
+<div class="slide-body">
+	#{self.document}
+</div>
+<?r if translation ?>
+	<div class="slide-translation">#{translation}</div>
+<?r end ?>
+```
+
+Extraction stops at the next heading of the same or a higher level, so lower-level headings remain inside the extracted fragment. Only placeholders requested by the template are removed; other headings remain ordinary document content. Existing custom templates can continue using `self.section(name)` to access the legacy key-to-fragment section map.
 
 ## Customizing the Application
 

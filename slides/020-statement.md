@@ -7,7 +7,7 @@ speaker: Samuel
 
 <div style="view-transition-name: welcome-title">The best way to predict the future is to create it.</div>
 
-# Translation
+## Translation
 
 未来を予測する最善の方法は、それを創ることである。
 

@@ -1,8 +1,19 @@
+<?r left = self.extract("left") ?>
+<?r right = self.extract("right") ?>
+<?r translation = self.extract("translation") ?>
 <div class="slide-inner two-column-template">
-	<div class="column left-column">
-		#{self.section("left")}
+	#{self.slide_header}
+	<div class="slide-columns">
+		<div class="column left-column">
+			#{left}
+		</div>
+		<div class="column right-column">
+			#{right}
+		</div>
 	</div>
-	<div class="column right-column">
-		#{self.section("right")}
-	</div>
+	<?r if translation ?>
+		<div class="slide-translation">
+			#{translation}
+		</div>
+	<?r end ?>
 </div>

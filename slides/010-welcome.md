@@ -5,11 +5,9 @@ marker: Welcome
 speaker: Samuel
 ---
 
-# Title
+# <span style="view-transition-name: welcome-title">Welcome to Presently</span>
 
-<div style="view-transition-name: welcome-title">Welcome to Presently</div>
-
-# Subtitle
+## Subtitle
 
 A web-based presentation tool built with Lively
 

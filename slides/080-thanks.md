@@ -5,11 +5,9 @@ marker: Thanks
 speaker: Samuel
 ---
 
-# Title
+# Thank You!
 
-Thank You!
-
-# Subtitle
+## Subtitle
 
 Questions?
 

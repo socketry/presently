@@ -6,9 +6,7 @@ marker: Demo
 speaker: Samuel
 ---
 
-# Heading
-
-Demo Time
+# Demo Time
 
 ---
 

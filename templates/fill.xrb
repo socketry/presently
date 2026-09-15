@@ -1,5 +1,12 @@
+<?r translation = self.extract("translation") ?>
 <div class="slide-inner fill-template">
-	<div class="slide-content">
-		#{self.section("body")}
+	#{self.slide_header}
+	<div class="slide-body">
+		#{self.document}
 	</div>
+	<?r if translation ?>
+		<div class="slide-translation">
+			#{translation}
+		</div>
+	<?r end ?>
 </div>

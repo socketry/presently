@@ -14,8 +14,8 @@ require_relative "stylesheet"
 module Presently
 	# A single slide parsed from a Markdown file.
 	#
-	# Each slide has YAML front_matter for metadata (template, duration, focus), content sections
-	# split by Markdown headings, and optional presenter notes separated by `---`.
+	# Each slide has YAML front_matter for metadata (template, duration, focus), a Markdown
+	# document, compatibility content sections, and optional presenter notes separated by `---`.
 	class Slide
 		# A fragment of a Markly AST document.
 		#
@@ -35,6 +35,13 @@ module Presently
 			# @attribute [Markly::Node] The underlying AST document node.
 			attr :node
 			
+			# Duplicate this fragment and its underlying AST.
+			# @returns [Fragment] An independently mutable copy.
+			def initialize_copy(other)
+				super
+				@node = other.node.dup
+			end
+			
 			# Whether the fragment has no content.
 			# @returns [Boolean]
 			def empty?
@@ -47,6 +54,57 @@ module Presently
 				Markly::Renderer::HTML.new(flags: Markly::UNSAFE, extensions: EXTENSIONS).render(@node)
 			end
 			
+			# Render the fragment as plain text.
+			# @returns [String] The textual content of the fragment.
+			def to_plaintext
+				@node.to_plaintext
+			end
+			
+			# Extract the content belonging to a named heading.
+			#
+			# The matching heading itself is removed. Following nodes are extracted up
+			# to the next heading of the same or a higher level. Lower-level headings
+			# remain part of the extracted content.
+			# @parameter name [String] The heading name to extract.
+			# @returns [Fragment | Nil] The extracted content, or `nil` when not found.
+			def extract(name)
+				heading = find_heading(name)
+				return unless heading
+				
+				level = heading.header_level
+				fragment = Markly::Node.new(:document)
+				node = heading.next
+				heading.delete
+				
+				while node
+					next_node = node.next
+					break if node.type == :header && node.header_level <= level
+					
+					fragment.append_child(node)
+					node = next_node
+				end
+				
+				Fragment.new(fragment)
+			end
+			
+			# Extract the first heading at the given level, retaining the heading node.
+			# @parameter level [Integer] The Markdown heading level.
+			# @returns [Fragment | Nil] A fragment containing the extracted heading.
+			def extract_heading(level = 1)
+				heading = nil
+				@node.each do |node|
+					if node.type == :header && node.header_level == level
+						heading = node
+						break
+					end
+				end
+				return unless heading
+				
+				fragment = Markly::Node.new(:document)
+				fragment.append_child(heading)
+				Fragment.new(fragment)
+			end
+			
 			# Render the fragment back to CommonMark Markdown.
 			# @returns [String] The CommonMark source.
 			def to_commonmark
@@ -54,6 +112,21 @@ module Presently
 			end
 			
 			alias to_s to_commonmark
+			
+			private
+			
+			def find_heading(name)
+				key = normalize_heading(name)
+				@node.each do |node|
+					return node if node.type == :header && normalize_heading(node.to_plaintext) == key
+				end
+				
+				nil
+			end
+			
+			def normalize_heading(name)
+				name.to_s.strip.downcase.gsub(/\s+/, "_")
+			end
 		end
 		
 		# Parses a Markdown slide file into structured data for {Slide}.
@@ -109,14 +182,16 @@ module Presently
 						script_node.delete
 					end
 					
+					slide_document = Fragment.new(document)
 					content = parse_sections(document)
 					notes = Fragment.new(notes_node)
 				else
+					slide_document = Fragment.new(document)
 					content = parse_sections(document)
 					notes = nil
 				end
 				
-				Slide.new(presentation, path, front_matter: front_matter, content: content, notes: notes, scripts: scripts)
+				Slide.new(presentation, path, front_matter: front_matter, document: slide_document, content: content, notes: notes, scripts: scripts)
 			end
 			
 			# Extract reusable setup scripts from the expanded slide document.
@@ -250,14 +325,16 @@ module Presently
 		# @parameter presentation [Presentation] The presentation which owns the slide.
 		# @parameter path [String] The slide path relative to the presentation root.
 		# @parameter front_matter [Hash | Nil] The parsed YAML front_matter.
-		# @parameter content [Hash(String, Fragment)] Content sections keyed by heading name.
+		# @parameter document [Fragment | Nil] The complete slide document.
+		# @parameter content [Hash(String, Fragment)] Legacy content sections keyed by heading name.
 		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		# @parameter scripts [Array(String)] JavaScript sources to execute after the slide renders.
 		# @parameter script [String | Nil] A single JavaScript source retained for compatibility.
-		def initialize(presentation, path, front_matter: nil, content: {}, notes: nil, scripts: [], script: nil)
+		def initialize(presentation, path, front_matter: nil, document: nil, content: {}, notes: nil, scripts: [], script: nil)
 			@presentation = presentation
 			@path = path
 			@front_matter = front_matter
+			@document = document || Fragment.new(Markly::Node.new(:document))
 			@content = content
 			@notes = notes
 			@scripts = scripts.dup
@@ -279,7 +356,10 @@ module Presently
 		# @attribute [Hash | Nil] The parsed YAML front_matter.
 		attr :front_matter
 		
-		# @attribute [Hash(String, Fragment)] The content sections keyed by heading name.
+		# @attribute [Fragment] The complete slide document.
+		attr :document
+		
+		# @attribute [Hash(String, Fragment)] Compatibility content sections keyed by heading name.
 		attr :content
 		
 		# @attribute [Fragment | Nil] The presenter notes as a Markly AST fragment.
@@ -312,6 +392,18 @@ module Presently
 		# @returns [String] The title from front_matter, or the filename without extension.
 		def title
 			@front_matter&.fetch("title", File.basename(@path, ".md")) || File.basename(@path, ".md")
+		end
+		
+		# The explicit display heading for this slide.
+		# @returns [String | Nil] The title from front matter, or `nil` when it was not specified.
+		def heading
+			@front_matter&.fetch("title", nil)
+		end
+		
+		# The section heading for this slide.
+		# @returns [String | Nil] The section heading from front matter, or `nil` when it was not specified.
+		def section_heading
+			@front_matter&.fetch("section", nil)
 		end
 		
 		# Whether this slide should be skipped in the presentation.
