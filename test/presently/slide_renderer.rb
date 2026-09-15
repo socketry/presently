@@ -259,6 +259,28 @@ describe Presently::SlideRenderer do
 		expect(html).to be(:include?, '<div class="slide-body">')
 		expect(html).to be(:include?, "A subtitle or tagline.")
 	end
+
+	it "renders image captions from a named placeholder" do
+		File.write(path, <<~MARKDOWN)
+			---
+			template: image
+			---
+			
+			# System overview
+			
+			![Architecture diagram](architecture.svg)
+			
+			## Caption
+			
+			Requests flow from left to right.
+		MARKDOWN
+		
+		presentation = Presently::Presentation.load(dir)
+		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, '<div class="slide-caption">')
+		expect(html).to be(:include?, "Requests flow from left to right.")
+	end
 	
 	it "renders two-column body content above independent columns" do
 		File.write(path, <<~MARKDOWN)
