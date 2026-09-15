@@ -417,7 +417,7 @@ end
 Templates receive a {ruby Presently::TemplateScope}. `self.document` renders a private copy of the complete slide document, while `self.extract(name)` removes a named H2 placeholder from that copy and returns its rendered content. Extract placeholders before rendering the remaining document:
 
 ``` xrb
-<?r translation = self.extract("translation") ?>
+<?r translation = self.extract("Translation") ?>
 <div class="slide-body">
 	#{self.document}
 </div>
