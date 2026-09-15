@@ -72,10 +72,11 @@ module Presently
 		
 		# Create a Presently page with the presentation-specific stylesheets.
 		# @parameter view [Live::View] The root view for the page.
+		# @parameter interface [Symbol | Nil] The interface-specific stylesheet to load.
 		# @returns [Page] The presentation page.
-		def make_page(view)
+		def make_page(view, interface: nil)
 			stylesheets = controller.presentation.stylesheets.map(&:url)
-			Page.new(title: title, body: view, stylesheets: stylesheets)
+			Page.new(title: title, body: view, interface: interface, stylesheets: stylesheets)
 		end
 		
 		# Add Presently's application routes.
@@ -83,12 +84,12 @@ module Presently
 		def configure_routes(router)
 			router.get("/") do
 				body = resolver.root(HomeView)
-				Page.new(title: title, body: body).call
+				Page.new(title: title, body: body, interface: :home).call
 			end
 			
-			router.get("/display"){make_page(resolver.root(DisplayView)).call}
-			router.get("/presenter"){make_page(resolver.root(PresenterView)).call}
-			router.get("/record"){make_page(resolver.root(RecordingView)).call}
+			router.get("/display"){make_page(resolver.root(DisplayView), interface: :display).call}
+			router.get("/presenter"){make_page(resolver.root(PresenterView), interface: :presenter).call}
+			router.get("/record"){make_page(resolver.root(RecordingView), interface: :recorder).call}
 			
 			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request|
 				handle_recording(request, request_parameters(request))

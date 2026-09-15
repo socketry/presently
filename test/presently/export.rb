@@ -141,6 +141,14 @@ describe Presently::Export do
 			expect(html).to be(:include?, "export.js")
 		end
 		
+		it "loads slide and export styles" do
+			html = export.call
+			
+			expect(html).to be(:include?, 'href="/_static/slides.css"')
+			expect(html).to be(:include?, 'href="/_static/export.css"')
+			expect(html.index("/_static/export.css")).to be < html.index("/_static/custom.css")
+		end
+		
 		it "loads Anime.js for slide scripts" do
 			html = export.call
 			expect(html).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')

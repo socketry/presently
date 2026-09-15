@@ -4,6 +4,8 @@
 		<meta charset="UTF-8" />
 		
 		<link rel="stylesheet" href="/_static/index.css" type="text/css" />
+		<link rel="stylesheet" href="/_static/slides.css" type="text/css" />
+		<link rel="stylesheet" href="/_static/export.css" type="text/css" />
 		<link rel="stylesheet" href="/_static/custom.css" type="text/css" />
 		<link rel="stylesheet" href="/_components/@socketry/syntax/themes/base/syntax.css" type="text/css" />
 		<?r self.stylesheets.each do |stylesheet| ?>
