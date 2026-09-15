@@ -79,7 +79,7 @@ module Presently
 		attr :slide
 		
 		# The content sections of the slide.
-		# @returns [Hash(String, Slide::Fragment)] Sections keyed by heading name.
+		# @returns [Hash(String, Slide::Fragment)] Sections keyed by exact heading text.
 		def content
 			@slide.content
 		end
@@ -104,7 +104,7 @@ module Presently
 		end
 		
 		# Whether the named content section exists and has content.
-		# @parameter name [String] The section name (derived from the Markdown heading).
+		# @parameter name [String] The exact Markdown heading text.
 		# @returns [Boolean]
 		def section?(name)
 			fragment = @slide.content[name]
@@ -112,7 +112,7 @@ module Presently
 		end
 		
 		# Get a named content section as raw HTML markup.
-		# @parameter name [String] The section name (derived from the Markdown heading).
+		# @parameter name [String] The exact Markdown heading text.
 		# @returns [XRB::MarkupString] The rendered HTML content, safe for embedding.
 		def section(name)
 			XRB::MarkupString.raw(@slide.content[name]&.to_html || "")
@@ -151,10 +151,9 @@ module Presently
 		private
 		
 		def extract_fragment(name)
-			key = name.to_s.strip.downcase.gsub(/\s+/, "_")
-			return @extracted[key] if @extracted.key?(key)
+			return @extracted[name] if @extracted.key?(name)
 			
-			@extracted[key] = @document.extract(key)
+			@extracted[name] = @document.extract(name)
 		end
 		
 		def markup(fragment)

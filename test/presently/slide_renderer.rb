@@ -30,7 +30,7 @@ describe Presently::TemplateScope do
 		let(:scope) {Presently::TemplateScope.new(slide)}
 		
 		it "renders a section to HTML" do
-			expect(scope.section("title")).to be(:include?, "Hello World")
+			expect(scope.section("Title")).to be(:include?, "Hello World")
 		end
 		
 		it "exposes the slide content" do
@@ -38,7 +38,7 @@ describe Presently::TemplateScope do
 		end
 		
 		it "returns true for section? when section exists" do
-			expect(scope.section?("title")).to be_truthy
+			expect(scope.section?("Title")).to be_truthy
 		end
 		
 		it "returns nil for section? when section is missing" do
@@ -99,7 +99,7 @@ describe Presently::TemplateScope do
 		let(:scope) {Presently::TemplateScope.new(slide)}
 		
 		it "extracts placeholders before rendering the remaining document" do
-			translation = scope.extract("translation")
+			translation = scope.extract("Translation")
 			header = scope.slide_header
 			body = scope.document
 			
@@ -120,7 +120,7 @@ describe Presently::TemplateScope do
 		let(:scope) {Presently::TemplateScope.new(slide)}
 		
 		it "reserves H1 for the semantic slide title" do
-			expect(scope.extract("translation")).to be_nil
+			expect(scope.extract("Translation")).to be_nil
 			expect(scope.slide_header).to be(:include?, "<h1>Translation</h1>")
 			expect(scope.document).to be(:include?, "Main content")
 		end
@@ -135,7 +135,7 @@ describe Presently::TemplateScope do
 		let(:scope) {Presently::TemplateScope.new(slide)}
 		
 		it "returns nil for any section?" do
-			expect(scope.section?("title")).to be_nil
+			expect(scope.section?("Title")).to be_nil
 		end
 	end
 end

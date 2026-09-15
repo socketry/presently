@@ -1,4 +1,4 @@
-<?r translation = self.extract("translation") ?>
+<?r translation = self.extract("Translation") ?>
 <?r header = self.slide_header ?>
 <?r body = self.document ?>
 <div class="slide-inner section-template">

@@ -1,6 +1,6 @@
-<?r left = self.extract("left") ?>
-<?r right = self.extract("right") ?>
-<?r translation = self.extract("translation") ?>
+<?r left = self.extract("Left") ?>
+<?r right = self.extract("Right") ?>
+<?r translation = self.extract("Translation") ?>
 <?r header = self.slide_header ?>
 <?r body = self.document ?>
 <div class="slide-inner two-column-template">

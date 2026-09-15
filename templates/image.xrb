@@ -1,5 +1,5 @@
-<?r caption = self.extract("caption") ?>
-<?r translation = self.extract("translation") ?>
+<?r caption = self.extract("Caption") ?>
+<?r translation = self.extract("Translation") ?>
 <div class="slide-inner image-template">
 	#{self.slide_header}
 	<div class="slide-image">

@@ -93,7 +93,8 @@ describe Presently::Slide do
 		
 		it "extracts a named H2 placeholder from a duplicate document" do
 			document = slide.document.dup
-			translation = document.extract("translation")
+			expect(document.extract("translation")).to be_nil
+			translation = document.extract("Translation")
 			
 			expect(translation.to_html).to be(:include?, "Translated content")
 			expect(translation.to_html).to be(:include?, "Attribution")
@@ -107,8 +108,8 @@ describe Presently::Slide do
 		it "does not extract headings at other levels" do
 			document = slide.document.dup
 			
-			expect(document.extract("request lifecycle")).to be_nil
-			expect(document.extract("attribution")).to be_nil
+			expect(document.extract("Request lifecycle")).to be_nil
+			expect(document.extract("Attribution")).to be_nil
 		end
 	end
 	
@@ -266,19 +267,19 @@ describe Presently::Slide do
 		let(:slide) {load_slide(path)}
 		
 		it "expands the include into the document" do
-			expect(slide.content).to have_keys("before", "included", "after")
+			expect(slide.content).to have_keys("Before", "Included", "After")
 		end
 		
 		it "preserves content before the include" do
-			expect(slide.content["before"].to_html).to be(:include?, "Intro text")
+			expect(slide.content["Before"].to_html).to be(:include?, "Intro text")
 		end
 		
 		it "inlines the included content" do
-			expect(slide.content["included"].to_html).to be(:include?, "This content was included")
+			expect(slide.content["Included"].to_html).to be(:include?, "This content was included")
 		end
 		
 		it "preserves content after the include" do
-			expect(slide.content["after"].to_html).to be(:include?, "Trailing text")
+			expect(slide.content["After"].to_html).to be(:include?, "Trailing text")
 		end
 	end
 	

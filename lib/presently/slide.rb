@@ -110,16 +110,11 @@ module Presently
 			private
 			
 			def find_heading(name)
-				key = normalize_heading(name)
 				@node.each do |node|
-					return node if node.type == :header && node.header_level == 2 && normalize_heading(node.to_plaintext) == key
+					return node if node.type == :header && node.header_level == 2 && node.to_plaintext.chomp == name
 				end
 				
 				nil
-			end
-			
-			def normalize_heading(name)
-				name.to_s.strip.downcase.gsub(/\s+/, "_")
 			end
 		end
 		
@@ -282,7 +277,7 @@ module Presently
 			
 			# Parse a Markly document into content sections based on top-level headings.
 			#
-			# Each heading becomes a named key; content before the first heading is
+			# Each heading's exact text becomes a named key; content before the first heading is
 			# collected under `"body"`. Each value is a {Fragment} wrapping a document node.
 			# @parameter document [Markly::Node] The document to parse.
 			# @returns [Hash(String, Fragment)] Sections keyed by heading name.
@@ -294,7 +289,7 @@ module Presently
 				document.each do |node|
 					if node.type == :header
 						sections[current_key] = Fragment.new(current_node) unless current_node.first_child.nil?
-						current_key = node.to_plaintext.strip.downcase.gsub(/\s+/, "_")
+						current_key = node.to_plaintext.chomp
 						current_node = Markly::Node.new(:document)
 					else
 						current_node.append_child(node.dup)
@@ -320,7 +315,7 @@ module Presently
 		# @parameter path [String] The slide path relative to the presentation root.
 		# @parameter front_matter [Hash | Nil] The parsed YAML front_matter.
 		# @parameter document [Fragment | Nil] The complete slide document.
-		# @parameter content [Hash(String, Fragment)] Legacy content sections keyed by heading name.
+		# @parameter content [Hash(String, Fragment)] Legacy content sections keyed by exact heading text.
 		# @parameter notes [Fragment | Nil] The presenter notes as a Markly AST fragment.
 		# @parameter scripts [Array(String)] JavaScript sources to execute after the slide renders.
 		# @parameter script [String | Nil] A single JavaScript source retained for compatibility.
