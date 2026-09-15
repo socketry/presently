@@ -1,4 +1,7 @@
 /*
- * Add presentation-specific CSS overrides to this file.
+ * Add presentation-wide CSS overrides to this file.
+ * Prefer colocated slide- and section-specific stylesheets for focused changes:
+ * `slides/010-introduction.css` styles `slides/010-introduction.md`, while
+ * `slides/020-topic/style.css` styles every slide in `slides/020-topic/`.
  * It intentionally contains no CSS rules by default.
  */
