@@ -67,6 +67,11 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.21.0
+
+  - [Semantic Slides](https://socketry.github.io/presently/releases/index#semantic-slides)
+  - [Slide Scripts](https://socketry.github.io/presently/releases/index#slide-scripts)
+
 ### v0.20.1
 
   - Keep presenter toolbars within the viewport when slide paths are long.
@@ -115,10 +120,6 @@ q
 ### v0.13.0
 
   - Change zoom to 50% on slide preview (presenter display).
-
-### v0.12.0
-
-  - Add support for translation to code slide.
 
 ## See Also
 
