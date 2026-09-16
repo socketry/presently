@@ -10,6 +10,7 @@ class SlideElement {
 	constructor(script) {
 		this.script = {textContent: script};
 		this.body = {querySelectorAll: () => []};
+		this.dataset = {};
 	}
 
 	querySelector(selector) {
@@ -36,12 +37,13 @@ class View extends EventTarget {
 	}
 }
 
-test('a disposed rendering does not initialize stale slide scripts', async () => {
+test('slide scripts establish initial state before asynchronous preparation', async () => {
 	const originalHighlight = Syntax.highlight;
 	let releaseHighlight;
 	Syntax.highlight = () => new Promise(resolve => releaseHighlight = resolve);
 
-	globalThis.staleScriptRan = false;
+	globalThis.initialScriptRan = false;
+	globalThis.slideDisposals = 0;
 	globalThis.document = {
 		querySelectorAll(selector) {
 			assert.equal(selector, '.code-viewport');
@@ -50,18 +52,50 @@ test('a disposed rendering does not initialize stale slide scripts', async () =>
 	};
 
 	try {
-		const slide = new SlideElement('globalThis.staleScriptRan = true');
-		const rendering = new SlideRendering(new View('stale', [slide]));
+		const slide = new SlideElement('globalThis.initialScriptRan = true; slide.defer(() => globalThis.slideDisposals += 1)');
+		const rendering = new SlideRendering(new View('initial', [slide]));
 		const initialized = rendering.initialize();
 
+		assert.equal(globalThis.initialScriptRan, true);
 		rendering.dispose();
 		releaseHighlight();
 
 		assert.equal(await initialized, false);
-		assert.equal(globalThis.staleScriptRan, false);
+		assert.equal(globalThis.slideDisposals, 1);
 	} finally {
 		Syntax.highlight = originalHighlight;
-		delete globalThis.staleScriptRan;
+		delete globalThis.initialScriptRan;
+		delete globalThis.slideDisposals;
+		delete globalThis.document;
+	}
+});
+
+test('a render updates the DOM and establishes script state synchronously', async () => {
+	const originalHighlight = Syntax.highlight;
+	Syntax.highlight = async () => {};
+
+	globalThis.renderScriptRan = false;
+	globalThis.document = {
+		querySelectorAll(selector) {
+			assert.equal(selector, '.code-viewport');
+			return [];
+		},
+	};
+
+	try {
+		const view = new View('current', []);
+		const slide = new SlideElement('globalThis.renderScriptRan = true');
+		const rendering = new SlideRendering(view);
+		const rendered = rendering.render(renderView => {
+			assert.equal(renderView, view);
+			view.slides = [slide];
+		});
+
+		assert.equal(globalThis.renderScriptRan, true);
+		assert.equal(await rendered, true);
+	} finally {
+		Syntax.highlight = originalHighlight;
+		delete globalThis.renderScriptRan;
 		delete globalThis.document;
 	}
 });

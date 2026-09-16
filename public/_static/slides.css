@@ -60,6 +60,11 @@
 	container-type: size;
 }
 
+/* Never expose a scripted slide before its script establishes the initial state. */
+.slide-scripted:not([data-slide-ready]) {
+	visibility: hidden;
+}
+
 @container (min-aspect-ratio: 16 / 9) {
 	.slide {
 		width: auto;

@@ -25,6 +25,9 @@ export function runScript(slideEl, {animated = true} = {}) {
 		}
 	} catch (error) {
 		console.error('Slide script error:', error);
+	} finally {
+		// Scripted slides remain hidden until their initial state has been applied.
+		slideEl.dataset.slideReady = '';
 	}
 
 	return slide;

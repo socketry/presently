@@ -15,6 +15,7 @@ class SlideElement {
 	constructor(scripts) {
 		this.scripts = scripts.map(textContent => ({textContent}));
 		this.body = new SlideBody();
+		this.dataset = {};
 	}
 
 	querySelector(selector) {
@@ -42,11 +43,27 @@ test('runs isolated scripts in order against one slide', () => {
 		assert.ok(slide);
 		assert.deepEqual(globalThis.scriptOrder, ['setup', 'setup', 'slide']);
 		assert.equal(slide.anime().data.value, 'setup');
+		assert.equal(element.dataset.slideReady, '');
 	} finally {
 		delete globalThis.scriptOrder;
 	}
 });
 
 test('returns null when a slide has no scripts', () => {
-	assert.equal(runScript(new SlideElement([])), null);
+	const element = new SlideElement([]);
+	assert.equal(runScript(element), null);
+	assert.equal(element.dataset.slideReady, undefined);
+});
+
+test('marks a scripted slide ready even when its script fails', () => {
+	const originalConsoleError = console.error;
+	console.error = () => {};
+
+	try {
+		const element = new SlideElement(['throw new Error("Failed")']);
+		assert.ok(runScript(element));
+		assert.equal(element.dataset.slideReady, '');
+	} finally {
+		console.error = originalConsoleError;
+	}
 });
