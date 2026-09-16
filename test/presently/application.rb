@@ -201,6 +201,46 @@ describe Presently::Application do
 		expect(get.read).to be == "audio data"
 	end
 	
+	it "optionally updates the slide duration when storing a recording" do
+		put = application.call(request("PUT", "/recordings?index=0&duration=23", {"content-type" => "audio/webm"}, "audio data"))
+		
+		expect(put.status).to be == 201
+		expect(put.read).to be(:include?, '"duration":23')
+		expect(application.controller.current_slide.duration).to be == 23
+		expect(File.read(File.join(slides_root, "010-example.md"))).to be(:start_with?, "---\nduration: 23\n---\n")
+	end
+	
+	it "rejects an invalid recording duration" do
+		response = application.call(request("PUT", "/recordings?index=0&duration=0", {"content-type" => "audio/webm"}, "audio data"))
+		
+		expect(response.status).to be == 400
+		expect(File).not.to be(:file?, File.join(recordings_root, "010-example.webm"))
+	end
+	
+	it "updates the duration of an existing recording without replacing it" do
+		application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
+		response = application.call(request("PATCH", "/recordings?index=0&duration=14"))
+		
+		expect(response.status).to be == 200
+		expect(response.read).to be(:include?, '"duration":14')
+		expect(application.controller.current_slide.duration).to be == 14
+		expect(File.binread(File.join(recordings_root, "010-example.webm"))).to be == "audio data"
+	end
+	
+	it "only updates duration when the recording exists" do
+		response = application.call(request("PATCH", "/recordings?index=0&duration=14"))
+		
+		expect(response.status).to be == 404
+		expect(application.controller.current_slide.duration).to be == 60
+	end
+	
+	it "requires a valid duration when updating recording metadata" do
+		application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
+		
+		expect(application.call(request("PATCH", "/recordings?index=0")).status).to be == 400
+		expect(application.call(request("PATCH", "/recordings?index=0&duration=invalid")).status).to be == 400
+	end
+	
 	it "supports checking for a recording without returning its body" do
 		application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
 		response = application.call(request("HEAD", "/recordings?index=0"))

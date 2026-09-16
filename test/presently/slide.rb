@@ -35,6 +35,40 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "#update_duration!" do
+		let(:dir) {Dir.mktmpdir}
+		let(:path) {File.join(dir, "test.md")}
+		
+		after do
+			FileUtils.remove_entry(dir)
+		end
+		
+		it "replaces an existing duration without rewriting other content" do
+			File.write(path, "---\nmarker: Example\nduration: 30 # timing target\n---\n# Slide\n")
+			slide = load_slide(path)
+			
+			expect(slide.update_duration!(42)).to be == 42
+			expect(slide.duration).to be == 42
+			expect(File.read(path)).to be == "---\nmarker: Example\nduration: 42 # timing target\n---\n# Slide\n"
+		end
+		
+		it "adds duration to existing front matter" do
+			File.write(path, "---\nmarker: Example\n---\n# Slide\n")
+			slide = load_slide(path)
+			
+			slide.update_duration!(17)
+			expect(File.read(path)).to be == "---\nmarker: Example\nduration: 17\n---\n# Slide\n"
+		end
+		
+		it "creates front matter when the slide has none" do
+			File.write(path, "# Slide\n")
+			slide = load_slide(path)
+			
+			slide.update_duration!(8)
+			expect(File.read(path)).to be == "---\nduration: 8\n---\n# Slide\n"
+		end
+	end
+	
 	with "#title" do
 		it "uses the semantic H1 text" do
 			expect(slide.title).to be == "Welcome to Presently"

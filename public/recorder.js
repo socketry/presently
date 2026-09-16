@@ -13,6 +13,7 @@ export class PresentlyRecorder extends HTMLElement {
 	#chunks = [];
 	#recording = null;
 	#recordingURL = null;
+	#recordingDuration = null;
 	#startedAt = null;
 	#timer = null;
 	#startToken = null;
@@ -22,6 +23,8 @@ export class PresentlyRecorder extends HTMLElement {
 		this.recordButton = this.querySelector('.recording-toggle');
 		this.saveButton = this.querySelector('.recording-save');
 		this.playback = this.querySelector('.recording-playback');
+		this.applyDurationButton = this.querySelector('.recording-apply-duration');
+		this.updateDuration = this.querySelector('.recording-update-duration');
 		this.status = this.querySelector('.recording-status');
 		this.time = this.querySelector('.recording-time');
 		
@@ -48,6 +51,8 @@ export class PresentlyRecorder extends HTMLElement {
 			}
 		});
 		this.saveButton.addEventListener('click', () => this.save());
+		this.applyDurationButton.addEventListener('click', () => this.updateSlideDuration());
+		this.playback.addEventListener('loadedmetadata', () => this.updateDurationAction());
 		
 		this.loadExisting();
 	}
@@ -108,6 +113,8 @@ export class PresentlyRecorder extends HTMLElement {
 		const startToken = this.#startToken = {};
 		this.recordButton.disabled = true;
 		this.saveButton.disabled = true;
+		this.applyDurationButton.hidden = true;
+		this.#recordingDuration = null;
 		this.dataset.state = 'preparing';
 		this.setStatus('Preparing microphone…');
 
@@ -190,6 +197,8 @@ export class PresentlyRecorder extends HTMLElement {
 	
 	stop() {
 		if (this.#mediaRecorder?.state === 'recording') {
+			this.#recordingDuration = (performance.now() - this.#startedAt) / 1000;
+			
 			// The encoder receives audio through a 100 ms delay. Stopping immediately
 			// excludes approximately the final 100 ms before this pointer-down event.
 			this.#mediaRecorder.stop();
@@ -208,6 +217,7 @@ export class PresentlyRecorder extends HTMLElement {
 		this.#recordingURL = URL.createObjectURL(this.#recording);
 		this.playback.src = this.#recordingURL;
 		this.playback.hidden = false;
+		this.applyDurationButton.hidden = true;
 		
 		this.recordButton.disabled = false;
 		this.recordButton.textContent = '● Retake';
@@ -223,7 +233,19 @@ export class PresentlyRecorder extends HTMLElement {
 		this.setStatus('Saving…');
 		
 		try {
-			const response = await fetch(this.url, {
+			const url = new URL(this.url, window.location.href);
+			let duration = null;
+			
+			if (this.updateDuration.checked) {
+				duration = this.canonicalDuration();
+				if (!duration) {
+					throw new Error('Could not determine the recording duration.');
+				}
+				
+				url.searchParams.set('duration', duration);
+			}
+			
+			const response = await fetch(url, {
 				method: 'PUT',
 				headers: {'content-type': this.#recording.type},
 				body: this.#recording,
@@ -233,14 +255,63 @@ export class PresentlyRecorder extends HTMLElement {
 				throw new Error((await response.text()) || `Could not save recording (${response.status}).`);
 			}
 			
-			this.playback.src = this.cacheBustedURL();
-			this.releaseRecordingURL();
+			// Keep the reviewed blob loaded because replacing its source resets media metadata:
 			this.#recording = null;
-			this.setStatus('Recording saved.');
+			if (duration) this.dataset.slideDuration = String(duration);
+			this.updateDurationAction();
+			const unit = duration === 1 ? 'second' : 'seconds';
+			this.setStatus(duration ? `Recording saved. Slide duration set to ${duration} ${unit}.` : 'Recording saved.');
 		} catch (error) {
 			this.saveButton.disabled = false;
 			this.setStatus(`Could not save recording: ${error.message}`, true);
 		}
+	}
+	
+	canonicalDuration() {
+		const duration = this.recordingDuration();
+		if (!Number.isFinite(duration) || duration <= 0) return null;
+		return Math.max(1, Math.ceil(duration));
+	}
+	
+	updateDurationAction() {
+		const recordingDuration = this.canonicalDuration();
+		const slideDuration = Number(this.dataset.slideDuration);
+		this.applyDurationButton.hidden = Boolean(this.#recording) || !recordingDuration || recordingDuration === slideDuration;
+	}
+	
+	async updateSlideDuration() {
+		const duration = this.canonicalDuration();
+		if (!duration) return;
+		
+		this.applyDurationButton.disabled = true;
+		this.setStatus('Updating slide duration…');
+		
+		try {
+			const url = new URL(this.url, window.location.href);
+			url.searchParams.set('duration', duration);
+			const response = await fetch(url, {method: 'PATCH'});
+			
+			if (!response.ok) {
+				throw new Error((await response.text()) || `Could not update slide duration (${response.status}).`);
+			}
+			
+			this.dataset.slideDuration = String(duration);
+			this.applyDurationButton.disabled = false;
+			this.applyDurationButton.hidden = true;
+			const unit = duration === 1 ? 'second' : 'seconds';
+			this.setStatus(`Slide duration set to ${duration} ${unit}.`);
+		} catch (error) {
+			this.applyDurationButton.disabled = false;
+			this.setStatus(`Could not update slide duration: ${error.message}`, true);
+		}
+	}
+	
+	recordingDuration() {
+		if (Number.isFinite(this.playback.duration) && this.playback.duration > 0) {
+			return this.playback.duration;
+		}
+		
+		return this.#recordingDuration;
 	}
 	
 	startTimer() {

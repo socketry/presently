@@ -91,7 +91,7 @@ module Presently
 			router.get("/presenter"){make_page(resolver.root(PresenterView), interface: :presenter).call}
 			router.get("/record"){make_page(resolver.root(RecordingView), interface: :recorder).call}
 			
-			router.route("/recordings", methods: ["GET", "HEAD", "PUT"]) do |request|
+			router.route("/recordings", methods: ["GET", "HEAD", "PUT", "PATCH"]) do |request|
 				handle_recording(request, request_parameters(request))
 			end
 			
@@ -159,8 +159,36 @@ module Presently
 			when "GET", "HEAD"
 				serve_recording(request, slide, @recordings)
 			when "PUT"
-				store_recording(request, slide)
+				duration = recording_duration(parameters)
+				if parameters.key?("duration") && !duration
+					return invalid_recording_duration
+				end
+				
+				store_recording(request, slide, duration: duration)
+			when "PATCH"
+				duration = recording_duration(parameters)
+				return invalid_recording_duration unless duration
+				return Protocol::HTTP::Response[404, [], ["Recording not found."]] unless @recordings.exist?(slide)
+				
+				slide.update_duration!(duration)
+				Protocol::HTTP::Response[200, [["content-type", "application/json"]], ["{\"updated\":true,\"duration\":#{duration}}"]]
 			end
+		end
+		
+		# Parse an optional positive recording duration.
+		# @parameter parameters [Hash] The decoded query parameters.
+		# @returns [Integer | Nil] The duration in seconds, or `nil` when absent or invalid.
+		def recording_duration(parameters)
+			if value = parameters["duration"]
+				duration = Integer(value, exception: false)
+				return duration if duration&.positive?
+			end
+		end
+		
+		# Build the response for an invalid recording duration.
+		# @returns [Protocol::HTTP::Response] A bad request response.
+		def invalid_recording_duration
+			Protocol::HTTP::Response[400, [], ["Duration must be a positive number of seconds."]]
 		end
 		
 		# Serve normalized narration for playback, falling back to the source take.
@@ -206,7 +234,7 @@ module Presently
 		# @parameter request [Protocol::HTTP::Request] The incoming request.
 		# @parameter slide [Slide] The slide being recorded.
 		# @returns [Protocol::HTTP::Response]
-		def store_recording(request, slide)
+		def store_recording(request, slide, duration: nil)
 			content_type = request.headers["content-type"]&.split(";", 2)&.first
 			unless content_type == Recordings::CONTENT_TYPE
 				return Protocol::HTTP::Response[415, [], ["Expected #{Recordings::CONTENT_TYPE}."]]
@@ -217,7 +245,10 @@ module Presently
 			end
 			
 			@recordings.write(slide, request.body)
-			Protocol::HTTP::Response[201, [["content-type", "application/json"]], ["{\"saved\":true}"]]
+			slide.update_duration!(duration) if duration
+			
+			result = duration ? "{\"saved\":true,\"duration\":#{duration}}" : "{\"saved\":true}"
+			Protocol::HTTP::Response[201, [["content-type", "application/json"]], [result]]
 		rescue Recordings::TooLarge => error
 			Protocol::HTTP::Response[413, [], [error.message]]
 		end
