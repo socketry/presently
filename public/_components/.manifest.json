@@ -15,7 +15,7 @@
         "Presently/CodeFocus.js": "05fb95308f012cab92655671050279149fc4aa683450932e27fc77bd51f8ce29",
         "Presently/Scripts.js": "c2a005e2dc7e938a5ca32b7a2177331ad0cea6aa9e7496ffe2810b9561291726",
         "Presently/Slide.js": "0d67e83eff558aee8ae829a2e526dc4d583f9c0753db156c531b57e32d271ead",
-        "Presently/SlideRendering.js": "198e36c9361802dbda5b0153eb74fa4b879debbeb0c84cf55f85fb811b4b9a62"
+        "Presently/SlideRendering.js": "64f37ceb0edea843d6084d1d58feb8701376eaaa5909bad9d3bc99301e590e9b"
       }
     },
     "@socketry/syntax": {
@@ -126,5 +126,5 @@
       }
     }
   },
-  "digest": "9f469be20bb3ae324de9f21e31dba7025b166d6c9211d28504c283a618278651"
+  "digest": "e5f3142dd613283c1f28bf452c8bd6af6d8e756da224ca33374f6d7b01785d97"
 }

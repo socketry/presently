@@ -27,19 +27,21 @@ export class SlideRendering {
 	async initialize() {
 		if (this.#disposed) return false;
 
-		await prepareSlides();
-		if (this.#disposed) return false;
-
+		// Establish script-controlled visibility before yielding to asynchronous
+		// highlighting, so partially initialized slide content is never painted.
 		this.#view.querySelectorAll('.slide').forEach(slideElement => {
 			const slide = runScript(slideElement);
 			if (slide) this.#slides.push(slide);
 		});
 
-		return true;
+		await prepareSlides();
+		return !this.#disposed;
 	}
 
 	// Update the view, initialize its slides, and emit the change event.
-	// @parameter update [Function] Updates the view's DOM.
+	// The update must mutate the view synchronously so slide scripts can establish
+	// their initial state before the browser can paint the updated DOM.
+	// @parameter update [Function] Updates the view's DOM synchronously.
 	// @returns [Promise(Boolean)] Whether the rendering was completed.
 	async render(update) {
 		if (this.#disposed) return false;
@@ -48,7 +50,7 @@ export class SlideRendering {
 		const render = async () => {
 			if (this.#disposed) return;
 
-			await update(this.#view);
+			update(this.#view);
 			initialized = await this.initialize();
 		};
 
