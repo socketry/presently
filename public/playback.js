@@ -1,5 +1,4 @@
-import {applyCodeFocus, runScript} from '@socketry/presently';
-import Syntax from '@socketry/syntax';
+import {SlideRendering} from '@socketry/presently';
 import morphdom from 'morphdom';
 
 const frame = document.querySelector('.playback-frame');
@@ -16,7 +15,7 @@ const nextButton = document.querySelector('.playback-next');
 const counter = document.querySelector('.playback-counter');
 
 let currentIndex = 0;
-let currentScript = null;
+let currentRendering = null;
 let currentAudio = null;
 let playing = false;
 let transitioning = false;
@@ -34,8 +33,8 @@ function updateControls() {
 }
 
 function stopCurrent() {
-	currentScript?.dispose();
-	currentScript = null;
+	currentRendering?.dispose();
+	currentRendering = null;
 
 	if (currentAudio) {
 		currentAudio.pause();
@@ -44,7 +43,7 @@ function stopCurrent() {
 	}
 }
 
-async function activateFrame(index) {
+async function activateFrame(index, {transition = true} = {}) {
 	const slideTemplate = slideTemplates[index];
 	const nextFrame = document.createElement('div');
 	nextFrame.id = frame.id;
@@ -54,16 +53,17 @@ async function activateFrame(index) {
 	nextFrame.dataset.duration = slideTemplate.dataset.duration;
 	nextFrame.append(slideTemplate.content.cloneNode(true));
 
-	// Match the audience display's Lively update path so unchanged slide elements
-	// retain their identity across incremental builds.
-	morphdom(frame, nextFrame);
-	await Syntax.highlight();
-	await applyCodeFocus();
+	const rendering = new SlideRendering(frame, {
+		transition: transition ? slideTemplate.dataset.transition : null,
+	});
+	currentRendering = rendering;
+
+	const rendered = await rendering.render(renderView => morphdom(renderView, nextFrame));
+	if (!rendered || currentRendering !== rendering) return false;
 
 	currentIndex = index;
-	const slide = frame.querySelector('.slide');
-	currentScript = runScript(slide);
 	updateControls();
+	return true;
 }
 
 async function show(index, {transition = true} = {}) {
@@ -72,26 +72,11 @@ async function show(index, {transition = true} = {}) {
 	transitioning = true;
 	stopCurrent();
 
-	const transitionName = slideTemplates[index].dataset.transition;
-	const swap = () => activateFrame(index);
-
 	try {
-		if (transition && transitionName && document.startViewTransition && !document.hidden) {
-			document.documentElement.dataset.transition = transitionName;
-			const viewTransition = document.startViewTransition(swap);
-			// The document may become hidden after the check, aborting the visual transition without preventing the swap.
-			viewTransition.ready.catch(() => {});
-			await viewTransition.updateCallbackDone;
-			await viewTransition.finished.catch(() => {});
-		} else {
-			await swap();
-		}
+		return await activateFrame(index, {transition});
 	} finally {
-		delete document.documentElement.dataset.transition;
 		transitioning = false;
 	}
-
-	return true;
 }
 
 function finish() {
@@ -260,7 +245,7 @@ async function prepare() {
 		...Array.from(audioTracks.values()).map(waitForAudioMetadata),
 	]);
 
-	await activateFrame(0);
+	await activateFrame(0, {transition: false});
 	startButton.disabled = false;
 	setStatus('Ready.');
 

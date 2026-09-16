@@ -97,6 +97,8 @@ test('a superseded rendering skips its transition and disposes its slides', asyn
 			const transition = new Promise(resolve => releaseTransition = resolve);
 
 			return {
+				ready: Promise.resolve(),
+				updateCallbackDone,
 				finished: updateCallbackDone.then(() => transition),
 				skipTransition() {
 					skipped = true;
@@ -105,18 +107,15 @@ test('a superseded rendering skips its transition and disposes its slides', asyn
 			};
 		};
 
-		const rendering = new SlideRendering(view, {html: '<slide>', transition: 'fade'});
+		const rendering = new SlideRendering(view, {transition: 'fade'});
 		let resolveUpdate;
 		const updated = new Promise(resolve => {
 			resolveUpdate = resolve;
 		});
 
-		const result = rendering.render({
-			update(id, html) {
-				assert.equal(id, 'current');
-				assert.equal(html, '<slide>');
-				resolveUpdate();
-			},
+		const result = rendering.render(renderView => {
+			assert.equal(renderView, view);
+			resolveUpdate();
 		});
 
 		await updated;
@@ -132,6 +131,131 @@ test('a superseded rendering skips its transition and disposes its slides', asyn
 		Syntax.highlight = originalHighlight;
 		delete globalThis.slideDisposals;
 		delete globalThis.resolveSlideInitialized;
+		delete globalThis.document;
+	}
+});
+
+test('a rendering retains its transition style until the visual transition finishes', async () => {
+	const originalHighlight = Syntax.highlight;
+	Syntax.highlight = async () => {};
+
+	globalThis.document = {
+		hidden: false,
+		documentElement: {dataset: {}},
+		querySelectorAll(selector) {
+			assert.equal(selector, '.code-viewport');
+			return [];
+		},
+	};
+
+	try {
+		const view = new View('current', []);
+		let resolveUpdate;
+		const updated = new Promise(resolve => resolveUpdate = resolve);
+		let releaseTransition;
+
+		document.startViewTransition = callback => {
+			const updateCallbackDone = Promise.resolve().then(callback);
+			const transition = new Promise(resolve => releaseTransition = resolve);
+
+			return {
+				ready: Promise.resolve(),
+				updateCallbackDone,
+				finished: updateCallbackDone.then(() => transition),
+				skipTransition() {
+					releaseTransition();
+				},
+			};
+		};
+
+		const rendering = new SlideRendering(view, {transition: 'fade'});
+		const result = rendering.render(renderView => {
+			assert.equal(renderView, view);
+			resolveUpdate();
+		});
+
+		await updated;
+		assert.equal(document.documentElement.dataset.transition, 'fade');
+
+		releaseTransition();
+		assert.equal(await result, true);
+		assert.equal(document.documentElement.dataset.transition, undefined);
+	} finally {
+		Syntax.highlight = originalHighlight;
+		delete globalThis.document;
+	}
+});
+
+test('a hidden document renders without starting a visual transition', async () => {
+	const originalHighlight = Syntax.highlight;
+	Syntax.highlight = async () => {};
+
+	let transitionStarted = false;
+	globalThis.document = {
+		hidden: true,
+		documentElement: {dataset: {}},
+		startViewTransition() {
+			transitionStarted = true;
+		},
+		querySelectorAll(selector) {
+			assert.equal(selector, '.code-viewport');
+			return [];
+		},
+	};
+
+	try {
+		const view = new View('hidden', []);
+		const rendering = new SlideRendering(view, {transition: 'fade'});
+		let updated = false;
+
+		assert.equal(await rendering.render(renderView => {
+			assert.equal(renderView, view);
+			updated = true;
+		}), true);
+		assert.equal(updated, true);
+		assert.equal(transitionStarted, false);
+		assert.equal(document.documentElement.dataset.transition, undefined);
+	} finally {
+		Syntax.highlight = originalHighlight;
+		delete globalThis.document;
+	}
+});
+
+test('an aborted visual transition does not discard a completed DOM update', async () => {
+	const originalHighlight = Syntax.highlight;
+	Syntax.highlight = async () => {};
+
+	globalThis.document = {
+		hidden: false,
+		documentElement: {dataset: {}},
+		querySelectorAll(selector) {
+			assert.equal(selector, '.code-viewport');
+			return [];
+		},
+	};
+
+	try {
+		document.startViewTransition = callback => {
+			const updateCallbackDone = Promise.resolve().then(callback);
+			const aborted = new Error('Document hidden');
+
+			return {
+				ready: Promise.reject(aborted),
+				updateCallbackDone,
+				finished: updateCallbackDone.then(() => Promise.reject(aborted)),
+				skipTransition() {},
+			};
+		};
+
+		const view = new View('aborted', []);
+		const rendering = new SlideRendering(view, {transition: 'fade'});
+		let updated = false;
+
+		assert.equal(await rendering.render(() => updated = true), true);
+		assert.equal(updated, true);
+		assert.equal(document.documentElement.dataset.transition, undefined);
+	} finally {
+		Syntax.highlight = originalHighlight;
 		delete globalThis.document;
 	}
 });

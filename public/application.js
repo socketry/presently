@@ -9,8 +9,8 @@ let live = null;
 
 let activeRendering = null;
 
-function activateRendering(view, detail = {}) {
-	const rendering = new SlideRendering(view, detail);
+function activateRendering(view, {transition = null} = {}) {
+	const rendering = new SlideRendering(view, {transition});
 	const previousRendering = activeRendering;
 	activeRendering = rendering;
 	previousRendering?.dispose();
@@ -22,8 +22,9 @@ async function renderSlide(event) {
 	const view = event.target.closest?.('live-view');
 	if (!view) return;
 
-	const rendering = activateRendering(view, event.detail);
-	await rendering.render(live);
+	const {html, transition} = event.detail ?? {};
+	const rendering = activateRendering(view, {transition});
+	await rendering.render(renderView => live.update(renderView.id, html));
 }
 
 document.addEventListener(SLIDE_RENDER_EVENT, (event) => {
