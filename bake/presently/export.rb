@@ -11,6 +11,44 @@ def initialize(context)
 	require "uri"
 end
 
+# Export narrated playback as a portable static HTML directory.
+#
+# The output contains `index.html`, all browser-side dependencies, slide
+# assets, presentation-specific public assets, and one narration track per
+# slide. Normalized recordings are preferred when available, with the source
+# recording used as a fallback.
+#
+# Serve the resulting directory with any static HTTP server. Opening the file
+# directly is not supported because browsers restrict JavaScript modules under
+# `file://` URLs.
+#
+# @parameter output [String] Output directory. Default: `presentation`.
+# @parameter slides_root [String] The slides directory. Default: `slides`.
+# @parameter templates_root [String] Presentation-specific slide templates directory. Default: `templates`.
+# @parameter recordings_root [String] Source recordings directory. Default: `audio`.
+# @parameter playback_recordings_root [String] Normalized recordings directory. Default: `audio-normalized`.
+# @parameter public_root [String] Presentation-specific public assets directory. Default: `public`.
+# @parameter force [Boolean] Replace an existing output directory. Default: `false`.
+def html(output: "presentation", slides_root: "slides", templates_root: "templates", recordings_root: "audio", playback_recordings_root: "audio-normalized", public_root: "public", force: false)
+	require "presently/html_export"
+	require "presently/presentation"
+	
+	template_roots = [File.expand_path(templates_root)].select{|root| File.directory?(root)}
+	templates = Presently::Templates.for(template_roots)
+	presentation = Presently::Presentation.load(slides_root, templates)
+	public_roots = Presently::HTMLExport.public_roots(File.directory?(public_root) ? public_root : nil)
+	export = Presently::HTMLExport.new(
+		presentation: presentation,
+		recordings_root: recordings_root,
+		playback_recordings_root: playback_recordings_root,
+		public_roots: public_roots,
+	)
+	
+	path = export.write(output, force: force)
+	puts "Exported static playback to #{path}"
+	return {path: path}
+end
+
 # Export the presentation to a PDF file.
 #
 # Starts a Presently server in-process, opens a headless Chrome browser,

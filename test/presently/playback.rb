@@ -84,5 +84,19 @@ describe Presently::Playback do
 			expect(playback.call).to be(:include?, 'data-autoplay="true"')
 			expect(playback.call).to be(:include?, 'data-controls="false"')
 		end
+		
+		it "prefixes assets for a static playback target" do
+			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
+			File.write(File.join(dir, "diagram.svg"), "<svg></svg>\n")
+			File.write(File.join(dir, "01.md"), "![Diagram](diagram.svg)\n")
+			playback = subject.new(presentation: Presently::Presentation.load(dir), recording_urls: recording_urls, asset_prefix: ".")
+			html = playback.call
+			
+			expect(html).to be(:include?, 'src="./playback.js"')
+			expect(html).to be(:include?, 'href="./_static/playback.css"')
+			expect(html).to be(:include?, 'href="./_slides/style.css"')
+			expect(html).to be(:include?, 'src="./_slides/diagram.svg"')
+			expect(html).to be(:include?, '"morphdom": "./_components/morphdom/morphdom-esm.js"')
+		end
 	end
 end
