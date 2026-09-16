@@ -67,10 +67,15 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.22.0
+
+  - Split built-in slide and interface styles into focused stylesheets while retaining `index.css` for shared defaults.
+
 ### v0.21.0
 
   - [Semantic Slides](https://socketry.github.io/presently/releases/index#semantic-slides)
   - [Slide Scripts](https://socketry.github.io/presently/releases/index#slide-scripts)
+  - [Styling](https://socketry.github.io/presently/releases/index#styling)
 
 ### v0.20.1
 
@@ -116,10 +121,6 @@ q
   - Increase code font size by 50%.
   - Add support for includes using `![[path]]` syntax.
   - Add `bake presently:rehearse` tasks for updating timing information.
-
-### v0.13.0
-
-  - Change zoom to 50% on slide preview (presenter display).
 
 ## See Also
 
