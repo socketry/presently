@@ -4,10 +4,11 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "presently/presentation"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Slide do
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
 	def load_slide(path)
 		presentation = Presently::Presentation.new(File.dirname(path))
 		Presently::Slide.load(presentation, File.basename(path))
@@ -31,17 +32,15 @@ describe Presently::Slide do
 	
 	with "#duration" do
 		it "reads duration from front_matter" do
-			expect(slide.duration).to be == 30
+			path = File.join(root, "slide.md")
+			File.write(path, "---\nduration: 30\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 30
 		end
 	end
 	
 	with "#update_duration!" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
-		
-		after do
-			FileUtils.remove_entry(dir)
-		end
+		let(:path) {File.join(root, "test.md")}
 		
 		it "replaces an existing duration without rewriting other content" do
 			File.write(path, "---\nmarker: Example\nduration: 30 # timing target\n---\n# Slide\n")
