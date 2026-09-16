@@ -67,6 +67,11 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.24.0
+
+  - Match slide duration to saved narration by default in the recorder.
+  - Keep scripted slides hidden until their initial script state has been applied.
+
 ### v0.23.0
 
   - Keep narrated playback visuals synchronized when the document or inactive slide frames are hidden.
@@ -116,13 +121,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
 ### v0.16.0
 
   - Add support for organizing slides in nested directories. Every directory and slide filename must begin with a numeric prefix, and slides are ordered by relative path.
-
-### v0.15.0
-
-q
-
-  - Export works from current working directory.
-      - Remove explicit support for `morph` transition.
 
 ## See Also
 
