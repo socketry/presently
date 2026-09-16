@@ -19,6 +19,10 @@ body.playback,
 	inset: 0;
 }
 
+.playback-frame[hidden] {
+	display: none;
+}
+
 .playback-start-screen {
 	position: fixed;
 	inset: 0;

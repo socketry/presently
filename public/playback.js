@@ -63,9 +63,11 @@ async function show(index, {transition = true} = {}) {
 	const swap = () => activateFrame(index);
 
 	try {
-		if (transition && transitionName && document.startViewTransition) {
+		if (transition && transitionName && document.startViewTransition && !document.hidden) {
 			document.documentElement.dataset.transition = transitionName;
 			const viewTransition = document.startViewTransition(swap);
+			// The document may become hidden after the check, aborting the visual transition without preventing the swap.
+			viewTransition.ready.catch(() => {});
 			await viewTransition.updateCallbackDone;
 		} else {
 			swap();
