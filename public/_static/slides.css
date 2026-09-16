@@ -43,6 +43,9 @@
 	
 	/* Content size used by the diagram template. */
 	--slide-font-diagram: 0.75em;
+
+	/* Link color chosen for legibility against the default dark slide background. */
+	--slide-link: #7dd3fc;
 	
 	/* Space between the slide edge and its content. */
 	--slide-gutter: 3cqi;
@@ -83,6 +86,10 @@
 	padding: var(--slide-gutter);
 	font-size: var(--slide-font-size);
 	line-height: 1.5;
+}
+
+.slide a {
+	color: var(--slide-link);
 }
 
 .slide-header {
