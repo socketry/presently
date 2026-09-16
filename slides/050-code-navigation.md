@@ -1,6 +1,6 @@
 ---
 template: code
-duration: 60
+duration: 8
 focus: 20-26
 speaker: Samuel
 ---

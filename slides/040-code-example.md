@@ -1,6 +1,6 @@
 ---
 template: code
-duration: 60
+duration: 7
 marker: Code Walkthrough
 speaker: Samuel
 ---

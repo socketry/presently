@@ -1,5 +1,5 @@
 ---
-duration: 60
+duration: 6
 marker: Anime Diagram
 template: diagram
 transition: fade

@@ -1,6 +1,6 @@
 ---
 template: statement
-duration: 30
+duration: 15
 transition: fade
 speaker: Samuel
 ---

@@ -1,6 +1,6 @@
 ---
 template: title
-duration: 30
+duration: 17
 marker: Welcome
 speaker: Samuel
 ---

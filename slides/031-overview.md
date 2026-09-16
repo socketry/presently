@@ -1,5 +1,5 @@
 ---
-duration: 20
+duration: 15
 transition: fade
 speaker: Samuel
 ---

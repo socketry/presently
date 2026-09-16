@@ -1,6 +1,6 @@
 ---
 template: title
-duration: 30
+duration: 14
 marker: Thanks
 speaker: Samuel
 ---

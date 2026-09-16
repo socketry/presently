@@ -1,6 +1,6 @@
 ---
 template: section
-duration: 15
+duration: 8
 transition: slide-left
 marker: Demo
 speaker: Samuel

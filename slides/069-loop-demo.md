@@ -1,5 +1,5 @@
 ---
-duration: 60
+duration: 12
 marker: Loop Demo
 template: diagram
 transition: fade
