@@ -12,15 +12,13 @@ async function prepareSlides() {
 // Owns the scripts and view transition associated with one rendering of a slide view.
 export class SlideRendering {
 	#view;
-	#html;
 	#transitionName;
 	#viewTransition = null;
 	#slides = [];
 	#disposed = false;
 
-	constructor(view, {html = null, transition = null} = {}) {
+	constructor(view, {transition = null} = {}) {
 		this.#view = view;
-		this.#html = html;
 		this.#transitionName = transition;
 	}
 
@@ -41,27 +39,32 @@ export class SlideRendering {
 	}
 
 	// Update the view, initialize its slides, and emit the change event.
-	// @parameter live [Live] The connected Live client.
+	// @parameter update [Function] Updates the view's DOM.
 	// @returns [Promise(Boolean)] Whether the rendering was completed.
-	async render(live) {
+	async render(update) {
 		if (this.#disposed) return false;
 
 		let initialized = false;
-		const update = async () => {
+		const render = async () => {
 			if (this.#disposed) return;
 
-			live.update(this.#view.id, this.#html);
+			await update(this.#view);
 			initialized = await this.initialize();
 		};
 
-		if (this.#transitionName && document.startViewTransition) {
+		if (this.#transitionName && document.startViewTransition && !document.hidden) {
 			document.documentElement.dataset.transition = this.#transitionName;
 			let viewTransition = null;
 
 			try {
-				viewTransition = document.startViewTransition(update);
+				viewTransition = document.startViewTransition(render);
 				this.#viewTransition = viewTransition;
-				await viewTransition.finished;
+
+				// A hidden document may abort the visual transition, but the DOM update should still complete.
+				viewTransition.ready.catch(() => {});
+				const finished = viewTransition.finished.catch(() => {});
+				await viewTransition.updateCallbackDone;
+				await finished;
 			} finally {
 				if (this.#viewTransition === viewTransition) {
 					this.#viewTransition = null;
@@ -69,7 +72,7 @@ export class SlideRendering {
 				}
 			}
 		} else {
-			await update();
+			await render();
 		}
 
 		if (initialized && !this.#disposed) {

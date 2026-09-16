@@ -19,6 +19,7 @@
 		<script type="importmap">
 		{
 			"imports": {
+				"morphdom": "/_components/morphdom/morphdom-esm.js",
 				"@socketry/presently": "/_components/@socketry/presently/Presently.js",
 				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js",
 				"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"
@@ -31,12 +32,17 @@
 	
 	<body class="playback" data-autoplay="#{self.autoplay}" data-controls="#{self.controls}">
 		<main class="playback-stage">
-			<?r self.slides.each_with_index do |slide, index| ?>
-			<div class="playback-frame slide-viewport" data-index="#{index}" data-transition="#{slide.transition}" data-duration="#{slide.duration}"<?r if index != 0 ?> hidden<?r end ?>>
-				#{self.render_slide(slide)}
-			</div>
-			<?r end ?>
+			<div id="playback-frame" class="playback-frame slide-viewport"></div>
 		</main>
+
+		<!-- Keep inactive slides inert while retaining their rendered HTML for local navigation. -->
+		<div class="playback-slides" hidden>
+			<?r self.slides.each_with_index do |slide, index| ?>
+			<template data-index="#{index}" data-transition="#{slide.transition}" data-duration="#{slide.duration}">
+				#{self.render_slide(slide)}
+			</template>
+			<?r end ?>
+		</div>
 		
 		<div class="playback-audio" hidden>
 			<?r self.slides.each_with_index do |slide, index| ?>

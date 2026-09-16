@@ -1,7 +1,8 @@
-import {applyCodeFocus, runScript} from '@socketry/presently';
-import Syntax from '@socketry/syntax';
+import {SlideRendering} from '@socketry/presently';
+import morphdom from 'morphdom';
 
-const frames = Array.from(document.querySelectorAll('.playback-frame'));
+const frame = document.querySelector('.playback-frame');
+const slideTemplates = Array.from(document.querySelectorAll('.playback-slides template'));
 const audioTracks = new Map(
 	Array.from(document.querySelectorAll('.playback-audio audio')).map(audio => [Number(audio.dataset.index), audio]),
 );
@@ -14,7 +15,7 @@ const nextButton = document.querySelector('.playback-next');
 const counter = document.querySelector('.playback-counter');
 
 let currentIndex = 0;
-let currentScript = null;
+let currentRendering = null;
 let currentAudio = null;
 let playing = false;
 let transitioning = false;
@@ -27,13 +28,13 @@ function setStatus(message, error = false) {
 function updateControls() {
 	toggleButton.textContent = playing ? '❚❚' : '▶';
 	previousButton.disabled = currentIndex === 0;
-	nextButton.disabled = currentIndex === frames.length - 1;
-	counter.textContent = `${currentIndex + 1} / ${frames.length}`;
+	nextButton.disabled = currentIndex === slideTemplates.length - 1;
+	counter.textContent = `${currentIndex + 1} / ${slideTemplates.length}`;
 }
 
 function stopCurrent() {
-	currentScript?.dispose();
-	currentScript = null;
+	currentRendering?.dispose();
+	currentRendering = null;
 
 	if (currentAudio) {
 		currentAudio.pause();
@@ -42,42 +43,40 @@ function stopCurrent() {
 	}
 }
 
-function activateFrame(index) {
-	frames.forEach((frame, frameIndex) => {
-		frame.hidden = frameIndex !== index;
+async function activateFrame(index, {transition = true} = {}) {
+	const slideTemplate = slideTemplates[index];
+	const nextFrame = document.createElement('div');
+	nextFrame.id = frame.id;
+	nextFrame.className = frame.className;
+	nextFrame.dataset.index = slideTemplate.dataset.index;
+	nextFrame.dataset.transition = slideTemplate.dataset.transition;
+	nextFrame.dataset.duration = slideTemplate.dataset.duration;
+	nextFrame.append(slideTemplate.content.cloneNode(true));
+
+	const rendering = new SlideRendering(frame, {
+		transition: transition ? slideTemplate.dataset.transition : null,
 	});
+	currentRendering = rendering;
+
+	const rendered = await rendering.render(renderView => morphdom(renderView, nextFrame));
+	if (!rendered || currentRendering !== rendering) return false;
 
 	currentIndex = index;
-	const slide = frames[index].querySelector('.slide');
-	currentScript = runScript(slide);
 	updateControls();
+	return true;
 }
 
 async function show(index, {transition = true} = {}) {
-	if (transitioning || index < 0 || index >= frames.length) return false;
+	if (transitioning || index < 0 || index >= slideTemplates.length) return false;
 
 	transitioning = true;
 	stopCurrent();
 
-	const transitionName = frames[index].dataset.transition;
-	const swap = () => activateFrame(index);
-
 	try {
-		if (transition && transitionName && document.startViewTransition && !document.hidden) {
-			document.documentElement.dataset.transition = transitionName;
-			const viewTransition = document.startViewTransition(swap);
-			// The document may become hidden after the check, aborting the visual transition without preventing the swap.
-			viewTransition.ready.catch(() => {});
-			await viewTransition.updateCallbackDone;
-		} else {
-			swap();
-		}
+		return await activateFrame(index, {transition});
 	} finally {
-		delete document.documentElement.dataset.transition;
 		transitioning = false;
 	}
-
-	return true;
 }
 
 function finish() {
@@ -117,7 +116,7 @@ async function playCurrent() {
 
 async function handleEnded() {
 	try {
-		if (currentIndex === frames.length - 1) {
+		if (currentIndex === slideTemplates.length - 1) {
 			finish();
 			return;
 		}
@@ -148,7 +147,7 @@ async function start() {
 	startButton.disabled = true;
 
 	try {
-		if (currentIndex === frames.length - 1 || startButton.textContent.includes('again')) {
+		if (currentIndex === slideTemplates.length - 1 || startButton.textContent.includes('again')) {
 			await show(0, {transition: false});
 		}
 
@@ -163,7 +162,7 @@ window.__PRESENTLY_PLAYBACK_START = start;
 
 async function move(offset) {
 	const wasPlaying = playing;
-	const index = Math.max(0, Math.min(frames.length - 1, currentIndex + offset));
+	const index = Math.max(0, Math.min(slideTemplates.length - 1, currentIndex + offset));
 	if (index === currentIndex) return;
 
 	playing = false;
@@ -238,17 +237,15 @@ async function waitForAudioMetadata(audio) {
 }
 
 async function prepare() {
-	if (!frames.length) throw new Error('The presentation has no slides.');
-	if (audioTracks.size !== frames.length) throw new Error('Every slide requires a narration recording.');
+	if (!slideTemplates.length) throw new Error('The presentation has no slides.');
+	if (audioTracks.size !== slideTemplates.length) throw new Error('Every slide requires a narration recording.');
 
 	await Promise.all([
-		Syntax.highlight(),
 		document.fonts.ready,
 		...Array.from(audioTracks.values()).map(waitForAudioMetadata),
 	]);
-	await applyCodeFocus();
 
-	activateFrame(0);
+	await activateFrame(0, {transition: false});
 	startButton.disabled = false;
 	setStatus('Ready.');
 
