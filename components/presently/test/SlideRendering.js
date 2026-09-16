@@ -10,6 +10,7 @@ class SlideElement {
 	constructor(script) {
 		this.script = {textContent: script};
 		this.body = {querySelectorAll: () => []};
+		this.dataset = {};
 	}
 
 	querySelector(selector) {

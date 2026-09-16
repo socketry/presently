@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Match slide duration to saved narration by default in the recorder.
+  - Keep scripted slides hidden until their initial script state has been applied.
 
 ## v0.23.0
 

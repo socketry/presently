@@ -359,6 +359,7 @@ describe Presently::SlideRenderer do
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html.scan('type="text/slide-script"').size).to be == 2
+		expect(html).to be(:include?, 'class="slide slide-scripted"')
 		expect(html).to be(:include?, "globalThis.setup")
 		expect(html).to be(:include?, "globalThis.control")
 	end

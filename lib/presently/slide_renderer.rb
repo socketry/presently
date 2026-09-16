@@ -45,7 +45,9 @@ module Presently
 			scope = TemplateScope.new(slide)
 			html = template.to_string(scope)
 			
-			classes = [@css_class, extra_class].compact.join(" ")
+			classes = [@css_class, extra_class]
+			classes << "slide-scripted" unless slide.scripts.empty?
+			classes = classes.compact.join(" ")
 			path = Stylesheet.encode_path(slide.path)
 			
 			builder.tag(:div, class: "slide-surface", data: {template: slide.template}) do

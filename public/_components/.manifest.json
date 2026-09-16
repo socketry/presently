@@ -13,7 +13,7 @@
       "files": {
         "Presently.js": "552a41737db0e67cde2f4555cf686ddb6a5de8da28c64d0404b8d7b2c10152c9",
         "Presently/CodeFocus.js": "05fb95308f012cab92655671050279149fc4aa683450932e27fc77bd51f8ce29",
-        "Presently/Scripts.js": "c8f01508021038220ab7a2eec9cffc92d7c0f2d4bd57d928dcc88c748e6469a9",
+        "Presently/Scripts.js": "c2a005e2dc7e938a5ca32b7a2177331ad0cea6aa9e7496ffe2810b9561291726",
         "Presently/Slide.js": "0d67e83eff558aee8ae829a2e526dc4d583f9c0753db156c531b57e32d271ead",
         "Presently/SlideRendering.js": "198e36c9361802dbda5b0153eb74fa4b879debbeb0c84cf55f85fb811b4b9a62"
       }
@@ -126,5 +126,5 @@
       }
     }
   },
-  "digest": "0aa4e339ee3411597ced5bcb4e097ee706d11947dbe9a49bb5b0ef0417fcfec6"
+  "digest": "9f469be20bb3ae324de9f21e31dba7025b166d6c9211d28504c283a618278651"
 }
