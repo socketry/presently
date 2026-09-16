@@ -6,6 +6,7 @@
 require "yaml"
 require "markly"
 require "protocol/url"
+require "tempfile"
 
 require "markly/renderer/html"
 
@@ -351,6 +352,47 @@ module Presently
 		# @returns [Integer] The duration from front_matter, or `60`.
 		def duration
 			@front_matter&.fetch("duration", 60) || 60
+		end
+		
+		# Update the expected duration in the slide's YAML front matter.
+		# Preserves the remainder of the source file rather than reserializing it.
+		# @parameter duration [Integer] The new positive duration in seconds.
+		# @returns [Integer] The persisted duration.
+		def update_duration!(duration)
+			duration = Integer(duration)
+			raise ArgumentError, "Duration must be positive!" unless duration.positive?
+			
+			path = source_path
+			source = File.read(path)
+			newline = source.include?("\r\n") ? "\r\n" : "\n"
+			
+			front_matter_pattern = /\A---[ \t]*(?<newline>\r?\n)(?<body>.*?)(?<closing>^---[ \t]*(?:\r?\n|\z))/m
+			if match = front_matter_pattern.match(source)
+				body = match[:body]
+				
+				if line = /^duration:[^#\r\n]*(?<comment>[ \t]+#[^\r\n]*)?(?<newline>\r?\n|\z)/.match(body)
+					replacement = "duration: #{duration}#{line[:comment]}#{line[:newline]}"
+					body = body[0...line.begin(0)] + replacement + body[line.end(0)..]
+				else
+					body += match[:newline] unless body.empty? || body.end_with?("\n")
+					body += "duration: #{duration}#{match[:newline]}"
+				end
+				
+				source = source[0...match.begin(:body)] + body + source[match.end(:body)..]
+			else
+				source = "---#{newline}duration: #{duration}#{newline}---#{newline}#{source}"
+			end
+			
+			stat = File.stat(path)
+			Tempfile.create([".presently-slide", ".md"], File.dirname(path), binmode: true) do |file|
+				file.chmod(stat.mode & 0o7777)
+				file.write(source)
+				file.flush
+				File.rename(file.path, path)
+			end
+			
+			(@front_matter ||= {})["duration"] = duration
+			return duration
 		end
 		
 		# The title of this slide.

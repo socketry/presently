@@ -50,6 +50,8 @@ describe Presently::RecordingView do
 		expect(html).to be(:include?, "● Record")
 		expect(html).not.to be(:include?, 'class="recording-stop"')
 		expect(html).to be(:include?, 'class="recording-indicator"')
+		expect(html).to be(:include?, 'class="recording-update-duration"')
+		expect(html).to be(:include?, "Update slide duration to match this recording")
 		expect(html).to be(:include?, 'class="edit-link"')
 	end
 	

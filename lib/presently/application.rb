@@ -159,7 +159,15 @@ module Presently
 			when "GET", "HEAD"
 				serve_recording(request, slide, @recordings)
 			when "PUT"
-				store_recording(request, slide)
+				duration = nil
+				if value = parameters["duration"]
+					duration = Integer(value, exception: false)
+					unless duration&.positive?
+						return Protocol::HTTP::Response[400, [], ["Duration must be a positive number of seconds."]]
+					end
+				end
+				
+				store_recording(request, slide, duration: duration)
 			end
 		end
 		
@@ -206,7 +214,7 @@ module Presently
 		# @parameter request [Protocol::HTTP::Request] The incoming request.
 		# @parameter slide [Slide] The slide being recorded.
 		# @returns [Protocol::HTTP::Response]
-		def store_recording(request, slide)
+		def store_recording(request, slide, duration: nil)
 			content_type = request.headers["content-type"]&.split(";", 2)&.first
 			unless content_type == Recordings::CONTENT_TYPE
 				return Protocol::HTTP::Response[415, [], ["Expected #{Recordings::CONTENT_TYPE}."]]
@@ -217,7 +225,10 @@ module Presently
 			end
 			
 			@recordings.write(slide, request.body)
-			Protocol::HTTP::Response[201, [["content-type", "application/json"]], ["{\"saved\":true}"]]
+			slide.update_duration!(duration) if duration
+			
+			result = duration ? "{\"saved\":true,\"duration\":#{duration}}" : "{\"saved\":true}"
+			Protocol::HTTP::Response[201, [["content-type", "application/json"]], [result]]
 		rescue Recordings::TooLarge => error
 			Protocol::HTTP::Response[413, [], [error.message]]
 		end

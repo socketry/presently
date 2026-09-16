@@ -101,6 +101,10 @@ module Presently
 								end
 								
 								builder.tag(:audio, class: "recording-playback", controls: true, preload: "metadata", hidden: true){}
+								builder.tag(:label, class: "recording-duration-option") do
+									builder.tag(:input, class: "recording-update-duration", type: "checkbox")
+									builder.tag(:span){builder.text("Update slide duration to match this recording")}
+								end
 								builder.tag(:p, class: "recording-status", role: "status"){builder.text("Checking for an existing recording…")}
 							end
 						end

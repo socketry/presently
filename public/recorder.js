@@ -13,6 +13,7 @@ export class PresentlyRecorder extends HTMLElement {
 	#chunks = [];
 	#recording = null;
 	#recordingURL = null;
+	#recordingDuration = null;
 	#startedAt = null;
 	#timer = null;
 	#startToken = null;
@@ -22,6 +23,7 @@ export class PresentlyRecorder extends HTMLElement {
 		this.recordButton = this.querySelector('.recording-toggle');
 		this.saveButton = this.querySelector('.recording-save');
 		this.playback = this.querySelector('.recording-playback');
+		this.updateDuration = this.querySelector('.recording-update-duration');
 		this.status = this.querySelector('.recording-status');
 		this.time = this.querySelector('.recording-time');
 		
@@ -108,6 +110,7 @@ export class PresentlyRecorder extends HTMLElement {
 		const startToken = this.#startToken = {};
 		this.recordButton.disabled = true;
 		this.saveButton.disabled = true;
+		this.#recordingDuration = null;
 		this.dataset.state = 'preparing';
 		this.setStatus('Preparing microphone…');
 
@@ -190,6 +193,8 @@ export class PresentlyRecorder extends HTMLElement {
 	
 	stop() {
 		if (this.#mediaRecorder?.state === 'recording') {
+			this.#recordingDuration = (performance.now() - this.#startedAt) / 1000;
+			
 			// The encoder receives audio through a 100 ms delay. Stopping immediately
 			// excludes approximately the final 100 ms before this pointer-down event.
 			this.#mediaRecorder.stop();
@@ -223,7 +228,20 @@ export class PresentlyRecorder extends HTMLElement {
 		this.setStatus('Saving…');
 		
 		try {
-			const response = await fetch(this.url, {
+			const url = new URL(this.url, window.location.href);
+			let duration = null;
+			
+			if (this.updateDuration.checked) {
+				duration = this.recordingDuration();
+				if (!Number.isFinite(duration) || duration <= 0) {
+					throw new Error('Could not determine the recording duration.');
+				}
+				
+				duration = Math.max(1, Math.ceil(duration));
+				url.searchParams.set('duration', duration);
+			}
+			
+			const response = await fetch(url, {
 				method: 'PUT',
 				headers: {'content-type': this.#recording.type},
 				body: this.#recording,
@@ -236,11 +254,20 @@ export class PresentlyRecorder extends HTMLElement {
 			this.playback.src = this.cacheBustedURL();
 			this.releaseRecordingURL();
 			this.#recording = null;
-			this.setStatus('Recording saved.');
+			const unit = duration === 1 ? 'second' : 'seconds';
+			this.setStatus(duration ? `Recording saved. Slide duration set to ${duration} ${unit}.` : 'Recording saved.');
 		} catch (error) {
 			this.saveButton.disabled = false;
 			this.setStatus(`Could not save recording: ${error.message}`, true);
 		}
+	}
+	
+	recordingDuration() {
+		if (Number.isFinite(this.playback.duration) && this.playback.duration > 0) {
+			return this.playback.duration;
+		}
+		
+		return this.#recordingDuration;
 	}
 	
 	startTimer() {

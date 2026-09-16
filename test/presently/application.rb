@@ -201,6 +201,22 @@ describe Presently::Application do
 		expect(get.read).to be == "audio data"
 	end
 	
+	it "optionally updates the slide duration when storing a recording" do
+		put = application.call(request("PUT", "/recordings?index=0&duration=23", {"content-type" => "audio/webm"}, "audio data"))
+		
+		expect(put.status).to be == 201
+		expect(put.read).to be(:include?, '"duration":23')
+		expect(application.controller.current_slide.duration).to be == 23
+		expect(File.read(File.join(slides_root, "010-example.md"))).to be(:start_with?, "---\nduration: 23\n---\n")
+	end
+	
+	it "rejects an invalid recording duration" do
+		response = application.call(request("PUT", "/recordings?index=0&duration=0", {"content-type" => "audio/webm"}, "audio data"))
+		
+		expect(response.status).to be == 400
+		expect(File).not.to be(:file?, File.join(recordings_root, "010-example.webm"))
+	end
+	
 	it "supports checking for a recording without returning its body" do
 		application.call(request("PUT", "/recordings?index=0", {"content-type" => "audio/webm"}, "audio data"))
 		response = application.call(request("HEAD", "/recordings?index=0"))

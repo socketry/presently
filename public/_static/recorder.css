@@ -129,6 +129,13 @@ presently-recorder[data-state="recording"] .recording-indicator {
 	width: 100%;
 }
 
+.recording-duration-option {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+}
+
 .recording-status {
 	min-height: 1.4em;
 	margin: 0;
