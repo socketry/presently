@@ -2,8 +2,6 @@
 
 ## Unreleased
 
-### Styling
-
   - Split built-in slide and interface styles into focused stylesheets while retaining `index.css` for shared defaults.
 
 ## v0.21.0
