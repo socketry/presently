@@ -32,7 +32,7 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
 ### Recording Narration
 
-Open `http://localhost:9292/record` to record narration separately from the live presenter interface. Presently stores one WebM/Opus recording per slide under `audio/`, mirroring the slide's relative path:
+Open `http://localhost:9292/recorder` to record narration separately from the live presenter interface. Presently stores one WebM/Opus recording per slide under `audio/`, mirroring the slide's relative path:
 
 ``` text
 slides/020-problem/010-overview.md

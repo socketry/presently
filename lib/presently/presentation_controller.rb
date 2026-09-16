@@ -18,8 +18,10 @@ module Presently
 		# Initialize a new controller for the given presentation.
 		# @parameter presentation [Presentation] The presentation to control.
 		# @parameter state [State | Nil] The state persistence object. If provided, state is saved on changes and restored on initialization.
-		def initialize(presentation, state: nil)
+		# @parameter recordings [Recordings | Nil] The narration recording store, when recording is enabled.
+		def initialize(presentation, state: nil, recordings: nil)
 			@presentation = presentation
+			@recordings = recordings
 			@current_index = 0
 			@clock = Clock.new
 			@listeners = []
@@ -53,6 +55,13 @@ module Presently
 		# @returns [Slide | Nil] The current slide, or `nil` if no slides are loaded.
 		def current_slide
 			@presentation.slides[@current_index]
+		end
+		
+		# Whether the given slide has a narration recording.
+		# @parameter slide [Slide] The slide to check.
+		# @returns [Boolean]
+		def recording_available?(slide)
+			@recordings&.exist?(slide) || false
 		end
 		
 		# The slide following the current one.

@@ -55,69 +55,81 @@
 	opacity: 0.65;
 }
 
-presently-recorder {
+presently-recording-controls {
 	display: grid;
 	gap: 1rem;
+	/* Preserve the completed control layout while the client component upgrades. */
+	min-block-size: 12.5rem;
 }
 
-.recording-actions {
+presently-recording-controls::part(actions) {
 	display: flex;
 	align-items: center;
 	gap: 0.6rem;
 }
 
-.recording-actions button,
-.recording-apply-duration {
+presently-recording-controls::part(toggle),
+presently-recording-controls::part(save),
+presently-recording-controls::part(apply-duration) {
+	box-sizing: border-box;
 	padding: 0.55rem 0.9rem;
 	background: var(--surface-light);
-	border: 1px solid rgba(255,255,255,0.12);
+	border: 1px solid rgba(255, 255, 255, 0.12);
 	border-radius: 6px;
 	color: var(--slide-text);
 	cursor: pointer;
 	font: inherit;
+	transition:
+		background-color 120ms ease-out,
+		border-color 120ms ease-out,
+		color 120ms ease-out,
+		opacity 120ms ease-out;
 }
 
-.recording-apply-duration {
+presently-recording-controls::part(apply-duration) {
 	justify-self: start;
 }
 
-.recording-actions button:hover:not(:disabled),
-.recording-apply-duration:hover:not(:disabled) {
+presently-recording-controls::part(toggle):hover:not(:disabled),
+presently-recording-controls::part(save):hover:not(:disabled),
+presently-recording-controls::part(apply-duration):hover:not(:disabled) {
 	background: var(--accent);
 }
 
-.recording-actions button:disabled,
-.recording-apply-duration:disabled {
+presently-recording-controls::part(toggle):disabled,
+presently-recording-controls::part(save):disabled,
+presently-recording-controls::part(apply-duration):disabled {
 	cursor: default;
 	opacity: 0.35;
 }
 
-.recording-toggle:not(:disabled) {
+presently-recording-controls::part(toggle):not(:disabled) {
 	color: var(--accent-light);
 }
 
-presently-recorder[data-state="recording"] .recording-toggle {
+presently-recording-controls[data-recording-state="recording"]::part(toggle) {
 	color: #ef5350;
 }
 
-.recording-indicator {
+presently-recording-controls::part(indicator) {
+	box-sizing: border-box;
 	width: 0.65rem;
 	height: 0.65rem;
 	margin-left: auto;
-	background: rgba(255,255,255,0.2);
+	background: rgba(255, 255, 255, 0.2);
 	border-radius: 50%;
 }
 
-presently-recorder[data-state="preparing"] .recording-indicator,
-presently-recorder[data-state="starting"] .recording-indicator {
+presently-recording-controls[data-recording-state="preparing"]::part(indicator),
+presently-recording-controls[data-recording-state="starting"]::part(indicator) {
 	background: #f5b942;
-	box-shadow: 0 0 0 0.25rem rgba(245,185,66,0.15);
+	box-shadow: 0 0 0 0.25rem rgba(245, 185, 66, 0.15);
 	animation: recording-indicator-pulse 600ms ease-in-out infinite alternate;
 }
 
-presently-recorder[data-state="recording"] .recording-indicator {
+presently-recording-controls[data-recording-state="recording"]::part(indicator) {
 	background: #ef5350;
-	box-shadow: 0 0 0 0.25rem rgba(239,83,80,0.15);
+	box-shadow: 0 0 0 0.25rem rgba(239, 83, 80, 0.15);
 }
 
 @keyframes recording-indicator-pulse {
@@ -127,32 +139,29 @@ presently-recorder[data-state="recording"] .recording-indicator {
 	}
 }
 
-.recording-time {
+presently-recording-controls::part(time) {
 	font-family: var(--font-mono);
 	font-variant-numeric: tabular-nums;
 }
 
-.recording-playback {
+presently-recording-controls::part(playback) {
+	display: block;
 	width: 100%;
 }
 
-.recording-duration-option {
+presently-recording-controls::part(duration-option) {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	cursor: pointer;
 }
 
-.recording-status {
-	min-height: 1.4em;
-	margin: 0;
-	font-size: 0.9rem;
-	opacity: 0.7;
-}
-
-.recording-status.error {
-	color: #ff4757;
-	opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+	presently-recording-controls::part(toggle),
+	presently-recording-controls::part(save),
+	presently-recording-controls::part(apply-duration) {
+		transition: none;
+	}
 }
 
 .recording-notes {
