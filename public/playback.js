@@ -82,6 +82,7 @@ async function show(index, {transition = true} = {}) {
 			// The document may become hidden after the check, aborting the visual transition without preventing the swap.
 			viewTransition.ready.catch(() => {});
 			await viewTransition.updateCallbackDone;
+			await viewTransition.finished.catch(() => {});
 		} else {
 			await swap();
 		}
