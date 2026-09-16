@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Use legible, customizable link colors on the default dark slide background.
+
 ## v0.24.0
 
   - Match slide duration to saved narration by default in the recorder.
