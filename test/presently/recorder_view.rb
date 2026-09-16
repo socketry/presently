@@ -8,13 +8,14 @@ require "presently/presentation"
 require "presently/presentation_controller"
 require "presently/recorder_view"
 require "presently/recordings"
-require "tmpdir"
 require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::RecorderView do
-	let(:dir) {Dir.mktmpdir}
-	let(:path) {File.join(dir, "010-example.md")}
-	let(:presentation) {Presently::Presentation.load(dir)}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:path) {File.join(root, "010-example.md")}
+	let(:presentation) {Presently::Presentation.load(root)}
 	let(:controller) {Presently::PresentationController.new(presentation)}
 	let(:view) {subject.root(controller: controller)}
 	let(:updates) {[]}
@@ -27,10 +28,6 @@ describe Presently::RecorderView do
 	
 	before do
 		File.write(path, "---\nmarker: Example\n---\nExample slide\n\n---\nNarrate this slide.\n")
-	end
-	
-	after do
-		FileUtils.remove_entry(dir)
 	end
 	
 	it "renders a dedicated recording interface" do
@@ -62,7 +59,7 @@ describe Presently::RecorderView do
 	end
 	
 	it "preserves the recorder identity between slides" do
-		File.write(File.join(dir, "020-next.md"), "Next slide\n")
+		File.write(File.join(root, "020-next.md"), "Next slide\n")
 		controller.reload!
 		
 		first_html = view.to_html.to_s
@@ -77,7 +74,7 @@ describe Presently::RecorderView do
 	end
 	
 	it "renders existing recording availability immediately" do
-		recordings = Presently::Recordings.new(File.join(dir, "audio"))
+		recordings = Presently::Recordings.new(File.join(root, "audio"))
 		FileUtils.mkdir_p(File.dirname(recordings.path(presentation.slides.first)))
 		File.write(recordings.path(presentation.slides.first), "audio")
 		controller = Presently::PresentationController.new(presentation, recordings: recordings)
@@ -91,7 +88,7 @@ describe Presently::RecorderView do
 	end
 	
 	it "navigates independently of the presenter interface" do
-		File.write(File.join(dir, "020-next.md"), "Next slide\n")
+		File.write(File.join(root, "020-next.md"), "Next slide\n")
 		controller.reload!
 		
 		view.handle(detail: {action: "next"})
@@ -108,7 +105,7 @@ describe Presently::RecorderView do
 	end
 	
 	it "handles all navigation actions" do
-		File.write(File.join(dir, "020-next.md"), "Next slide\n")
+		File.write(File.join(root, "020-next.md"), "Next slide\n")
 		controller.reload!
 		
 		view.handle(detail: {action: "next"})

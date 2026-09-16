@@ -4,10 +4,12 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "presently/presentation"
-require "tmpdir"
 require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Presentation do
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
 	let(:presentation) {subject.load("slides")}
 	
 	with ".load" do
@@ -21,24 +23,19 @@ describe Presently::Presentation do
 		end
 		
 		with "nested directories" do
-			around do |&block|
-				Dir.mktmpdir do |root|
-					@root = root
-					FileUtils.mkdir_p(File.join(root, "020-performance", "030-details"))
-					FileUtils.mkdir_p(File.join(root, "shared"))
-					
-					File.write(File.join(root, "010-introduction.md"), "Introduction\n")
-					File.write(File.join(root, "020-performance", "010-overview.md"), "Overview\n")
-					File.write(File.join(root, "020-performance", "030-details", "010-cpu.md"), "CPU\n")
-					File.write(File.join(root, "020-performance", "notes.md"), "Not a slide\n")
-					File.write(File.join(root, "shared", "010-example.md"), "Not a slide\n")
-					File.write(File.join(root, "030-conclusion.md"), "Conclusion\n")
-					
-					block.call
-				end
+			before do
+				FileUtils.mkdir_p(File.join(root, "020-performance", "030-details"))
+				FileUtils.mkdir_p(File.join(root, "shared"))
+				
+				File.write(File.join(root, "010-introduction.md"), "Introduction\n")
+				File.write(File.join(root, "020-performance", "010-overview.md"), "Overview\n")
+				File.write(File.join(root, "020-performance", "030-details", "010-cpu.md"), "CPU\n")
+				File.write(File.join(root, "020-performance", "notes.md"), "Not a slide\n")
+				File.write(File.join(root, "shared", "010-example.md"), "Not a slide\n")
+				File.write(File.join(root, "030-conclusion.md"), "Conclusion\n")
 			end
 			
-			let(:presentation) {subject.load(@root)}
+			let(:presentation) {subject.load(root)}
 			
 			it "loads recursively in path order" do
 				expect(presentation.slides.map(&:path)).to be == [

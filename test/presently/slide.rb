@@ -4,6 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "presently/presentation"
+require "fileutils"
 require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Slide do
@@ -75,15 +76,10 @@ describe Presently::Slide do
 	end
 	
 	with "display metadata" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, "---\ntitle: Request lifecycle\nsection: Architecture\n---\n\nContent\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -95,15 +91,10 @@ describe Presently::Slide do
 	end
 	
 	with "an H1 and title metadata" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, "---\ntitle: Navigation label\n---\n\n# Display title\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -114,8 +105,7 @@ describe Presently::Slide do
 	end
 	
 	with "document extraction" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, <<~MARKDOWN)
@@ -135,10 +125,6 @@ describe Presently::Slide do
 				
 				A caption.
 			MARKDOWN
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -201,15 +187,10 @@ describe Presently::Slide do
 	end
 	
 	with "a slide without front_matter" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, "Just some content\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -256,15 +237,10 @@ describe Presently::Slide do
 	end
 	
 	with "a slide with notes separator" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, "Content here\n\n---\n\nThese are notes\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -276,15 +252,10 @@ describe Presently::Slide do
 	end
 	
 	with "a slide with a javascript script block in notes" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, "Content\n\n---\n\nSome notes\n\n```javascript\nconsole.log('hello')\n```\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -300,18 +271,13 @@ describe Presently::Slide do
 	end
 	
 	with "a slide with an ![[include]] directive" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
-		let(:shared_path) {File.join(dir, "shared", "snippet.md")}
+		let(:path) {File.join(root, "main.md")}
+		let(:shared_path) {File.join(root, "shared", "snippet.md")}
 		
 		before do
 			FileUtils.mkdir_p(File.dirname(shared_path))
 			File.write(shared_path, "# Included\n\nThis content was included.\n")
 			File.write(path, "# Before\n\nIntro text\n\n![[shared/snippet.md]]\n\n# After\n\nTrailing text\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -337,9 +303,8 @@ describe Presently::Slide do
 	end
 	
 	with "an included reusable setup script" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
-		let(:shared_path) {File.join(dir, "shared", "diagram.md")}
+		let(:path) {File.join(root, "main.md")}
+		let(:shared_path) {File.join(root, "shared", "diagram.md")}
 		
 		before do
 			FileUtils.mkdir_p(File.dirname(shared_path))
@@ -363,10 +328,6 @@ describe Presently::Slide do
 			MARKDOWN
 		end
 		
-		after do
-			FileUtils.remove_entry(dir)
-		end
-		
 		let(:slide) {load_slide(path)}
 		
 		it "extracts setup and slide scripts in execution order" do
@@ -383,15 +344,10 @@ describe Presently::Slide do
 	end
 	
 	with "a javascript example in slide content" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
+		let(:path) {File.join(root, "main.md")}
 		
 		before do
 			File.write(path, "```javascript\nconsole.log('example')\n```\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -403,15 +359,10 @@ describe Presently::Slide do
 	end
 	
 	with "inline code language prefixes" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
+		let(:path) {File.join(root, "main.md")}
 		
 		before do
 			File.write(path, "Call ruby:`Object.new` to create an object.\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -424,14 +375,9 @@ describe Presently::Slide do
 	end
 	
 	with "blank lines in HTML blocks" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
+		let(:path) {File.join(root, "main.md")}
 		let(:slide) {load_slide(path)}
 		let(:html) {slide.document.to_html}
-		
-		after do
-			FileUtils.remove_entry(dir)
-		end
 		
 		it "preserves consistently indented slide HTML" do
 			File.write(path, <<~MARKDOWN)
@@ -447,7 +393,7 @@ describe Presently::Slide do
 		end
 		
 		it "preserves consistently indented included HTML" do
-			included_path = File.join(dir, "diagram.md")
+			included_path = File.join(root, "diagram.md")
 			File.write(included_path, <<~MARKDOWN)
 				<div class="diagram">
 					<div class="first">First</div>
@@ -463,19 +409,14 @@ describe Presently::Slide do
 	end
 	
 	with "a slide with a nested ![[include]] directive" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
-		let(:middle_path) {File.join(dir, "middle.md")}
-		let(:inner_path) {File.join(dir, "inner.md")}
+		let(:path) {File.join(root, "main.md")}
+		let(:middle_path) {File.join(root, "middle.md")}
+		let(:inner_path) {File.join(root, "inner.md")}
 		
 		before do
 			File.write(inner_path, "Deeply nested ruby:`Object.new` content.\n")
 			File.write(middle_path, "Middle content.\n\n![[inner.md]]\n")
 			File.write(path, "![[middle.md]]\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -489,17 +430,12 @@ describe Presently::Slide do
 	end
 	
 	with "an included file that has front matter" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "main.md")}
-		let(:shared_path) {File.join(dir, "snippet.md")}
+		let(:path) {File.join(root, "main.md")}
+		let(:shared_path) {File.join(root, "snippet.md")}
 		
 		before do
 			File.write(shared_path, "---\ntitle: Ignored\n---\nShared body.\n")
 			File.write(path, "![[snippet.md]]\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -512,8 +448,7 @@ describe Presently::Slide do
 	end
 	
 	with "relative Markdown images" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "010-section", "010-images.md")}
+		let(:path) {File.join(root, "010-section", "010-images.md")}
 		
 		before do
 			FileUtils.mkdir_p(File.dirname(path))
@@ -525,11 +460,7 @@ describe Presently::Slide do
 			MARKDOWN
 		end
 		
-		after do
-			FileUtils.remove_entry(dir)
-		end
-		
-		let(:slide) {Presently::Presentation.new(dir).slides.first}
+		let(:slide) {Presently::Presentation.new(root).slides.first}
 		let(:html) {slide.document.to_html}
 		
 		it "resolves local images relative to the slide source" do
@@ -544,18 +475,13 @@ describe Presently::Slide do
 	end
 	
 	with "a relative image in an included Markdown file" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "010-main.md")}
-		let(:included_path) {File.join(dir, "shared", "snippet.md")}
+		let(:path) {File.join(root, "010-main.md")}
+		let(:included_path) {File.join(root, "shared", "snippet.md")}
 		
 		before do
 			FileUtils.mkdir_p(File.dirname(included_path))
 			File.write(included_path, "![Included](images/diagram.svg)\n")
 			File.write(path, "![[shared/snippet.md]]\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}
@@ -566,15 +492,10 @@ describe Presently::Slide do
 	end
 	
 	with "a slide with transition and focus front_matter" do
-		let(:dir) {Dir.mktmpdir}
-		let(:path) {File.join(dir, "test.md")}
+		let(:path) {File.join(root, "test.md")}
 		
 		before do
 			File.write(path, "---\ntransition: fade\nfocus: 3-7\nskip: true\nspeaker: Alice\n---\nContent\n")
-		end
-		
-		after do
-			FileUtils.remove_entry(dir)
 		end
 		
 		let(:slide) {load_slide(path)}

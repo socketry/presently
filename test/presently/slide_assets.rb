@@ -5,21 +5,17 @@
 
 require "presently/slide_assets"
 require "protocol/http/middleware"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::SlideAssets do
-	let(:dir) {Dir.mktmpdir}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
 	let(:assets) do
 		subject.new(
 			Protocol::HTTP::Middleware::NotFound,
-			root: dir,
+			root: root,
 			stylesheets: ->{[]},
 		)
-	end
-	
-	after do
-		FileUtils.remove_entry(dir)
 	end
 	
 	it "handles an invalid request path" do

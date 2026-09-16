@@ -5,18 +5,13 @@
 
 require "presently/export"
 require "presently/presentation"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Export do
-	let(:dir) {Dir.mktmpdir}
-	
-	after do
-		FileUtils.remove_entry(dir)
-	end
+	include Sus::Fixtures::TemporaryDirectoryContext
 	
 	def write_slide(name, content)
-		File.write(File.join(dir, name), content)
+		File.write(File.join(root, name), content)
 	end
 	
 	before do
@@ -42,7 +37,7 @@ describe Presently::Export do
 		MD
 	end
 	
-	let(:presentation) {Presently::Presentation.load(dir)}
+	let(:presentation) {Presently::Presentation.load(root)}
 	let(:export) {subject.new(presentation: presentation)}
 	
 	with ".options_from_parameters" do
@@ -155,7 +150,7 @@ describe Presently::Export do
 		end
 		
 		it "loads presentation stylesheets" do
-			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
+			File.write(File.join(root, "style.css"), ".slide { color: blue; }\n")
 			
 			expect(export.call).to be(:include?, 'href="/_slides/style.css"')
 		end
