@@ -40,8 +40,8 @@ describe Presently::Playback do
 			
 			expect(html).to be(:include?, "First slide")
 			expect(html).to be(:include?, "Second slide")
-			expect(html.scan('class="playback-frame slide-viewport"').size).to be == 2
-			expect(html.scan(/class="playback-frame slide-viewport"[^>]* hidden/).size).to be == 1
+			expect(html.scan('class="playback-frame slide-viewport"').size).to be == 1
+			expect(html.scan(/<template data-index=/).size).to be == 2
 			expect(html.scan("<audio ").size).to be == 2
 		end
 		
@@ -60,6 +60,10 @@ describe Presently::Playback do
 		
 		it "loads Anime.js for slide scripts" do
 			expect(playback.call).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')
+		end
+		
+		it "loads morphdom for audience-consistent slide updates" do
+			expect(playback.call).to be(:include?, '"morphdom": "/_components/morphdom/morphdom-esm.js"')
 		end
 		
 		it "loads presentation stylesheets" do
