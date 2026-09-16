@@ -67,6 +67,10 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.24.1
+
+  - Use legible, customizable link colors on the default dark slide background.
+
 ### v0.24.0
 
   - Match slide duration to saved narration by default in the recorder.
@@ -117,10 +121,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
 
   - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
   - [Web Packages](https://socketry.github.io/presently/releases/index#web-packages)
-
-### v0.16.0
-
-  - Add support for organizing slides in nested directories. Every directory and slide filename must begin with a numeric prefix, and slides are ordered by relative path.
 
 ## See Also
 

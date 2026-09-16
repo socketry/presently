@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.24.1
 
   - Use legible, customizable link colors on the default dark slide background.
 
