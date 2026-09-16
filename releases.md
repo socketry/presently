@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.23.0
 
   - Keep narrated playback visuals synchronized when the document or inactive slide frames are hidden.
   - Keep recorded audio duration visible after saving a reviewed take.

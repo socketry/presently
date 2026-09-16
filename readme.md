@@ -67,6 +67,14 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.23.0
+
+  - Keep narrated playback visuals synchronized when the document or inactive slide frames are hidden.
+  - Keep recorded audio duration visible after saving a reviewed take.
+  - Prevent stopping a pointer-initiated recording from immediately starting a retake.
+  - Update slide timing from new or existing narration recordings.
+  - Render audience and narrated playback slides through the same client-side lifecycle so incremental builds behave consistently.
+
 ### v0.22.0
 
   - Split built-in slide and interface styles into focused stylesheets while retaining `index.css` for shared defaults.
@@ -115,12 +123,6 @@ q
 
   - Export works from current working directory.
       - Remove explicit support for `morph` transition.
-
-### v0.14.0
-
-  - Increase code font size by 50%.
-  - Add support for includes using `![[path]]` syntax.
-  - Add `bake presently:rehearse` tasks for updating timing information.
 
 ## See Also
 
