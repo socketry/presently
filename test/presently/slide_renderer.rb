@@ -5,21 +5,17 @@
 
 require "presently/presentation"
 require "presently/slide_renderer"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::TemplateScope do
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
 	def load_slide(path)
 		presentation = Presently::Presentation.new(File.dirname(path))
 		Presently::Slide.load(presentation, File.basename(path))
 	end
 	
-	let(:dir) {Dir.mktmpdir}
-	let(:path) {File.join(dir, "test.md")}
-	
-	after do
-		FileUtils.remove_entry(dir)
-	end
+	let(:path) {File.join(root, "test.md")}
 	
 	with "slide header metadata" do
 		before do
@@ -168,19 +164,16 @@ describe Presently::TemplateScope do
 end
 
 describe Presently::SlideRenderer do
-	let(:dir) {Dir.mktmpdir}
-	let(:path) {File.join(dir, "010-example.md")}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:path) {File.join(root, "010-example.md")}
 	
 	before do
 		File.write(path, "Example slide\n")
 	end
 	
-	after do
-		FileUtils.remove_entry(dir)
-	end
-	
 	it "identifies the rendered slide by its presentation path" do
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, 'data-slide-path="010-example.md"')
@@ -188,7 +181,7 @@ describe Presently::SlideRenderer do
 	end
 	
 	it "renders a fixed-aspect slide within a full-size surface" do
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, 'class="slide-surface"')
@@ -205,7 +198,7 @@ describe Presently::SlideRenderer do
 			<div>Diagram</div>
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, "<h1>Request lifecycle</h1>")
@@ -224,7 +217,7 @@ describe Presently::SlideRenderer do
 			<div>Diagram</div>
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, '<div class="slide-section-heading">')
@@ -244,7 +237,7 @@ describe Presently::SlideRenderer do
 			Part Two
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, "<h1>Heading</h1>")
@@ -264,7 +257,7 @@ describe Presently::SlideRenderer do
 			```
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).not.to be(:include?, '<header class="slide-header">')
@@ -281,7 +274,7 @@ describe Presently::SlideRenderer do
 			A subtitle or tagline.
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, '<div class="slide-body">')
@@ -303,7 +296,7 @@ describe Presently::SlideRenderer do
 			Requests flow from left to right.
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, '<div class="slide-caption">')
@@ -329,7 +322,7 @@ describe Presently::SlideRenderer do
 			Client side.
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, '<div class="slide-body">')
@@ -355,7 +348,7 @@ describe Presently::SlideRenderer do
 			```
 		MARKDOWN
 		
-		presentation = Presently::Presentation.load(dir)
+		presentation = Presently::Presentation.load(root)
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html.scan('type="text/slide-script"').size).to be == 2
@@ -378,7 +371,7 @@ describe Presently::SlideRenderer do
 				Translated slide
 			MARKDOWN
 			
-			presentation = Presently::Presentation.load(dir)
+			presentation = Presently::Presentation.load(root)
 			html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 			
 			expect(html).to be(:include?, 'class="slide-translation"')

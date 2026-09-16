@@ -6,13 +6,14 @@
 require "presently/presentation"
 require "presently/recordings"
 require "protocol/http/body/buffered"
-require "tmpdir"
 require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Recordings do
-	let(:dir) {Dir.mktmpdir}
-	let(:slides_root) {File.join(dir, "slides")}
-	let(:recordings_root) {File.join(dir, "audio")}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:slides_root) {File.join(root, "slides")}
+	let(:recordings_root) {File.join(root, "audio")}
 	let(:presentation) {Presently::Presentation.load(slides_root)}
 	let(:slide) {presentation.slides.first}
 	let(:recordings) {subject.new(recordings_root)}
@@ -20,10 +21,6 @@ describe Presently::Recordings do
 	before do
 		FileUtils.mkdir_p(File.join(slides_root, "020-topic"))
 		File.write(File.join(slides_root, "020-topic", "010-example.md"), "Example\n")
-	end
-	
-	after do
-		FileUtils.remove_entry(dir)
 	end
 	
 	it "maps the slide path to a WebM recording path" do

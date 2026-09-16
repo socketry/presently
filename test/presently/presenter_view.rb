@@ -7,12 +7,12 @@ require "presently/presenter_view"
 require "presently/presentation"
 require "presently/presentation_controller"
 require "async"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::PresenterView do
-	let(:dir) {Dir.mktmpdir}
-	let(:presentation) {Presently::Presentation.load(dir)}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:presentation) {Presently::Presentation.load(root)}
 	let(:controller) {Presently::PresentationController.new(presentation)}
 	let(:view) {subject.root(controller: controller)}
 	let(:updates) {[]}
@@ -24,7 +24,7 @@ describe Presently::PresenterView do
 	end
 	
 	before do
-		File.write(File.join(dir, "010-first.md"), <<~MARKDOWN)
+		File.write(File.join(root, "010-first.md"), <<~MARKDOWN)
 			---
 			duration: 30
 			marker: Introduction
@@ -36,7 +36,7 @@ describe Presently::PresenterView do
 
 			First notes
 		MARKDOWN
-		File.write(File.join(dir, "020-second.md"), <<~MARKDOWN)
+		File.write(File.join(root, "020-second.md"), <<~MARKDOWN)
 			---
 			duration: 45
 			marker: Details
@@ -44,10 +44,6 @@ describe Presently::PresenterView do
 			---
 			Second slide
 		MARKDOWN
-	end
-	
-	after do
-		FileUtils.remove_entry(dir)
 	end
 	
 	it "renders previews, notes, timing, speakers, and navigation" do
@@ -131,17 +127,14 @@ describe Presently::PresenterView do
 	end
 	
 	it "renders an empty presentation" do
-		empty = Dir.mktmpdir
-		begin
-			controller = Presently::PresentationController.new(Presently::Presentation.load(empty))
-			view = subject.root(controller: controller)
-			html = view.to_html.to_s
-			
-			expect(html).to be(:include?, "End of presentation")
-			expect(html).to be(:include?, "No presenter notes")
-			expect(html).not.to be(:include?, "slide-duration")
-		ensure
-			FileUtils.remove_entry(empty)
-		end
+		empty = File.join(root, "empty")
+		Dir.mkdir(empty)
+		controller = Presently::PresentationController.new(Presently::Presentation.load(empty))
+		view = subject.root(controller: controller)
+		html = view.to_html.to_s
+		
+		expect(html).to be(:include?, "End of presentation")
+		expect(html).to be(:include?, "No presenter notes")
+		expect(html).not.to be(:include?, "slide-duration")
 	end
 end

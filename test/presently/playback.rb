@@ -5,22 +5,17 @@
 
 require "presently/playback"
 require "presently/presentation"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Playback do
-	let(:dir) {Dir.mktmpdir}
-	
-	after do
-		FileUtils.remove_entry(dir)
-	end
+	include Sus::Fixtures::TemporaryDirectoryContext
 	
 	before do
-		File.write(File.join(dir, "01.md"), "First slide\n")
-		File.write(File.join(dir, "02.md"), "Second slide\n")
+		File.write(File.join(root, "01.md"), "First slide\n")
+		File.write(File.join(root, "02.md"), "Second slide\n")
 	end
 	
-	let(:presentation) {Presently::Presentation.load(dir)}
+	let(:presentation) {Presently::Presentation.load(root)}
 	let(:recording_urls) {["/recordings?index=0", "/recordings?index=1"]}
 	let(:playback) {subject.new(presentation: presentation, recording_urls: recording_urls)}
 	
@@ -67,7 +62,7 @@ describe Presently::Playback do
 		end
 		
 		it "loads presentation stylesheets" do
-			File.write(File.join(dir, "style.css"), ".slide { color: blue; }\n")
+			File.write(File.join(root, "style.css"), ".slide { color: blue; }\n")
 			
 			expect(playback.call).to be(:include?, 'href="/_slides/style.css"')
 		end

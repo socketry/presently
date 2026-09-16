@@ -5,17 +5,14 @@
 
 require "presently/state"
 require "presently/presentation_controller"
-require "tmpdir"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::State do
-	let(:dir) {Dir.mktmpdir}
-	let(:path) {File.join(dir, "state.json")}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:path) {File.join(root, "state.json")}
 	let(:state) {subject.new(path)}
 	let(:presentation) {Presently::Presentation.load("slides")}
-	
-	after do
-		FileUtils.remove_entry(dir)
-	end
 	
 	with "#save and #restore" do
 		it "persists the current slide index" do
@@ -70,7 +67,7 @@ describe Presently::State do
 		end
 		
 		it "handles save failures gracefully" do
-			state = subject.new(File.join(dir, "missing", "state.json"))
+			state = subject.new(File.join(root, "missing", "state.json"))
 			controller = Presently::PresentationController.new(presentation)
 			
 			expect(state.save(controller)).to be_nil

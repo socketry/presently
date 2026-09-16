@@ -6,12 +6,12 @@
 require "presently/display_view"
 require "presently/presentation"
 require "presently/presentation_controller"
-require "tmpdir"
-require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::DisplayView do
-	let(:dir) {Dir.mktmpdir}
-	let(:presentation) {Presently::Presentation.load(dir)}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:presentation) {Presently::Presentation.load(root)}
 	let(:controller) {Presently::PresentationController.new(presentation)}
 	let(:view) {subject.root(controller: controller)}
 	let(:updates) {[]}
@@ -23,12 +23,8 @@ describe Presently::DisplayView do
 	end
 	
 	before do
-		File.write(File.join(dir, "010-first.md"), "---\ntransition: fade\n---\nFirst slide\n")
-		File.write(File.join(dir, "020-second.md"), "Second slide\n")
-	end
-	
-	after do
-		FileUtils.remove_entry(dir)
+		File.write(File.join(root, "010-first.md"), "---\ntransition: fade\n---\nFirst slide\n")
+		File.write(File.join(root, "020-second.md"), "Second slide\n")
 	end
 	
 	it "renders the current slide" do
@@ -60,14 +56,11 @@ describe Presently::DisplayView do
 	end
 	
 	it "renders nothing when the presentation is empty" do
-		empty = Dir.mktmpdir
-		begin
-			controller = Presently::PresentationController.new(Presently::Presentation.load(empty))
-			view = subject.root(controller: controller)
-			
-			expect(view.to_html.to_s).not.to be(:include?, 'class="display"')
-		ensure
-			FileUtils.remove_entry(empty)
-		end
+		empty = File.join(root, "empty")
+		Dir.mkdir(empty)
+		controller = Presently::PresentationController.new(Presently::Presentation.load(empty))
+		view = subject.root(controller: controller)
+		
+		expect(view.to_html.to_s).not.to be(:include?, 'class="display"')
 	end
 end

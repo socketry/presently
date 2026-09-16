@@ -6,14 +6,15 @@
 require "presently/application"
 require "protocol/http/body/buffered"
 require "protocol/http/middleware"
-require "tmpdir"
 require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Application do
-	let(:dir) {Dir.mktmpdir}
-	let(:slides_root) {File.join(dir, "slides")}
-	let(:recordings_root) {File.join(dir, "audio")}
-	let(:playback_recordings_root) {File.join(dir, "audio-normalized")}
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	let(:slides_root) {File.join(root, "slides")}
+	let(:recordings_root) {File.join(root, "audio")}
+	let(:playback_recordings_root) {File.join(root, "audio-normalized")}
 	let(:application) do
 		subject.new(
 			Protocol::HTTP::Middleware::NotFound,
@@ -26,10 +27,6 @@ describe Presently::Application do
 	before do
 		FileUtils.mkdir_p(slides_root)
 		File.write(File.join(slides_root, "010-example.md"), "Example slide\n")
-	end
-	
-	after do
-		FileUtils.remove_entry(dir)
 	end
 	
 	def request(method, path, headers = {}, body = nil)

@@ -4,30 +4,27 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "presently/presentation"
-require "tmpdir"
 require "fileutils"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::Stylesheet do
-	around do |&block|
-		Dir.mktmpdir do |root|
-			@root = root
-			FileUtils.mkdir_p(File.join(root, "020-scheduling", "030-details"))
-			
-			File.write(File.join(root, "010-introduction.md"), "Introduction\n")
-			File.write(File.join(root, "020-scheduling", "010-overview.md"), "Overview\n")
-			File.write(File.join(root, "020-scheduling", "030-details", "010-queue.md"), "Queue\n")
-			
-			File.write(File.join(root, "style.css"), ":root { --accent: blue; }\n")
-			File.write(File.join(root, "010-introduction.css"), ".title { color: blue; }\n")
-			File.write(File.join(root, "020-scheduling", "style.css"), ".diagram { color: orange; }\n")
-			File.write(File.join(root, "020-scheduling", "010-overview.css"), ".overview { display: grid; }\n")
-			File.write(File.join(root, "020-scheduling", "030-details", "style.css"), ".detail { color: green; }\n")
-			
-			block.call
-		end
+	include Sus::Fixtures::TemporaryDirectoryContext
+	
+	before do
+		FileUtils.mkdir_p(File.join(root, "020-scheduling", "030-details"))
+		
+		File.write(File.join(root, "010-introduction.md"), "Introduction\n")
+		File.write(File.join(root, "020-scheduling", "010-overview.md"), "Overview\n")
+		File.write(File.join(root, "020-scheduling", "030-details", "010-queue.md"), "Queue\n")
+		
+		File.write(File.join(root, "style.css"), ":root { --accent: blue; }\n")
+		File.write(File.join(root, "010-introduction.css"), ".title { color: blue; }\n")
+		File.write(File.join(root, "020-scheduling", "style.css"), ".diagram { color: orange; }\n")
+		File.write(File.join(root, "020-scheduling", "010-overview.css"), ".overview { display: grid; }\n")
+		File.write(File.join(root, "020-scheduling", "030-details", "style.css"), ".detail { color: green; }\n")
 	end
 	
-	let(:presentation) {Presently::Presentation.load(@root)}
+	let(:presentation) {Presently::Presentation.load(root)}
 	let(:stylesheets) {presentation.stylesheets}
 	
 	it "discovers global, directory, and slide styles in cascade order" do
