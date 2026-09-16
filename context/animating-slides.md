@@ -29,6 +29,20 @@ The script receives a `slide` object — an instance of the `Slide` class export
 
 If the script contains a syntax error or throws an exception, the error is logged to the browser console and the presentation continues unaffected.
 
+## Flicker-Free Initial State
+
+Presently keeps a scripted slide hidden until its scripts have run. Any visibility or styling that defines the slide's initial state must therefore be applied synchronously at the top level of the script:
+
+``` javascript
+const bullets = slide.find("li").builder({effect: "fade"})
+bullets.show(0)
+bullets.play(500)
+```
+
+Use `slide.after()`, `setTimeout()`, promises, and `requestAnimationFrame()` only for changes that occur after the initial state is established. Deferring the initial `show()` call allows the slide to become visible before the callback runs and can expose its uninitialized content for a frame.
+
+Integrations using `SlideRendering#render(update)` have the same requirement: `update` must mutate the supplied view synchronously. Presently runs the new slide's scripts immediately after that update, before yielding to asynchronous syntax highlighting or code-focus preparation.
+
 ## The Slide API
 
 ### `slide.find(selector)`
