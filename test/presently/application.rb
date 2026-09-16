@@ -36,6 +36,14 @@ describe Presently::Application do
 		Protocol::HTTP::Request[method, path, headers, Protocol::HTTP::Body::Buffered.wrap(body)]
 	end
 	
+	it "resolves recording controls independently of their parent view" do
+		view = application.resolver.call("recorder:recording-controls", {
+			class: "Presently::RecordingControlsView"
+		})
+		
+		expect(view).to be_a(Presently::RecordingControlsView)
+	end
+	
 	it "serves a home page linking to each presentation interface" do
 		response = application.call(request("GET", "/"))
 		html = response.read
@@ -47,7 +55,7 @@ describe Presently::Application do
 		expect(html).not.to be(:include?, 'href="/_static/slides.css"')
 		expect(html).to be(:include?, 'href="/display"')
 		expect(html).to be(:include?, 'href="/presenter"')
-		expect(html).to be(:include?, 'href="/record"')
+		expect(html).to be(:include?, 'href="/recorder"')
 		expect(html).to be(:include?, 'href="/playback"')
 	end
 	
@@ -94,13 +102,25 @@ describe Presently::Application do
 	end
 	
 	it "serves the recording interface separately from the presenter" do
-		response = application.call(request("GET", "/record"))
+		response = application.call(request("GET", "/recorder"))
 		html = response.read
 		
 		expect(response.status).to be == 200
 		expect(html).to be(:include?, 'href="/_static/slides.css"')
 		expect(html).to be(:include?, 'href="/_static/recorder.css"')
 		expect(html).to be(:include?, "Record, review, and save one audio track")
+		expect(html).to be(:include?, 'data-recording-state="missing"')
+		expect(html).not.to be(:include?, "data-playback-state")
+	end
+	
+	it "renders existing recording availability without a client-side check" do
+		FileUtils.mkdir_p(recordings_root)
+		File.write(File.join(recordings_root, "010-example.webm"), "audio")
+		html = application.call(request("GET", "/recorder")).read
+		
+		expect(html).to be(:include?, 'data-recording-state="present"')
+		expect(html).not.to be(:include?, "data-playback-state")
+		expect(html).not.to be(:include?, "● Retake")
 	end
 	
 	it "loads interface styles before presentation overrides" do
@@ -112,7 +132,7 @@ describe Presently::Application do
 	end
 	
 	it "only serves page interfaces via GET" do
-		response = application.call(request("POST", "/record"))
+		response = application.call(request("POST", "/recorder"))
 		
 		expect(response.status).to be == 405
 		expect(response.headers["allow"]).to be == ["GET"]

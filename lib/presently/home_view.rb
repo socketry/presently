@@ -20,7 +20,7 @@ module Presently
 				description: "Control the presentation with speaker notes, timing, and slide previews.",
 			},
 			{
-				href: "/record",
+				href: "/recorder",
 				title: "Narration Recorder",
 				description: "Record, review, and save narration for each slide.",
 			},

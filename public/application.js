@@ -1,7 +1,7 @@
-import { Live } from 'live';
-import {SlideRendering} from '@socketry/presently';
+import './recording_controls.js';
 
-import './recorder.js';
+import {Live} from '@socketry/live';
+import {SlideRendering} from '@socketry/presently';
 
 const SLIDE_RENDER_EVENT = 'presently:slide:render';
 
@@ -52,7 +52,7 @@ document.addEventListener('change', (event) => {
 
 // Keyboard navigation
 document.addEventListener('keydown', (event) => {
-	if (event.target.closest('button, input, textarea, select, audio, presently-recorder')) return;
+	if (event.target.closest('button, input, textarea, select, audio, presently-recording-controls')) return;
 	
 	const liveView = document.querySelector('live-view');
 	if (!liveView) return;

@@ -6,11 +6,12 @@
 require "presently/page"
 require "presently/presentation"
 require "presently/presentation_controller"
-require "presently/recording_view"
+require "presently/recorder_view"
+require "presently/recordings"
 require "tmpdir"
 require "fileutils"
 
-describe Presently::RecordingView do
+describe Presently::RecorderView do
 	let(:dir) {Dir.mktmpdir}
 	let(:path) {File.join(dir, "010-example.md")}
 	let(:presentation) {Presently::Presentation.load(dir)}
@@ -44,18 +45,49 @@ describe Presently::RecordingView do
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, "Narrate this slide.")
 		expect(html).to be(:include?, 'class="recording-preview slide-viewport"')
-		expect(html).to be(:include?, "<presently-recorder")
+		expect(html).to be(:include?, "<presently-recording-controls")
+		expect(html).to be(:include?, 'data-class="Presently::RecordingControlsView"')
+		expect(html).to be(:include?, 'data-slide-index="0"')
 		expect(html).to be(:include?, 'data-recording-url="/recordings?index=0"')
 		expect(html).to be(:include?, 'data-slide-duration="60"')
-		expect(html).to be(:include?, 'class="recording-toggle"')
-		expect(html).to be(:include?, "● Record")
-		expect(html).not.to be(:include?, 'class="recording-stop"')
-		expect(html).to be(:include?, 'class="recording-indicator"')
-		expect(html).to be(:include?, 'class="recording-update-duration" type="checkbox" checked')
-		expect(html).to be(:include?, 'class="recording-apply-duration"')
-		expect(html).to be(:include?, "Update Slide Duration")
-		expect(html).to be(:include?, "Update slide duration to match recording")
+		expect(html).to be(:include?, 'data-recording-state="missing"')
+		expect(html).to be(:match?, /<presently-recording-controls\b[^>]*><\/presently-recording-controls>/)
+		expect(html).not.to be(:include?, "data-playback-state")
+		expect(html).not.to be(:include?, 'class="recording-toggle"')
+		expect(html).not.to be(:include?, 'class="recording-playback"')
+		expect(html).not.to be(:include?, 'class="recording-apply-duration"')
+		expect(html).not.to be(:include?, 'class="recording-update-duration"')
+		expect(html).not.to be(:include?, "recording-status")
 		expect(html).to be(:include?, 'class="edit-link"')
+	end
+	
+	it "preserves the recorder identity between slides" do
+		File.write(File.join(dir, "020-next.md"), "Next slide\n")
+		controller.reload!
+		
+		first_html = view.to_html.to_s
+		controller.go_to(1)
+		second_html = view.to_html.to_s
+		first_id = first_html[/<presently-recording-controls id="([^"]+)"/, 1]
+		second_id = second_html[/<presently-recording-controls id="([^"]+)"/, 1]
+		
+		expect(first_id).to be == second_id
+		expect(first_html).to be(:include?, 'data-slide-index="0"')
+		expect(second_html).to be(:include?, 'data-slide-index="1"')
+	end
+	
+	it "renders existing recording availability immediately" do
+		recordings = Presently::Recordings.new(File.join(dir, "audio"))
+		FileUtils.mkdir_p(File.dirname(recordings.path(presentation.slides.first)))
+		File.write(recordings.path(presentation.slides.first), "audio")
+		controller = Presently::PresentationController.new(presentation, recordings: recordings)
+		html = Presently::Page.new(body: subject.root(controller: controller)).to_html
+		
+		expect(html).to be(:include?, 'data-recording-state="present"')
+		expect(html).to be(:include?, 'data-recording-url="/recordings?index=0"')
+		expect(html).not.to be(:include?, "data-playback-state")
+		expect(html).not.to be(:include?, 'class="recording-playback"')
+		expect(html).not.to be(:include?, "● Retake")
 	end
 	
 	it "navigates independently of the presenter interface" do

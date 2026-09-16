@@ -4,6 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require_relative "editor"
+require_relative "recording_controls_view"
 require_relative "slide_view"
 require_relative "slide_renderer"
 
@@ -13,7 +14,7 @@ module Presently
 	# Recording is intentionally separate from {PresenterView}: presenting is a
 	# live performance interface, while recording is an authoring workflow with
 	# retakes, playback, and explicit saving.
-	class RecordingView < SlideView
+	class RecorderView < SlideView
 		# Initialize a recording view.
 		# @parameter id [String] The unique element identifier.
 		# @parameter data [Hash] The element data attributes.
@@ -22,6 +23,7 @@ module Presently
 			super(id, data)
 			@controller = controller
 			@slide_renderer = SlideRenderer.new(css_class: "slide recording-slide", templates: controller.templates)
+			@recording_controls = RecordingControlsView.mount(self, "recording-controls", controller: controller)
 		end
 		
 		# Bind this view to a page and register for slide changes.
@@ -73,9 +75,6 @@ module Presently
 			slide = @controller.current_slide
 			return unless slide
 			
-			index = @controller.current_index
-			recording_url = "/recordings?index=#{index}"
-			
 			builder.tag(:div, class: "recorder") do
 				render_navigation(builder, slide)
 				
@@ -88,29 +87,7 @@ module Presently
 						builder.tag(:section, class: "recording-panel") do
 							builder.tag(:h2){builder.text("Narration")}
 							builder.tag(:p){builder.text("Record, review, and save one audio track for this slide.")}
-							
-							builder.tag("presently-recorder",
-								id: "presently-recorder-#{index}",
-								"data-recording-url": recording_url,
-								"data-slide-duration": slide.duration
-							) do
-								builder.tag(:div, class: "recording-actions") do
-									builder.tag(:button, class: "recording-toggle", type: "button"){builder.text("● Record")}
-									builder.tag(:button, class: "recording-save", type: "button", disabled: true){builder.text("Save")}
-									builder.tag(:span, class: "recording-indicator", "aria-hidden": "true"){}
-									builder.tag(:span, class: "recording-time"){builder.text("0:00")}
-								end
-								
-								builder.tag(:audio, class: "recording-playback", controls: true, preload: "metadata", hidden: true){}
-								builder.tag(:button, class: "recording-apply-duration", type: "button", hidden: true) do
-									builder.text("Update Slide Duration")
-								end
-								builder.tag(:label, class: "recording-duration-option") do
-									builder.tag(:input, class: "recording-update-duration", type: "checkbox", checked: true)
-									builder.tag(:span){builder.text("Update slide duration to match recording")}
-								end
-								builder.tag(:p, class: "recording-status", role: "status"){builder.text("Checking for an existing recording…")}
-							end
+							builder << @recording_controls.to_html
 						end
 						
 						builder.tag(:section, class: "recording-notes") do

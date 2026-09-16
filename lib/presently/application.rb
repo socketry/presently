@@ -11,7 +11,7 @@ require_relative "presentation_controller"
 require_relative "home_view"
 require_relative "display_view"
 require_relative "presenter_view"
-require_relative "recording_view"
+require_relative "recorder_view"
 require_relative "recordings"
 require_relative "slide_assets"
 require_relative "playback"
@@ -44,7 +44,7 @@ module Presently
 		# The view classes that this application allows.
 		# @returns [Array(Class)] The allowed view classes.
 		def allowed_views
-			[HomeView, DisplayView, PresenterView, RecordingView]
+			[HomeView, DisplayView, PresenterView, RecorderView, RecordingControlsView]
 		end
 		
 		# The shared state passed to all views via the resolver.
@@ -60,7 +60,7 @@ module Presently
 				templates = Templates.for(@templates_roots)
 				presentation = Presentation.load(@slides_root, templates)
 				
-				PresentationController.new(presentation, state: State.new)
+				PresentationController.new(presentation, state: State.new, recordings: @recordings)
 			end
 		end
 		
@@ -89,7 +89,7 @@ module Presently
 			
 			router.get("/display"){make_page(resolver.root(DisplayView), interface: :display).call}
 			router.get("/presenter"){make_page(resolver.root(PresenterView), interface: :presenter).call}
-			router.get("/record"){make_page(resolver.root(RecordingView), interface: :recorder).call}
+			router.get("/recorder"){make_page(resolver.root(RecorderView), interface: :recorder).call}
 			
 			router.route("/recordings", methods: ["GET", "HEAD", "PUT", "PATCH"]) do |request|
 				handle_recording(request, request_parameters(request))
