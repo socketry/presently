@@ -1,5 +1,10 @@
 # Releases
 
+## Unreleased
+
+  - Keep narrated playback visuals synchronized when the document or inactive slide frames are hidden.
+  - Prevent stopping a pointer-initiated recording from immediately starting a retake.
+
 ## v0.22.0
 
   - Split built-in slide and interface styles into focused stylesheets while retaining `index.css` for shared defaults.

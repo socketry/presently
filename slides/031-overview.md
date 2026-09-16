@@ -8,7 +8,7 @@ speaker: Samuel
 
 ---
 
-Slides are plain text files. You write Markdown, add a little YAML at the top to set the template and timing, and that's your whole slide. No GUI, no proprietary format.
+The foundation is real-time sync — the display and presenter views both connect to the server over a WebSocket, so when you advance a slide, the audience sees it immediately. No refresh, no polling.
 
 ```javascript
 slide.find("li").show(1)

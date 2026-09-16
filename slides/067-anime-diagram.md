@@ -43,7 +43,7 @@ speaker: Samuel
 
 ---
 
-`slide.anime()` scopes selectors and automatically cleans up the looping timeline when the slide changes.
+More advanced animations can be implemented using `anime.js`.
 
 ```javascript
 slide.anime(({createTimeline, stagger}) => {

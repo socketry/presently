@@ -45,7 +45,7 @@ speaker: Samuel
 
 ---
 
-A looping animation that replays the request lifecycle automatically using `slide.loop()`.
+It's also possible to implement looping animations, for example here we show input handling from the client to the server, which causes an update to be sent back to the client.
 
 ```javascript
 const steps = slide.find(".step").builder({effect: "fly-up"})
