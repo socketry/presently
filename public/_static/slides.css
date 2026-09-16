@@ -1,0 +1,538 @@
+/* ========================
+   SLIDE STYLES (shared)
+   ======================== */
+
+.slide-viewport {
+	position: relative;
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+	container-type: size;
+}
+
+.slide-surface {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
+	container-type: size;
+	background: var(--slide-background);
+}
+
+.slide {
+	/* Base font size inherited by all slide content. */
+	--slide-font-size: 2.2cqi;
+
+	/* Heading size used by the title template. */
+	--slide-font-title: 1.8em;
+	
+	/* Heading size used by standard slide headers. */
+	--slide-font-heading: 1.6em;
+	
+	/* Primary text size used by the statement template. */
+	--slide-font-statement: 1.5em;
+	
+	/* Supporting text size used by captions, translations, and compact headings. */
+	--slide-font-secondary: 0.8em;
+	
+	/* Content size used within each column of the two-column template. */
+	--slide-font-column: 0.85em;
+	
+	/* Preformatted code size used by the code template. */
+	--slide-font-code: 0.75em;
+	
+	/* Content size used by the diagram template. */
+	--slide-font-diagram: 0.75em;
+	
+	/* Space between the slide edge and its content. */
+	--slide-gutter: 3cqi;
+	
+	/* Base spacing between major elements within a slide. */
+	--slide-gap: 1.5cqi;
+	
+	/* Corner radius used by framed slide content such as images and code. */
+	--slide-radius: 0.4cqi;
+	
+	flex: none;
+	width: 100cqw;
+	height: auto;
+	aspect-ratio: 16 / 9;
+	container-type: size;
+}
+
+@container (min-aspect-ratio: 16 / 9) {
+	.slide {
+		width: auto;
+		height: 100cqh;
+	}
+}
+
+.slide-inner {
+	position: relative;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: var(--slide-gutter);
+	font-size: var(--slide-font-size);
+	line-height: 1.5;
+}
+
+.slide-header {
+	flex: none;
+	width: 100%;
+	margin-bottom: var(--slide-gap);
+}
+
+.slide-section-heading {
+	margin-bottom: calc(var(--slide-gap) * 0.25);
+	color: var(--accent-light);
+	font-family: var(--font-mono);
+	font-size: 0.45em;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.slide-header > h1 {
+	margin: 0;
+	font-size: var(--slide-font-heading);
+	line-height: 1.1;
+}
+
+/* Default template */
+.default-template .slide-body {
+	width: 100%;
+}
+
+.default-template .slide-body ul,
+.default-template .slide-body ol {
+	text-align: left;
+}
+
+.default-template .slide-body li {
+	margin-bottom: 0.5em;
+	transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+@starting-style {
+	.default-template .slide-body li {
+		opacity: 0;
+		transform: translateX(-0.5em);
+	}
+}
+
+/* Title template */
+.title-template {
+	text-align: center;
+}
+
+.title-template .slide-header {
+	margin-bottom: calc(var(--slide-gap) * 0.75);
+}
+
+.title-template .slide-header > h1 {
+	font-size: var(--slide-font-title);
+}
+
+.title-template .slide-body {
+	opacity: 0.7;
+}
+
+.title-template .slide-body p {
+	margin: 0;
+}
+
+/* Section template */
+.slide-surface[data-template="section"] {
+	background: linear-gradient(135deg, var(--accent), var(--surface-light));
+}
+
+.section-template {
+	text-align: center;
+}
+
+.section-template .slide-header {
+	margin-bottom: 0;
+}
+
+.section-template .slide-header > h1 {
+	font-weight: 700;
+}
+
+.section-template .slide-body {
+	margin-top: calc(var(--slide-gap) * 0.75);
+	opacity: 0.7;
+}
+
+.section-template .slide-body p {
+	margin: 0;
+}
+
+/* Two column template */
+.two-column-template {
+	padding: calc(var(--slide-gutter) * 0.75) var(--slide-gutter);
+}
+
+.two-column-template .slide-columns {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	width: 100%;
+	gap: calc(var(--slide-gap) * 1.5);
+}
+
+.two-column-template > .slide-body {
+	width: 100%;
+	margin-bottom: var(--slide-gap);
+}
+
+.two-column-template > .slide-body > :first-child {
+	margin-top: 0;
+}
+
+.two-column-template > .slide-body > :last-child {
+	margin-bottom: 0;
+}
+
+.two-column-template .column {
+	flex: 1;
+	min-width: 0;
+	font-size: var(--slide-font-column);
+	line-height: 1.5;
+}
+
+.two-column-template .column ul {
+	padding-left: 1.5em;
+}
+
+.two-column-template .column li {
+	margin-bottom: 0.4em;
+}
+
+/* Diagram template */
+.diagram-template .slide-header {
+	text-align: center;
+}
+
+.diagram-template .slide-body {
+	display: grid;
+	flex: 1;
+	place-items: center;
+	width: 100%;
+	min-height: 0;
+	font-size: var(--slide-font-diagram);
+}
+
+.diagram-template .diagram-freeform {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.diagram-template .diagram-freeform > * {
+	position: absolute;
+}
+
+/* Image template */
+.image-template .slide-caption {
+	font-size: var(--slide-font-secondary);
+	margin-bottom: var(--slide-gap);
+	text-align: center;
+}
+
+.image-template .slide-image {
+	display: grid;
+	place-items: center;
+	width: min(80cqi, 100%);
+	max-height: 65cqb;
+	text-align: center;
+}
+
+.image-template .slide-image :is(img, video, svg, iframe) {
+	max-width: 100%;
+	max-height: 65cqb;
+	border-radius: var(--slide-radius);
+}
+
+/* Statement template */
+.statement-template {
+	text-align: center;
+	gap: var(--slide-gap);
+}
+
+.statement-template .slide-statement {
+	font-size: var(--slide-font-statement);
+	font-weight: 600;
+	line-height: 1.4;
+	width: 100%;
+}
+
+.statement-template .slide-header {
+	margin-bottom: 0;
+}
+
+.statement-template .slide-statement mermaid-diagram {
+	font-weight: normal;
+}
+
+.statement-template .slide-statement p {
+	margin: 0;
+}
+
+/* Shared translation style — works in any template */
+.slide-translation {
+	font-size: var(--slide-font-secondary);
+	opacity: 0.7;
+	margin-top: calc(var(--slide-gap) * 0.5);
+}
+
+.slide-translation p {
+	margin: 0;
+}
+
+/* Mermaid diagrams */
+mermaid-diagram {
+	display: block;
+	width: 100%;
+	text-align: center;
+	color: transparent;
+}
+
+/* Fill template */
+.fill-template {
+	padding: 0;
+}
+
+.fill-template .slide-header {
+	position: absolute;
+	top: var(--slide-gutter);
+	left: var(--slide-gutter);
+	z-index: 1;
+	width: calc(100% - var(--slide-gutter) * 2);
+}
+
+.fill-template .slide-body {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.fill-template .slide-translation {
+	position: absolute;
+	bottom: var(--slide-gutter);
+	left: var(--slide-gutter);
+	z-index: 1;
+	width: calc(100% - var(--slide-gutter) * 2);
+	text-align: center;
+}
+
+.fill-template .slide-body :is(img, iframe, svg, video) {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	border: none;
+}
+
+/* Code template */
+.code-template {
+	padding: var(--slide-gap) calc(var(--slide-gutter) * 0.75);
+	align-items: stretch;
+}
+
+.code-template .slide-header {
+	margin-bottom: calc(var(--slide-gap) * 0.5);
+}
+
+.code-template .slide-header > h1 {
+	font-size: var(--slide-font-secondary);
+}
+
+.code-viewport {
+	position: relative;
+	flex: 1;
+	overflow: hidden;
+	border-radius: var(--slide-radius);
+	background: rgba(0, 0, 0, 0.3);
+}
+
+.code-scroll {
+	transition: transform 0.6s ease-in-out;
+	padding: calc(var(--slide-gap) * 0.5);
+}
+
+.code-scroll pre {
+	margin: 0;
+	background: none;
+	padding: 0;
+	line-height: 1.5;
+	font-size: var(--slide-font-code);
+}
+
+/* Hide raw code blocks until syntax-js upgrades them */
+pre > code[class*="language-"] {
+	opacity: 0;
+}
+
+pre > syntax-code {
+	opacity: 1;
+	transition: opacity 0.15s ease-in;
+}
+
+/* Dim overlays */
+.code-dim {
+	position: absolute;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	transition: height 0.6s ease-in-out;
+	z-index: 1;
+}
+
+.code-dim-top {
+	top: 0;
+	height: 0;
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.code-dim-bottom {
+	bottom: 0;
+	height: 0;
+	background: rgba(0, 0, 0, 0.7);
+}
+
+/* ========================
+   VIEW TRANSITIONS
+   ======================== */
+
+/* Give the live-view element the transition name — there's only ever one */
+live-view:has(.display) {
+	view-transition-name: slide-container;
+}
+
+.playback-stage {
+	view-transition-name: slide-container;
+}
+
+/* Default: no animation for the container (instant swap) */
+::view-transition-old(slide-container),
+::view-transition-new(slide-container) {
+	animation: none;
+}
+
+/* Fade */
+html[data-transition="fade"]::view-transition-old(slide-container) {
+	animation: vt-fade-out 0.4s ease-in-out both;
+	z-index: 1;
+}
+
+/* Slide left */
+html[data-transition="slide-left"]::view-transition-old(slide-container) {
+	animation: vt-slide-out-left 0.4s ease-in-out both;
+}
+
+html[data-transition="slide-left"]::view-transition-new(slide-container) {
+	animation: vt-slide-in-right 0.4s ease-in-out both;
+}
+
+/* Slide right */
+html[data-transition="slide-right"]::view-transition-old(slide-container) {
+	animation: vt-slide-out-right 0.4s ease-in-out both;
+}
+
+html[data-transition="slide-right"]::view-transition-new(slide-container) {
+	animation: vt-slide-in-left 0.4s ease-in-out both;
+}
+
+@keyframes vt-fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}
+
+@keyframes vt-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes vt-slide-out-left {
+	from { transform: translateX(0); opacity: 1; }
+	to { transform: translateX(-100%); opacity: 0; }
+}
+
+@keyframes vt-slide-in-right {
+	from { transform: translateX(100%); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes vt-slide-out-right {
+	from { transform: translateX(0); opacity: 1; }
+	to { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes vt-slide-in-left {
+	from { transform: translateX(-100%); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+/* ========================
+   BUILD EFFECTS
+   ======================== */
+
+/* Fade */
+.build-fade {
+	animation: vt-fade-in 0.4s ease;
+}
+
+/* Fly in from left */
+@keyframes build-fly-in-left {
+	from { transform: translateX(-2rem); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+.build-fly-left {
+	animation: build-fly-in-left 0.4s ease;
+}
+
+/* Fly in from right */
+@keyframes build-fly-in-right {
+	from { transform: translateX(2rem); opacity: 0; }
+	to { transform: translateX(0); opacity: 1; }
+}
+
+.build-fly-right {
+	animation: build-fly-in-right 0.4s ease;
+}
+
+/* Fly in from bottom */
+@keyframes build-fly-in-up {
+	from { transform: translateY(2rem); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+
+.build-fly-up {
+	animation: build-fly-in-up 0.4s ease;
+}
+
+/* Fly in from top */
+@keyframes build-fly-in-down {
+	from { transform: translateY(-2rem); opacity: 0; }
+	to { transform: translateY(0); opacity: 1; }
+}
+
+.build-fly-down {
+	animation: build-fly-in-down 0.4s ease;
+}
+
+/* Scale in */
+@keyframes build-scale-in {
+	from { transform: scale(0.8); opacity: 0; }
+	to { transform: scale(1); opacity: 1; }
+}
+
+.build-scale {
+	animation: build-scale-in 0.4s ease;
+}

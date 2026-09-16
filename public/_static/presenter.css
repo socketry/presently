@@ -1,0 +1,137 @@
+/* ========================
+   PRESENTER VIEW
+   ======================== */
+
+.presenter {
+	width: 100vw;
+	height: 100vh;
+	display: grid;
+	grid-template-rows: auto 1fr auto auto;
+	background: #0d0d1a;
+	gap: 0.5rem;
+	padding: 0.5rem;
+}
+
+/* Slide previews */
+.previews {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem;
+	min-height: 0;
+}
+
+.preview {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+}
+
+.preview h3 {
+	margin: 0 0 0.3rem 0;
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	opacity: 0.6;
+}
+
+.preview-frame {
+	flex: 1;
+	background: var(--slide-background);
+	border-radius: 8px;
+	overflow: hidden;
+	position: relative;
+	min-height: 0;
+}
+
+.preview-frame .no-slide {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	opacity: 0.4;
+	font-size: 1.2rem;
+}
+
+.current-preview .preview-frame {
+	border: 2px solid var(--accent);
+}
+
+/* Timing */
+.timing {
+	background: linear-gradient(
+		to right,
+		rgba(233, 69, 96, 0.25) var(--slide-progress, 0%),
+		var(--surface) var(--slide-progress, 0%)
+	);
+	border-radius: 8px;
+	padding: 0.5rem 1rem;
+	transition: background 1s linear;
+}
+
+.timing-info {
+	font-size: 1rem;
+}
+
+.timing-info.on-time .pacing-indicator {
+	color: #2ed573;
+}
+
+.timing-info.behind .pacing-indicator {
+	color: #ff4757;
+	font-weight: 700;
+	animation: pulse 1s infinite;
+}
+
+.timing-info.ahead .pacing-indicator {
+	color: #ffa502;
+}
+
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.5; }
+}
+
+.timing-info .pause-button {
+	color: var(--slide-text);
+	padding: 0.3rem 0.75rem;
+	cursor: pointer;
+	font-size: 0.9rem;
+	font-family: var(--font-sans);
+	transition: background 0.2s;
+	line-height: 1;
+	min-width: 6rem;
+}
+
+.timing-info .pause-button:hover {
+	background: var(--accent);
+}
+
+.timing-info .elapsed {
+	font-variant-numeric: tabular-nums;
+}
+
+.timing-info .remaining {
+	font-variant-numeric: tabular-nums;
+}
+
+.timing-info .slide-duration {
+	opacity: 0.6;
+	margin-left: auto;
+}
+
+.timing-info .speaker-info {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	font-size: 0.9rem;
+	background: rgba(255, 255, 255, 0.08);
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 6px;
+	padding: 0.2rem 0.6rem;
+	white-space: nowrap;
+}
+
+.timing-info .next-speaker {
+	opacity: 0.6;
+	font-style: italic;
+}

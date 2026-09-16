@@ -48,6 +48,15 @@ describe Presently::Playback do
 			expect(playback.call).to be(:include?, "playback.js")
 		end
 		
+		it "loads slide and playback styles" do
+			html = playback.call
+			
+			expect(html).not.to be(:include?, 'href="/_static/site.css"')
+			expect(html).to be(:include?, 'href="/_static/slides.css"')
+			expect(html).to be(:include?, 'href="/_static/playback.css"')
+			expect(html.index("/_static/playback.css")).to be < html.index("/_static/custom.css")
+		end
+		
 		it "loads Anime.js for slide scripts" do
 			expect(playback.call).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')
 		end

@@ -41,6 +41,10 @@ describe Presently::Application do
 		html = response.read
 		
 		expect(response.status).to be == 200
+		expect(html).not.to be(:include?, 'href="/_static/site.css"')
+		expect(html).to be(:include?, 'href="/_static/index.css"')
+		expect(html).to be(:include?, 'href="/_static/home.css"')
+		expect(html).not.to be(:include?, 'href="/_static/slides.css"')
 		expect(html).to be(:include?, 'href="/display"')
 		expect(html).to be(:include?, 'href="/presenter"')
 		expect(html).to be(:include?, 'href="/record"')
@@ -59,6 +63,10 @@ describe Presently::Application do
 		html = response.read
 		
 		expect(response.status).to be == 200
+		expect(html).not.to be(:include?, 'href="/_static/site.css"')
+		expect(html).to be(:include?, 'href="/_static/slides.css"')
+		expect(html).to be(:include?, 'href="/_static/display.css"')
+		expect(html).not.to be(:include?, 'href="/_static/presenter.css"')
 		expect(html).to be(:include?, "Example slide")
 		expect(html).to be(:include?, 'class="slide-container slide-viewport"')
 		expect(html).to be(:include?, '"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"')
@@ -69,6 +77,8 @@ describe Presently::Application do
 		html = response.read
 		
 		expect(response.status).to be == 200
+		expect(html).to be(:include?, 'href="/_static/slides.css"')
+		expect(html).to be(:include?, 'href="/_static/presenter.css"')
 		expect(html.scan('class="preview-frame slide-viewport"').size).to be == 2
 	end
 	
@@ -85,9 +95,20 @@ describe Presently::Application do
 	
 	it "serves the recording interface separately from the presenter" do
 		response = application.call(request("GET", "/record"))
+		html = response.read
 		
 		expect(response.status).to be == 200
-		expect(response.read).to be(:include?, "Record, review, and save one audio track")
+		expect(html).to be(:include?, 'href="/_static/slides.css"')
+		expect(html).to be(:include?, 'href="/_static/recorder.css"')
+		expect(html).to be(:include?, "Record, review, and save one audio track")
+	end
+	
+	it "loads interface styles before presentation overrides" do
+		File.write(File.join(slides_root, "style.css"), ".slide { color: blue; }\n")
+		html = application.call(request("GET", "/display")).read
+		
+		expect(html.index("/_static/display.css")).to be < html.index("/_static/custom.css")
+		expect(html.index("/_static/custom.css")).to be < html.index("/_slides/style.css")
 	end
 	
 	it "only serves page interfaces via GET" do
