@@ -8,7 +8,7 @@ speaker: Samuel
 
 ---
 
-This is the presenter view you're looking at right now. Each slide has its own notes — what to say, what to do — and a timer that tracks how you're pacing against the expected duration.
+There are several built-in layouts — title, statement, code, two-column, image, and the default bullet list you're looking at now. Each one is an XRB template, so they're easy to customise or add to.
 
 ```javascript
 slide.find("li").show(3)

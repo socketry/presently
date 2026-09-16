@@ -8,7 +8,7 @@ speaker: Samuel
 
 ---
 
-There are several built-in layouts — title, statement, code, two-column, image, and the default bullet list you're looking at now. Each one is an XRB template, so they're easy to customise or add to.
+Slides are plain text files. You write Markdown, add a little YAML at the top to set the template and timing, and that's your whole slide. No proprietary format, perfect for collaboration and agentic interaction.
 
 ```javascript
 slide.find("li").show(2)

@@ -68,8 +68,4 @@ end
 
 ---
 
-Navigation is handled by advance! and retreat!, which both delegate to go_to. That method does the bounds checking — so you can't advance past the last slide or retreat before the first.
-
-*Point to the go_to method on the display screen.*
-
-The key line is at the end of go_to: notify_listeners!. Any object that has registered itself — the WebSocket connection, the timer, the presenter view — gets called immediately when the slide changes. That's what keeps everything in sync with no polling.
+In addition, code focus is animated automatically to make it easy to highlight relevant segments as you explain them.

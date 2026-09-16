@@ -1,7 +1,6 @@
 ---
 template: code
 duration: 60
-focus: 2-10
 marker: Code Walkthrough
 speaker: Samuel
 ---
@@ -74,6 +73,4 @@ end
 
 ---
 
-*Highlighted lines 2–10 should be visible — check the display before speaking.*
-
-This is the heart of Presently — the Presentation class. The constructor takes a slides directory, sets up the initial state, and then calls load_slides! to read all the Markdown files off disk. A Clock is created to track timing, and a listeners array is set up for the observer pattern we'll look at in a moment.
+Showing source code is easy with Presently, and includes syntax highlighting out of the box.

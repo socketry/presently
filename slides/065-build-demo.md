@@ -31,7 +31,7 @@ speaker: Samuel
 
 ---
 
-An HTML grid layout with animated step-by-step reveals using `slide.after()`.
+Presently has a client and server side component, communicating via a WebSocket. Animations, like this one, are revealed step by step using JavaScript.
 
 ```javascript
 const panes = slide.find(".pane").builder({effect: "fade"})
