@@ -255,8 +255,7 @@ export class PresentlyRecorder extends HTMLElement {
 				throw new Error((await response.text()) || `Could not save recording (${response.status}).`);
 			}
 			
-			this.playback.src = this.cacheBustedURL();
-			this.releaseRecordingURL();
+			// Keep the reviewed blob loaded because replacing its source resets media metadata:
 			this.#recording = null;
 			if (duration) this.dataset.slideDuration = String(duration);
 			this.updateDurationAction();

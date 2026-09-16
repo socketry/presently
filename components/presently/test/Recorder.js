@@ -118,6 +118,7 @@ test('saving can update the slide duration from the recording length', async () 
 	controls['.recording-playback'].duration = 12.2;
 	controls['.recording-update-duration'].checked = true;
 	recorder.finish();
+	const playbackURL = controls['.recording-playback'].src;
 
 	const originalFetch = globalThis.fetch;
 	const originalLocation = globalThis.location;
@@ -133,6 +134,7 @@ test('saving can update the slide duration from the recording length', async () 
 		await recorder.save();
 		assert.equal(requestURL.searchParams.get('index'), '2');
 		assert.equal(requestURL.searchParams.get('duration'), '13');
+		assert.equal(controls['.recording-playback'].src, playbackURL);
 		assert.equal(controls['.recording-status'].textContent, 'Recording saved. Slide duration set to 13 seconds.');
 	} finally {
 		globalThis.fetch = originalFetch;

@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Keep narrated playback visuals synchronized when the document or inactive slide frames are hidden.
+  - Keep recorded audio duration visible after saving a reviewed take.
   - Prevent stopping a pointer-initiated recording from immediately starting a retake.
   - Update slide timing from new or existing narration recordings.
   - Render audience and narrated playback slides through the same client-side lifecycle so incremental builds behave consistently.
