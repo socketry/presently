@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Match slide duration to saved narration by default in the recorder.
+
 ## v0.23.0
 
   - Keep narrated playback visuals synchronized when the document or inactive slide frames are hidden.
