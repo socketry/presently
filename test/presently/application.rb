@@ -41,6 +41,7 @@ describe Presently::Application do
 		html = response.read
 		
 		expect(response.status).to be == 200
+		expect(html).not.to be(:include?, 'href="/_static/site.css"')
 		expect(html).to be(:include?, 'href="/_static/index.css"')
 		expect(html).to be(:include?, 'href="/_static/home.css"')
 		expect(html).not.to be(:include?, 'href="/_static/slides.css"')
@@ -62,6 +63,7 @@ describe Presently::Application do
 		html = response.read
 		
 		expect(response.status).to be == 200
+		expect(html).not.to be(:include?, 'href="/_static/site.css"')
 		expect(html).to be(:include?, 'href="/_static/slides.css"')
 		expect(html).to be(:include?, 'href="/_static/display.css"')
 		expect(html).not.to be(:include?, 'href="/_static/presenter.css"')

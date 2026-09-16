@@ -13,7 +13,6 @@ module Presently
 	class Page < Lively::Page
 		ICON = "/_static/icon.png"
 		STYLESHEETS = [
-			{href: "/_static/site.css", media: "screen"}.freeze,
 			{href: "/_static/index.css", media: "screen"}.freeze,
 		].freeze
 		SLIDES_STYLESHEET = {href: "/_static/slides.css", media: "screen"}.freeze
