@@ -3,7 +3,7 @@ const RECORDING_EDGE_DELAY = 100;
 // Records and reviews the narration for one slide. The element is recreated
 // when the selected slide changes, which gives each recording session a clear
 // lifetime and releases the microphone during navigation.
-class PresentlyRecorder extends HTMLElement {
+export class PresentlyRecorder extends HTMLElement {
 	#mediaRecorder = null;
 	#mediaStream = null;
 	#audioContext = null;
@@ -16,6 +16,7 @@ class PresentlyRecorder extends HTMLElement {
 	#startedAt = null;
 	#timer = null;
 	#startToken = null;
+	#ignoreClick = false;
 	
 	connectedCallback() {
 		this.recordButton = this.querySelector('.recording-toggle');
@@ -27,12 +28,20 @@ class PresentlyRecorder extends HTMLElement {
 		// Stop as soon as the pointer is pressed so the delayed audio excludes the
 		// click. The click handler provides both starting and keyboard activation.
 		this.recordButton.addEventListener('pointerdown', () => {
-			if (this.#mediaRecorder?.state === 'recording') this.stop();
+			if (this.isRecording()) {
+				this.#ignoreClick = true;
+				this.stop();
+			}
 		});
 		this.recordButton.addEventListener('click', () => {
+			if (this.#ignoreClick) {
+				this.#ignoreClick = false;
+				return;
+			}
+
 			if (this.recordButton.disabled) return;
 			
-			if (this.#mediaRecorder?.state === 'recording') {
+			if (this.isRecording()) {
 				this.stop();
 			} else {
 				this.start(performance.now());
@@ -58,6 +67,10 @@ class PresentlyRecorder extends HTMLElement {
 	
 	get url() {
 		return this.dataset.recordingUrl;
+	}
+
+	isRecording() {
+		return this.#mediaRecorder?.state === 'recording';
 	}
 	
 	async loadExisting() {
