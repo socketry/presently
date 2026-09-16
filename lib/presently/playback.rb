@@ -29,11 +29,13 @@ module Presently
 		# @parameter recording_urls [Array(String | Nil)] Narration URL for each slide.
 		# @parameter autoplay [Boolean] Whether playback should begin when ready.
 		# @parameter controls [Boolean] Whether playback controls should be visible.
-		def initialize(presentation:, recording_urls:, autoplay: false, controls: true)
+		# @parameter asset_prefix [String] Prefix for playback, component, and slide asset URLs.
+		def initialize(presentation:, recording_urls:, autoplay: false, controls: true, asset_prefix: "")
 			@presentation = presentation
 			@recording_urls = recording_urls
 			@autoplay = autoplay
 			@controls = controls
+			@asset_prefix = asset_prefix
 			@renderer = SlideRenderer.new(templates: presentation.templates)
 		end
 		
@@ -55,11 +57,30 @@ module Presently
 			@recording_urls[index]
 		end
 		
+		# Prefix an application-relative asset URL for the current playback target.
+		# @parameter path [String] An absolute application asset path.
+		# @returns [String] The prefixed asset URL.
+		def asset_url(path)
+			return path if @asset_prefix.empty?
+			
+			@asset_prefix.sub(%r{/\z}, "") + "/" + path.sub(%r{\A/}, "")
+		end
+		
+		# Resolve a presentation stylesheet URL for the current playback target.
+		# @parameter stylesheet [Stylesheet] The presentation stylesheet.
+		# @returns [String] The prefixed stylesheet URL.
+		def stylesheet_url(stylesheet)
+			asset_url(stylesheet.url)
+		end
+		
 		# Render one slide as HTML.
 		# @parameter slide [Slide] The slide to render.
 		# @returns [XRB::MarkupString]
 		def render_slide(slide)
-			@renderer.render_to_html(slide)
+			html = @renderer.render_to_html(slide)
+			return html if @asset_prefix.empty?
+			
+			XRB::MarkupString.raw(html.to_s.gsub(Stylesheet::PREFIX, asset_url(Stylesheet::PREFIX)))
 		end
 		
 		# Render the complete playback page.

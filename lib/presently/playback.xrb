@@ -6,28 +6,28 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		
-		<link rel="icon" type="image/png" href="/_static/icon.png" />
-		<link rel="stylesheet" href="/_static/index.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="/_static/slides.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="/_static/playback.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="/_static/custom.css" type="text/css" media="screen" />
-		<link rel="stylesheet" href="/_components/@socketry/syntax/themes/base/syntax.css" type="text/css" media="screen" />
+		<link rel="icon" type="image/png" href="#{self.asset_url("/_static/icon.png")}" />
+		<link rel="stylesheet" href="#{self.asset_url("/_static/index.css")}" type="text/css" media="screen" />
+		<link rel="stylesheet" href="#{self.asset_url("/_static/slides.css")}" type="text/css" media="screen" />
+		<link rel="stylesheet" href="#{self.asset_url("/_static/playback.css")}" type="text/css" media="screen" />
+		<link rel="stylesheet" href="#{self.asset_url("/_static/custom.css")}" type="text/css" media="screen" />
+		<link rel="stylesheet" href="#{self.asset_url("/_components/@socketry/syntax/themes/base/syntax.css")}" type="text/css" media="screen" />
 		<?r self.stylesheets.each do |stylesheet| ?>
-		<link rel="stylesheet" href="#{stylesheet.url}" type="text/css" media="screen" />
+		<link rel="stylesheet" href="#{self.stylesheet_url(stylesheet)}" type="text/css" media="screen" />
 		<?r end ?>
 		
 		<script type="importmap">
 		{
 			"imports": {
-				"morphdom": "/_components/morphdom/morphdom-esm.js",
-				"@socketry/presently": "/_components/@socketry/presently/Presently.js",
-				"@socketry/syntax": "/_components/@socketry/syntax/Syntax.js",
-				"animejs": "/_components/animejs/dist/bundles/anime.esm.min.js"
+				"morphdom": "#{self.asset_url("/_components/morphdom/morphdom-esm.js")}",
+				"@socketry/presently": "#{self.asset_url("/_components/@socketry/presently/Presently.js")}",
+				"@socketry/syntax": "#{self.asset_url("/_components/@socketry/syntax/Syntax.js")}",
+				"animejs": "#{self.asset_url("/_components/animejs/dist/bundles/anime.esm.min.js")}"
 			}
 		}
 		</script>
 		
-		<script type="module" src="/playback.js"></script>
+		<script type="module" src="#{self.asset_url("/playback.js")}"></script>
 	</head>
 	
 	<body class="playback" data-autoplay="#{self.autoplay}" data-controls="#{self.controls}">

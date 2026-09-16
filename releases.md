@@ -3,6 +3,7 @@
 ## Unreleased
 
   - Match slide duration to saved narration by default in the recorder.
+  - Export narrated playback, audio, and browser assets as a portable static HTML directory with `bake presently:export:html`.
 
 ## v0.23.0
 

@@ -53,6 +53,20 @@ Open `http://localhost:9292/playback` to watch the narrated presentation. Playba
 
 For automated capture, use `http://localhost:9292/playback?autoplay=true&controls=false`. The page exposes `window.__PRESENTLY_PLAYBACK_READY` and `window.__PRESENTLY_PLAYBACK_FINISHED`, and dispatches matching `presently:playback-ready` and `presently:playback-finished` events.
 
+To export narrated playback as static HTML with its audio and browser assets:
+
+``` shell
+bundle exec bake presently:export:html output=presentation
+```
+
+The output is a portable directory which can be deployed to a static web host. Preview it through an HTTP server because browsers restrict JavaScript modules loaded directly from `file://` URLs:
+
+``` shell
+ruby -run -e httpd presentation -p 8000
+```
+
+Open `http://localhost:8000/` to review the export. The task requires narration for every slide, prefers files under `audio-normalized/`, and falls back to the corresponding recording under `audio/`. Pass `force=true` to replace an existing output directory.
+
 To export playback directly to an MP4 file using a Chromium build that supports `Page.startScreenRecording`:
 
 ``` shell
