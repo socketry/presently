@@ -34,6 +34,7 @@ function makeRecorder() {
 		'.recording-toggle': new Control(),
 		'.recording-save': new Control(),
 		'.recording-playback': new Control(),
+		'.recording-apply-duration': new Control(),
 		'.recording-update-duration': new Control(),
 		'.recording-status': new Control(),
 		'.recording-time': new Control(),
@@ -64,6 +65,51 @@ test('a pointer stop does not start a retake from the following click', () => {
 	recorder.isRecording = () => false;
 	controls['.recording-toggle'].dispatchEvent(new Event('click'));
 	assert.equal(starts, 1);
+});
+
+test('offers to update a mismatched existing recording duration', () => {
+	const {recorder, controls} = makeRecorder();
+	recorder.dataset.slideDuration = '30';
+	controls['.recording-playback'].duration = 12.2;
+	controls['.recording-playback'].dispatchEvent(new Event('loadedmetadata'));
+
+	assert.equal(controls['.recording-apply-duration'].hidden, false);
+
+	recorder.dataset.slideDuration = '13';
+	controls['.recording-playback'].dispatchEvent(new Event('loadedmetadata'));
+	assert.equal(controls['.recording-apply-duration'].hidden, true);
+});
+
+test('updates the slide duration without uploading the recording again', async () => {
+	const {recorder, controls} = makeRecorder();
+	recorder.dataset.recordingUrl = '/recordings?index=2';
+	recorder.dataset.slideDuration = '30';
+	controls['.recording-playback'].duration = 12.2;
+
+	const originalFetch = globalThis.fetch;
+	const originalLocation = globalThis.location;
+	let requestURL = null;
+	globalThis.location = {href: 'http://localhost/record'};
+	globalThis.fetch = async (url, options) => {
+		requestURL = url;
+		assert.equal(options.method, 'PATCH');
+		return {ok: true};
+	};
+
+	try {
+		await recorder.updateSlideDuration();
+		assert.equal(requestURL.searchParams.get('duration'), '13');
+		assert.equal(recorder.dataset.slideDuration, '13');
+		assert.equal(controls['.recording-apply-duration'].hidden, true);
+		assert.equal(controls['.recording-status'].textContent, 'Slide duration set to 13 seconds.');
+	} finally {
+		globalThis.fetch = originalFetch;
+		if (originalLocation === undefined) {
+			delete globalThis.location;
+		} else {
+			globalThis.location = originalLocation;
+		}
+	}
 });
 
 test('saving can update the slide duration from the recording length', async () => {

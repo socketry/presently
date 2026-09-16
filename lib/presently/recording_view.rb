@@ -91,7 +91,8 @@ module Presently
 							
 							builder.tag("presently-recorder",
 								id: "presently-recorder-#{index}",
-								"data-recording-url": recording_url
+								"data-recording-url": recording_url,
+								"data-slide-duration": slide.duration
 							) do
 								builder.tag(:div, class: "recording-actions") do
 									builder.tag(:button, class: "recording-toggle", type: "button"){builder.text("● Record")}
@@ -101,6 +102,9 @@ module Presently
 								end
 								
 								builder.tag(:audio, class: "recording-playback", controls: true, preload: "metadata", hidden: true){}
+								builder.tag(:button, class: "recording-apply-duration", type: "button", hidden: true) do
+									builder.text("Update Slide Duration")
+								end
 								builder.tag(:label, class: "recording-duration-option") do
 									builder.tag(:input, class: "recording-update-duration", type: "checkbox")
 									builder.tag(:span){builder.text("Update slide duration to match this recording")}
