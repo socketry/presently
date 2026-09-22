@@ -24,6 +24,10 @@ html, body {
 	overflow: hidden;
 }
 
+a {
+	color: var(--accent-light);
+}
+
 /* ========================
    SHARED INTERFACE COMPONENTS
    ======================== */
