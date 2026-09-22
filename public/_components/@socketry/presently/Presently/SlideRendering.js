@@ -17,9 +17,17 @@ export class SlideRendering {
 	#slides = [];
 	#disposed = false;
 
-	constructor(view, {transition = null} = {}) {
+	constructor(view, {transition = null, previous = null} = {}) {
 		this.#view = view;
 		this.#transitionName = transition;
+
+		if (previous) {
+			// Cancel stale rendering work immediately, but retain the visible slides
+			// until the browser has captured the outgoing transition snapshot.
+			this.#slides = previous.#slides;
+			previous.#slides = [];
+			previous.dispose();
+		}
 	}
 
 	// Initialize the slides already rendered within the view.
@@ -50,6 +58,9 @@ export class SlideRendering {
 		const render = async () => {
 			if (this.#disposed) return;
 
+			// View transitions invoke this callback after capturing the old state.
+			// Revert outgoing animations before updating potentially reused DOM nodes.
+			this.#disposeSlides();
 			update(this.#view);
 			initialized = await this.initialize();
 		};
@@ -108,6 +119,10 @@ export class SlideRendering {
 			delete document.documentElement.dataset.transition;
 		}
 
+		this.#disposeSlides();
+	}
+
+	#disposeSlides() {
 		this.#slides.forEach(slide => slide.dispose());
 		this.#slides = [];
 	}
