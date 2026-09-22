@@ -36,6 +36,10 @@ function stopCurrent() {
 	currentRendering?.dispose();
 	currentRendering = null;
 
+	stopAudio();
+}
+
+function stopAudio() {
 	if (currentAudio) {
 		currentAudio.pause();
 		currentAudio.removeEventListener('ended', handleEnded);
@@ -55,6 +59,7 @@ async function activateFrame(index, {transition = true} = {}) {
 
 	const rendering = new SlideRendering(frame, {
 		transition: transition ? slideTemplate.dataset.transition : null,
+		previous: currentRendering,
 	});
 	currentRendering = rendering;
 
@@ -70,7 +75,7 @@ async function show(index, {transition = true} = {}) {
 	if (transitioning || index < 0 || index >= slideTemplates.length) return false;
 
 	transitioning = true;
-	stopCurrent();
+	stopAudio();
 
 	try {
 		return await activateFrame(index, {transition});

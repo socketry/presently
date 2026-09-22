@@ -10,10 +10,8 @@ let live = null;
 let activeRendering = null;
 
 function activateRendering(view, {transition = null} = {}) {
-	const rendering = new SlideRendering(view, {transition});
-	const previousRendering = activeRendering;
+	const rendering = new SlideRendering(view, {transition, previous: activeRendering});
 	activeRendering = rendering;
-	previousRendering?.dispose();
 
 	return rendering;
 }

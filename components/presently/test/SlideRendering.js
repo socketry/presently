@@ -37,6 +37,185 @@ class View extends EventTarget {
 	}
 }
 
+function animatedSlide() {
+	const slide = new SlideElement(`
+		slide.anime(({utils}) => utils.set(slide.element.camera, {zoom: 3}));
+		slide.defer(() => slide.element.disposals += 1);
+	`);
+	slide.body.camera = {zoom: 1};
+	slide.body.disposals = 0;
+	return slide;
+}
+
+// The browser captures the outgoing slide before invoking the update callback.
+// Control that boundary separately from the end of the visual transition.
+function pendingTransition(callback) {
+	let update;
+	let finish;
+	const updateCallbackDone = new Promise(resolve => update = () => resolve(callback()));
+	const animation = new Promise(resolve => finish = resolve);
+
+	return {
+		update,
+		finish,
+		updateCallbackDone,
+		ready: updateCallbackDone,
+		finished: updateCallbackDone.then(() => animation),
+		skipped: false,
+		skipTransition() {
+			this.skipped = true;
+			finish();
+		},
+	};
+}
+
+for (const mode of ['fade', 'no transition', 'hidden', 'unsupported']) {
+	test(`replacement preserves animated state until the DOM update (${mode})`, async () => {
+		const originalHighlight = Syntax.highlight;
+		Syntax.highlight = async () => {};
+		globalThis.document = {
+			hidden: mode === 'hidden',
+			documentElement: {dataset: {}},
+			querySelectorAll: () => [],
+		};
+
+		try {
+			const outgoing = animatedSlide();
+			const incoming = animatedSlide();
+			const view = new View('current', [outgoing]);
+			const previous = new SlideRendering(view);
+			await previous.initialize();
+			let transition;
+			if (mode !== 'unsupported') {
+				document.startViewTransition = callback => transition = pendingTransition(callback);
+			}
+
+			const rendering = new SlideRendering(view, {
+				transition: mode === 'no transition' ? null : 'fade',
+				previous,
+			});
+			assert.equal(outgoing.body.camera.zoom, 3);
+
+			const rendered = rendering.render(() => {
+				assert.equal(outgoing.body.camera.zoom, 1);
+				assert.equal(outgoing.body.disposals, 1);
+				view.slides = [incoming];
+			});
+
+			if (mode === 'fade') {
+				// This is the state the browser captures for the outgoing snapshot.
+				assert.equal(outgoing.body.camera.zoom, 3);
+				assert.equal(outgoing.body.disposals, 0);
+				transition.update();
+				assert.equal(incoming.body.camera.zoom, 3);
+				await transition.updateCallbackDone;
+				assert.equal(document.documentElement.dataset.transition, 'fade');
+				transition.finish();
+			} else {
+				assert.equal(transition, undefined);
+				assert.equal(incoming.body.camera.zoom, 3);
+			}
+
+			assert.equal(await rendered, true);
+			assert.equal(document.documentElement.dataset.transition, undefined);
+			previous.dispose();
+			rendering.dispose();
+			rendering.dispose();
+			assert.equal(outgoing.body.disposals, 1);
+			assert.equal(incoming.body.disposals, 1);
+		} finally {
+			Syntax.highlight = originalHighlight;
+			delete globalThis.document;
+		}
+	});
+}
+
+for (const updated of [false, true]) {
+	test(`rapid navigation preserves the visible slide (${updated ? 'after' : 'before'} the pending DOM update)`, async () => {
+		const originalHighlight = Syntax.highlight;
+		Syntax.highlight = async () => {};
+		const transitions = [];
+		globalThis.document = {
+			documentElement: {dataset: {}},
+			querySelectorAll: () => [],
+			startViewTransition(callback) {
+				const transition = pendingTransition(callback);
+				transitions.push(transition);
+				return transition;
+			},
+		};
+
+		try {
+			const firstSlide = animatedSlide();
+			const secondSlide = animatedSlide();
+			const finalSlide = animatedSlide();
+			const view = new View('current', [firstSlide]);
+			let changes = 0;
+			view.addEventListener('presently:slide:change', () => changes += 1);
+			const first = new SlideRendering(view);
+			await first.initialize();
+
+			const second = new SlideRendering(view, {transition: 'fade', previous: first});
+			let secondUpdates = 0;
+			const secondResult = second.render(() => {
+				secondUpdates += 1;
+				view.slides = [secondSlide];
+			});
+			if (updated) {
+				transitions[0].update();
+				await transitions[0].updateCallbackDone;
+			}
+
+			const final = new SlideRendering(view, {transition: 'slide-left', previous: second});
+			const finalResult = final.render(() => view.slides = [finalSlide]);
+			assert.equal(transitions[0].skipped, true);
+			assert.equal((updated ? secondSlide : firstSlide).body.camera.zoom, 3);
+			assert.equal((updated ? secondSlide : firstSlide).body.disposals, 0);
+
+			if (!updated) transitions[0].update();
+			assert.equal(await secondResult, false);
+			assert.equal(secondUpdates, updated ? 1 : 0);
+			assert.equal(document.documentElement.dataset.transition, 'slide-left');
+			assert.equal(changes, 0);
+
+			transitions[1].update();
+			transitions[1].finish();
+			assert.equal(await finalResult, true);
+			assert.equal(changes, 1);
+			assert.equal(view.slides[0], finalSlide);
+			final.dispose();
+			assert.equal(firstSlide.body.disposals, 1);
+			assert.equal(secondSlide.body.disposals, updated ? 1 : 0);
+			assert.equal(finalSlide.body.disposals, 1);
+		} finally {
+			Syntax.highlight = originalHighlight;
+			delete globalThis.document;
+		}
+	});
+}
+
+test('disposing a replacement before its update releases the outgoing slide', async () => {
+	const originalHighlight = Syntax.highlight;
+	Syntax.highlight = async () => {};
+	globalThis.document = {querySelectorAll: () => []};
+
+	try {
+		const outgoing = animatedSlide();
+		const view = new View('current', [outgoing]);
+		const previous = new SlideRendering(view);
+		await previous.initialize();
+		const rendering = new SlideRendering(view, {previous});
+		rendering.dispose();
+		assert.equal(outgoing.body.camera.zoom, 1);
+		assert.equal(outgoing.body.disposals, 1);
+		previous.dispose();
+		assert.equal(await rendering.render(() => assert.fail('Disposed rendering updated the DOM')), false);
+	} finally {
+		Syntax.highlight = originalHighlight;
+		delete globalThis.document;
+	}
+});
+
 test('slide scripts establish initial state before asynchronous preparation', async () => {
 	const originalHighlight = Syntax.highlight;
 	let releaseHighlight;
