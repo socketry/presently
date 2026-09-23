@@ -67,6 +67,13 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.26.0
+
+  - Add `timer: start`, `timer: pause`, and `timer: resume` slide metadata, applied when advancing away from a slide in the presenter or display.
+  - Normalize slide durations to finite, non-negative floating-point seconds. Missing or invalid durations now default to `0.0`, and negative durations are clamped to zero. Presentations relying on the previous 60-second default should set explicit durations.
+  - Handle zero-duration slide progress and hide pacing indicators, progress, and remaining-time estimates when a presentation has no allocated duration.
+  - Keep recorder navigation from changing the presentation timer.
+
 ### v0.24.1
 
   - Use legible, customizable link colors on the default dark slide background.
@@ -116,11 +123,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
 ### v0.17.2
 
   - Fix slide rendering events for generated view identifiers that begin with a digit.
-
-### v0.17.1
-
-  - Add slide-scoped resource cleanup with `Slide#defer`, `Slide#signal`, and idempotent `Slide#dispose`. Existing tracked timeouts now use the same disposal lifecycle.
-  - [Web Packages](https://socketry.github.io/presently/releases/index#web-packages)
 
 ## See Also
 

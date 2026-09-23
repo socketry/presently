@@ -400,38 +400,6 @@ The presenter view at `/presenter` provides:
 - **Progress bar** — visual indicator of time consumed for the current slide.
 - **Reload button** — reload slides from disk without restarting the server.
 
-### Starting the Timer from a Title Slide
-
-A title slide can stay on screen while the audience settles. Add `timer: start` to its frontmatter to start the presentation timer when you advance to the next slide:
-
-``` markdown
----
-template: title
-duration: 0
-timer: start
----
-
-# My Presentation
-
-We'll begin shortly.
-```
-
-The timer stays stopped while the title is displayed. Advancing from it in `/presenter` or `/display` starts the timer before showing the next slide. Setting `duration: 0` excludes the waiting slide from the expected presentation duration and pacing calculations. The `title` template itself does not control the timer.
-
-Durations are read as floating-point seconds, including numeric strings. Negative, invalid, or non-finite values are treated as `0.0`. An unspecified or null duration defaults to `0.0` seconds, meaning no time has been allocated to that slide. Set explicit durations, or apply recorded narration durations, to establish a pacing schedule. When the total allocated duration is zero, the presenter shows elapsed time without pacing indicators, a progress bar, or a remaining-time estimate.
-
-The `timer` field supports these actions:
-
-| Value | Effect when advancing from this slide |
-|---|---|
-| `start` | Starts the timer only if it has never started. Revisiting the slide does not reset elapsed time or resume a manually paused timer. |
-| `pause` | Pauses the timer, preserving elapsed time. Has no effect before the timer starts. |
-| `resume` | Resumes a started timer, preserving elapsed time. Has no effect before the timer starts or while it is already running. |
-
-For a break, put `timer: pause` on the slide immediately before the break slide, and `timer: resume` on the break slide itself. Give the break slide `duration: 0` to exclude the break from pacing calculations. Advancing into the break pauses timing; advancing out resumes it.
-
-Timer actions run only when **Next** successfully moves to another slide. Going backwards, jumping directly to a slide, reloading, reconnecting, and restoring saved state do not trigger them. Neither does navigation in `/record`, or recorded playback. Slides without a recognized timer action leave the timer unchanged; the manual timer controls remain available.
-
 ## Custom Templates
 
 You can provide your own `.xrb` template files by configuring the templates root:

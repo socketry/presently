@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.26.0
 
   - Add `timer: start`, `timer: pause`, and `timer: resume` slide metadata, applied when advancing away from a slide in the presenter or display.
   - Normalize slide durations to finite, non-negative floating-point seconds. Missing or invalid durations now default to `0.0`, and negative durations are clamped to zero. Presentations relying on the previous 60-second default should set explicit durations.
