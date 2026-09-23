@@ -349,9 +349,10 @@ module Presently
 		end
 		
 		# The expected duration of this slide in seconds.
-		# @returns [Integer] The duration from front_matter, or `60`.
+		# Negative durations are treated as zero.
+		# @returns [Numeric] The duration from front_matter, clamped to a minimum of zero, or `60` when unspecified.
 		def duration
-			@front_matter&.fetch("duration", 60) || 60
+			(@front_matter&.fetch("duration", 60) || 60).clamp(0, nil)
 		end
 		
 		# The timer action to apply when advancing from this slide.

@@ -32,11 +32,36 @@ describe Presently::Slide do
 	end
 	
 	with "#duration" do
+		let(:path) {File.join(root, "slide.md")}
+		
 		it "reads duration from front_matter" do
-			path = File.join(root, "slide.md")
 			File.write(path, "---\nduration: 30\n---\n# Slide\n")
 			
 			expect(load_slide(path).duration).to be == 30
+		end
+		
+		it "preserves zero durations" do
+			File.write(path, "---\nduration: 0\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 0
+		end
+		
+		it "clamps negative durations to zero" do
+			File.write(path, "---\nduration: -5\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 0
+		end
+		
+		it "preserves fractional durations" do
+			File.write(path, "---\nduration: 2.5\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 2.5
+		end
+		
+		it "uses the default for a null duration" do
+			File.write(path, "---\nduration: null\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 60
 		end
 	end
 	

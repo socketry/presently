@@ -287,6 +287,8 @@ describe Presently::PresentationController do
 			File.write(File.join(root, "030-break.md"), "---\nduration: -5\n---\n# Break\n")
 			controller.go_to(2)
 			expect(controller.slide_progress).to be == 0.0
+			expect(controller.total_duration).to be == 120
+			expect(presentation.expected_time_at(3)).to be == 60
 			
 			controller.clock.restore!(59.0, running: false)
 			expect(controller.slide_progress).to be == 0.0
@@ -296,6 +298,10 @@ describe Presently::PresentationController do
 			
 			controller.clock.restore!(61.0, running: false)
 			expect(controller.slide_progress).to be == 1.0
+			
+			controller.go_to(3)
+			expect(controller.pacing).to be == :on_time
+			expect(controller.time_remaining).to be == 59.0
 		end
 	end
 	
