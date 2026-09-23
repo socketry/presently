@@ -81,7 +81,15 @@ describe Presently::Slide do
 			
 			duration = load_slide(path).duration
 			expect(duration).to be_a(Float)
-			expect(duration).to be == 60.0
+			expect(duration).to be == 0.0
+		end
+		
+		it "defaults to zero when duration is omitted from front matter" do
+			File.write(path, "---\ntemplate: title\n---\n# Slide\n")
+			
+			duration = load_slide(path).duration
+			expect(duration).to be_a(Float)
+			expect(duration).to be == 0.0
 		end
 	end
 	
@@ -259,7 +267,7 @@ describe Presently::Slide do
 		
 		it "uses default duration" do
 			expect(slide.duration).to be_a(Float)
-			expect(slide.duration).to be == 60.0
+			expect(slide.duration).to be == 0.0
 		end
 		
 		it "has no timer action" do

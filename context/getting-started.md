@@ -418,7 +418,7 @@ We'll begin shortly.
 
 The timer stays stopped while the title is displayed. Advancing from it in `/presenter` or `/display` starts the timer before showing the next slide. Setting `duration: 0` excludes the waiting slide from the expected presentation duration and pacing calculations. The `title` template itself does not control the timer.
 
-Durations are read as floating-point seconds, including numeric strings. Negative, invalid, or non-finite values are treated as `0.0`. An unspecified or null duration defaults to `60.0` seconds.
+Durations are read as floating-point seconds, including numeric strings. Negative, invalid, or non-finite values are treated as `0.0`. An unspecified or null duration defaults to `0.0` seconds, meaning no time has been allocated to that slide. Set explicit durations, or apply recorded narration durations, to establish a pacing schedule. When the total allocated duration is zero, the presenter shows elapsed time without pacing indicators, a progress bar, or a remaining-time estimate.
 
 The `timer` field supports these actions:
 

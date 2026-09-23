@@ -112,8 +112,9 @@ module Presently
 		end
 		
 		# The current pacing status relative to the slide timing.
-		# @returns [Symbol] One of `:on_time`, `:ahead`, or `:behind`.
+		# @returns [Symbol | Nil] One of `:on_time`, `:ahead`, or `:behind`, or `nil` when no presentation time is allocated.
 		def pacing
+			return unless total_duration.positive?
 			return :on_time unless @clock.started?
 			
 			elapsed = @clock.elapsed

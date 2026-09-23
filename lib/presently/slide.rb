@@ -350,15 +350,16 @@ module Presently
 		
 		# The expected duration of this slide in seconds.
 		# Negative, invalid, or non-finite values are treated as zero.
-		# @returns [Float] A finite duration of at least `0.0`, or `60.0` when unspecified or null.
+		# @returns [Float] A finite duration of at least `0.0`, defaulting to `0.0` when unspecified or null.
 		def duration
-			value = @front_matter&.fetch("duration", nil)
-			return 60.0 if value.nil?
+			if value = @front_matter&.fetch("duration", nil)
+				duration = Float(value, exception: false)
+				if duration&.finite?
+					return duration.clamp(0.0, nil)
+				end
+			end
 			
-			duration = Float(value, exception: false)
-			return 0.0 unless duration&.finite?
-			
-			duration.clamp(0.0, nil)
+			return 0.0
 		end
 		
 		# The timer action to apply when advancing from this slide.

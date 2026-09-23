@@ -248,7 +248,7 @@ describe Presently::Application do
 		response = application.call(request("PATCH", "/recordings?index=0&duration=14"))
 		
 		expect(response.status).to be == 404
-		expect(application.controller.current_slide.duration).to be == 60
+		expect(application.controller.current_slide.duration).to be == 0.0
 	end
 	
 	it "requires a valid duration when updating recording metadata" do
