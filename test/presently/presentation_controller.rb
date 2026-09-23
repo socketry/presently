@@ -219,13 +219,29 @@ describe Presently::PresentationController do
 			expect(observed).to be == [[1, true]]
 		end
 		
-		it "renders progress for zero-duration slides even after the timer starts" do
-			controller.clock.restore!(0, running: false)
+		it "returns zero progress for a zero-duration slide before the timer starts" do
 			expect(controller.slide_progress).to be == 0.0
-			
-			controller.clock.restore!(42, running: false)
+		end
+		
+		it "returns zero progress for a zero-duration slide before its expected start" do
 			controller.go_to(2)
+			controller.clock.restore!(59.0, running: false)
 			expect(controller.slide_progress).to be == 0.0
+		end
+		
+		it "returns full progress for a zero-duration slide at its expected start" do
+			controller.clock.restore!(0.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+			
+			controller.go_to(2)
+			controller.clock.restore!(60.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+		end
+		
+		it "returns full progress for a zero-duration slide after its expected start" do
+			controller.go_to(2)
+			controller.clock.restore!(61.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
 		end
 	end
 	
