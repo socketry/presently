@@ -89,7 +89,7 @@ module Presently
 		end
 		
 		# The progress through the current slide's allocated time.
-		# Zero-duration slides are complete once their expected start time is reached.
+		# Slides with durations of zero or less are complete once their expected start time is reached.
 		# @returns [Float] A value between 0.0 and 1.0.
 		def slide_progress
 			return 0.0 unless @clock.started?
@@ -98,7 +98,7 @@ module Presently
 			return 0.0 unless slide
 			
 			time_into_slide = @clock.elapsed - @presentation.expected_time_at(@current_index)
-			if slide.duration.zero?
+			if slide.duration <= 0
 				time_into_slide.negative? ? 0.0 : 1.0
 			else
 				(time_into_slide / slide.duration).clamp(0.0, 1.0)

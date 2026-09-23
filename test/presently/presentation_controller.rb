@@ -282,6 +282,21 @@ describe Presently::PresentationController do
 			controller.clock.restore!(61.0, running: false)
 			expect(controller.slide_progress).to be == 1.0
 		end
+		
+		it "treats negative durations as having no allocated time" do
+			File.write(File.join(root, "030-break.md"), "---\nduration: -5\n---\n# Break\n")
+			controller.go_to(2)
+			expect(controller.slide_progress).to be == 0.0
+			
+			controller.clock.restore!(59.0, running: false)
+			expect(controller.slide_progress).to be == 0.0
+			
+			controller.clock.restore!(60.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+			
+			controller.clock.restore!(61.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+		end
 	end
 	
 	with "#pacing" do
