@@ -40,17 +40,17 @@ describe Presently::PresentationController do
 	
 	with "#go_to" do
 		it "changes the current index" do
-			controller.go_to(2)
+			expect(controller.go_to(2)).to be == true
 			expect(controller.current_index).to be == 2
 		end
 		
 		it "ignores negative indices" do
-			controller.go_to(-1)
+			expect(controller.go_to(-1)).to be == false
 			expect(controller.current_index).to be == 0
 		end
 		
 		it "ignores indices beyond the end" do
-			controller.go_to(999)
+			expect(controller.go_to(999)).to be == false
 			expect(controller.current_index).to be == 0
 		end
 		
@@ -67,13 +67,14 @@ describe Presently::PresentationController do
 	
 	with "#advance!" do
 		it "moves to the next slide" do
-			controller.advance!
+			expect(controller.advance!).to be == true
 			expect(controller.current_index).to be == 1
 			expect(controller.clock).not.to be(:started?)
 		end
 		
 		it "does not advance past the last slide" do
 			(controller.slide_count + 1).times{controller.advance!}
+			expect(controller.advance!).to be == false
 			expect(controller.current_index).to be == controller.slide_count - 1
 		end
 	end
@@ -81,12 +82,12 @@ describe Presently::PresentationController do
 	with "#retreat!" do
 		it "moves to the previous slide" do
 			controller.go_to(2)
-			controller.retreat!
+			expect(controller.retreat!).to be == true
 			expect(controller.current_index).to be == 1
 		end
 		
 		it "does not retreat before the first slide" do
-			controller.retreat!
+			expect(controller.retreat!).to be == false
 			expect(controller.current_index).to be == 0
 		end
 	end
@@ -113,6 +114,26 @@ describe Presently::PresentationController do
 			expect(controller.clock).to be(:running?)
 			expect(controller.pacing).to be == :on_time
 			expect(controller.total_duration).to be == 120
+		end
+		
+		it "can apply the outgoing timer action when navigating to a valid index" do
+			expect(controller.go_to(1, timer: true)).to be == true
+			expect(controller.current_index).to be == 1
+			expect(controller.clock).to be(:running?)
+		end
+		
+		it "rejects invalid destinations without applying timer actions or notifying listeners" do
+			notified = false
+			listener = Object.new
+			listener.define_singleton_method(:slide_changed!){notified = true}
+			controller.add_listener(listener)
+			
+			expect(controller.go_to(-1, timer: true)).to be == false
+			expect(controller.go_to(controller.slide_count, timer: true)).to be == false
+			expect(controller.current_index).to be == 0
+			expect(controller.clock).not.to be(:started?)
+			expect(notified).to be == false
+			expect(File).not.to be(:exist?, state.path)
 		end
 		
 		it "can advance without starting, pausing, or resuming the timer" do

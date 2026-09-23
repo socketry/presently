@@ -142,24 +142,27 @@ module Presently
 		# Navigate to a specific slide by index.
 		# Ignores out-of-bounds indices. Notifies listeners on change.
 		# @parameter index [Integer] The slide index to navigate to.
-		def go_to(index)
-			return if index < 0 || index >= slide_count
+		# @parameter timer [Boolean] Whether to apply the outgoing slide's timer action before notifying listeners.
+		# @returns [Boolean] Whether the destination index was valid.
+		def go_to(index, timer: false)
+			return false if index < 0 || index >= slide_count
 			
+			advance_timer! if timer
 			@current_index = index
 			notify_listeners!
+			return true
 		end
 		
 		# Advance to the next slide, applying the current slide's timer action.
 		# Timer actions only run when there is a next slide.
 		# @parameter timer [Boolean] Whether to apply the outgoing slide's timer action.
+		# @returns [Boolean] Whether the presentation advanced to the next slide.
 		def advance!(timer: true)
-			return unless next_slide
-			
-			advance_timer! if timer
-			go_to(@current_index + 1)
+			go_to(@current_index + 1, timer: timer)
 		end
 		
 		# Go back to the previous slide.
+		# @returns [Boolean] Whether the presentation moved to the previous slide.
 		def retreat!
 			go_to(@current_index - 1)
 		end
