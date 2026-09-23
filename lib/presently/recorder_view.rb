@@ -49,7 +49,7 @@ module Presently
 		def handle(event)
 			case event.dig(:detail, :action)
 			when "next"
-				@controller.advance!
+				@controller.advance!(timer: false)
 			when "previous"
 				@controller.retreat!
 			when "reload"

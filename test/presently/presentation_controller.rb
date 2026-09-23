@@ -4,6 +4,7 @@
 # Copyright, 2026, by Samuel Williams.
 
 require "presently/presentation_controller"
+require "sus/fixtures/temporary_directory_context"
 
 describe Presently::PresentationController do
 	let(:presentation) {Presently::Presentation.load("slides")}
@@ -39,17 +40,17 @@ describe Presently::PresentationController do
 	
 	with "#go_to" do
 		it "changes the current index" do
-			controller.go_to(2)
+			expect(controller.go_to(2)).to be == true
 			expect(controller.current_index).to be == 2
 		end
 		
 		it "ignores negative indices" do
-			controller.go_to(-1)
+			expect(controller.go_to(-1)).to be == false
 			expect(controller.current_index).to be == 0
 		end
 		
 		it "ignores indices beyond the end" do
-			controller.go_to(999)
+			expect(controller.go_to(999)).to be == false
 			expect(controller.current_index).to be == 0
 		end
 		
@@ -66,12 +67,14 @@ describe Presently::PresentationController do
 	
 	with "#advance!" do
 		it "moves to the next slide" do
-			controller.advance!
+			expect(controller.advance!).to be == true
 			expect(controller.current_index).to be == 1
+			expect(controller.clock).not.to be(:started?)
 		end
 		
 		it "does not advance past the last slide" do
 			(controller.slide_count + 1).times{controller.advance!}
+			expect(controller.advance!).to be == false
 			expect(controller.current_index).to be == controller.slide_count - 1
 		end
 	end
@@ -79,13 +82,232 @@ describe Presently::PresentationController do
 	with "#retreat!" do
 		it "moves to the previous slide" do
 			controller.go_to(2)
-			controller.retreat!
+			expect(controller.retreat!).to be == true
 			expect(controller.current_index).to be == 1
 		end
 		
 		it "does not retreat before the first slide" do
-			controller.retreat!
+			expect(controller.retreat!).to be == false
 			expect(controller.current_index).to be == 0
+		end
+	end
+	
+	with "slide timer actions" do
+		include Sus::Fixtures::TemporaryDirectoryContext
+		
+		let(:presentation) {Presently::Presentation.load(root)}
+		let(:state) {Presently::State.new(File.join(root, "state.json"))}
+		let(:controller) {subject.new(presentation, state: state)}
+		
+		before do
+			File.write(File.join(root, "010-title.md"), "---\ntimer: start\nduration: 0\n---\n# Waiting\n")
+			File.write(File.join(root, "020-content.md"), "---\ntimer: pause\nduration: 60\n---\n# Content\n")
+			File.write(File.join(root, "030-break.md"), "---\ntimer: resume\nduration: 0\n---\n# Break\n")
+			File.write(File.join(root, "040-ending.md"), "---\ntimer: pause\nduration: 60\n---\n# Ending\n")
+		end
+		
+		it "starts only when advancing away from the title" do
+			expect(controller.clock).not.to be(:started?)
+			controller.advance!
+			
+			expect(controller.current_index).to be == 1
+			expect(controller.clock).to be(:running?)
+			expect(controller.pacing).to be == :on_time
+			expect(controller.total_duration).to be == 120
+		end
+		
+		it "can apply the outgoing timer action when navigating to a valid index" do
+			expect(controller.go_to(1, timer: true)).to be == true
+			expect(controller.current_index).to be == 1
+			expect(controller.clock).to be(:running?)
+		end
+		
+		it "rejects invalid destinations without applying timer actions or notifying listeners" do
+			notified = false
+			listener = Object.new
+			listener.define_singleton_method(:slide_changed!){notified = true}
+			controller.add_listener(listener)
+			
+			expect(controller.go_to(-1, timer: true)).to be == false
+			expect(controller.go_to(controller.slide_count, timer: true)).to be == false
+			expect(controller.current_index).to be == 0
+			expect(controller.clock).not.to be(:started?)
+			expect(notified).to be == false
+			expect(File).not.to be(:exist?, state.path)
+		end
+		
+		it "can advance without starting, pausing, or resuming the timer" do
+			controller.advance!(timer: false)
+			expect(controller.current_index).to be == 1
+			expect(controller.clock).not.to be(:started?)
+			
+			controller.clock.start!
+			controller.advance!(timer: false)
+			expect(controller.current_index).to be == 2
+			expect(controller.clock).to be(:running?)
+			
+			controller.clock.pause!
+			elapsed = controller.clock.elapsed
+			controller.advance!(timer: false)
+			expect(controller.current_index).to be == 3
+			expect(controller.clock).to be(:paused?)
+			expect(controller.clock.elapsed).to be == elapsed
+		end
+		
+		it "pauses before the break and resumes afterwards without resetting elapsed time" do
+			controller.advance!
+			controller.clock.restore!(42, running: true)
+			controller.advance!
+			
+			expect(controller.current_index).to be == 2
+			expect(controller.clock).to be(:paused?)
+			elapsed = controller.clock.elapsed
+			expect(elapsed).to be >= 42
+			
+			controller.advance!
+			expect(controller.current_index).to be == 3
+			expect(controller.clock).to be(:running?)
+			expect(controller.clock.elapsed).to be >= elapsed
+		end
+		
+		it "does not restart a running timer when revisiting the title" do
+			controller.advance!
+			controller.clock.restore!(42, running: true)
+			sleep 0.01
+			elapsed = controller.clock.elapsed
+			
+			controller.retreat!
+			controller.advance!
+			expect(controller.clock.elapsed).to be >= elapsed
+		end
+		
+		it "preserves a manual pause when advancing from the title again" do
+			controller.advance!
+			controller.clock.restore!(42, running: false)
+			controller.retreat!
+			controller.advance!
+			
+			expect(controller.clock).to be(:paused?)
+			expect(controller.clock.elapsed).to be == 42
+		end
+		
+		it "does not start the timer for pause or resume actions" do
+			controller.go_to(1)
+			controller.advance!
+			expect(controller.clock).not.to be(:started?)
+			controller.advance!
+			expect(controller.clock).not.to be(:started?)
+			expect(controller.clock).not.to be(:running?)
+		end
+		
+		it "does not trigger actions when navigating backwards, jumping, or reloading" do
+			controller.go_to(2)
+			controller.retreat!
+			controller.go_to(0)
+			controller.reload!
+			expect(controller.clock).not.to be(:started?)
+			
+			controller.clock.start!
+			controller.go_to(1)
+			controller.retreat!
+			controller.go_to(2)
+			controller.reload!
+			expect(controller.clock).to be(:running?)
+		end
+		
+		it "does not trigger an action when advancing past the last slide" do
+			controller.go_to(3)
+			controller.clock.start!
+			controller.advance!
+			
+			expect(controller.current_index).to be == 3
+			expect(controller.clock).to be(:running?)
+		end
+		
+		it "persists the updated timer together with the new slide position" do
+			controller.advance!
+			restored = subject.new(presentation, state: state)
+			
+			expect(restored.current_index).to be == 1
+			expect(restored.clock).to be(:running?)
+			
+			controller.advance!
+			restored = subject.new(presentation, state: state)
+			expect(restored.current_index).to be == 2
+			expect(restored.clock).to be(:paused?)
+		end
+		
+		it "restores the waiting slide without starting the timer" do
+			controller.save_state!
+			restored = subject.new(presentation, state: state)
+			
+			expect(restored.current_index).to be == 0
+			expect(restored.clock).not.to be(:started?)
+		end
+		
+		it "notifies listeners after updating both the slide and the timer" do
+			observed = []
+			controller = self.controller
+			listener = Object.new
+			listener.define_singleton_method(:slide_changed!) do
+				observed << [controller.current_index, controller.clock.running?]
+			end
+			controller.add_listener(listener)
+			
+			controller.advance!
+			expect(observed).to be == [[1, true]]
+		end
+		
+		it "preserves fractional progress with integer elapsed time" do
+			controller.go_to(1)
+			controller.clock.restore!(30, running: false)
+			expect(controller.slide_progress).to be == 0.5
+		end
+		
+		it "returns zero progress for a zero-duration slide before the timer starts" do
+			expect(controller.slide_progress).to be == 0.0
+		end
+		
+		it "returns zero progress for a zero-duration slide before its expected start" do
+			controller.go_to(2)
+			controller.clock.restore!(59.0, running: false)
+			expect(controller.slide_progress).to be == 0.0
+		end
+		
+		it "returns full progress for a zero-duration slide at its expected start" do
+			controller.clock.restore!(0.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+			
+			controller.go_to(2)
+			controller.clock.restore!(60.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+		end
+		
+		it "returns full progress for a zero-duration slide after its expected start" do
+			controller.go_to(2)
+			controller.clock.restore!(61.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+		end
+		
+		it "treats negative durations as having no allocated time" do
+			File.write(File.join(root, "030-break.md"), "---\nduration: -5\n---\n# Break\n")
+			controller.go_to(2)
+			expect(controller.slide_progress).to be == 0.0
+			expect(controller.total_duration).to be == 120
+			expect(presentation.expected_time_at(3)).to be == 60
+			
+			controller.clock.restore!(59.0, running: false)
+			expect(controller.slide_progress).to be == 0.0
+			
+			controller.clock.restore!(60.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+			
+			controller.clock.restore!(61.0, running: false)
+			expect(controller.slide_progress).to be == 1.0
+			
+			controller.go_to(3)
+			expect(controller.pacing).to be == :on_time
+			expect(controller.time_remaining).to be == 59.0
 		end
 	end
 	

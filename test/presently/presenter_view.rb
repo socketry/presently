@@ -87,6 +87,23 @@ describe Presently::PresenterView do
 		expect(behind).to be(:include?, "⏩ Speed up")
 	end
 	
+	it "shows elapsed time without pacing indicators when no time is allocated" do
+		File.write(File.join(root, "010-first.md"), "First slide\n")
+		File.write(File.join(root, "020-second.md"), "Second slide\n")
+		
+		expect(controller.pacing).to be_nil
+		expect(view.to_html.to_s).to be(:include?, "▶ Start")
+		controller.clock.restore!(42.0, running: true)
+		expect(controller.pacing).to be_nil
+		
+		html = view.to_html.to_s
+		expect(html).to be(:include?, "Elapsed: 0:42")
+		expect(html).to be(:include?, "⏸ Pause")
+		expect(html).to be(:include?, "--slide-progress: 0.0%")
+		expect(html).not.to be(:include?, 'class="remaining"')
+		expect(html).not.to be(:include?, 'class="pacing-indicator"')
+	end
+	
 	it "binds, updates timing and slides, and closes cleanly" do
 		Sync do
 			view.bind(page)
@@ -124,6 +141,18 @@ describe Presently::PresenterView do
 		
 		view.handle(detail: {action: "reload"})
 		expect(controller.slide_count).to be == 2
+	end
+	
+	it "starts timing when advancing from a waiting slide" do
+		File.write(File.join(root, "010-first.md"), "---\ntimer: start\nduration: 0\n---\nWaiting slide\n")
+		
+		expect(view.to_html.to_s).to be(:include?, "▶ Start")
+		view.handle(detail: {action: "next"})
+		expect(controller.current_index).to be == 1
+		expect(view.to_html.to_s).to be(:include?, "⏸ Pause")
+		
+		view.handle(detail: {action: "previous"})
+		expect(view.to_html.to_s).to be(:include?, "Waiting slide")
 	end
 	
 	it "renders an empty presentation" do

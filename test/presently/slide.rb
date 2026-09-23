@@ -32,11 +32,77 @@ describe Presently::Slide do
 	end
 	
 	with "#duration" do
+		let(:path) {File.join(root, "slide.md")}
+		
 		it "reads duration from front_matter" do
-			path = File.join(root, "slide.md")
 			File.write(path, "---\nduration: 30\n---\n# Slide\n")
 			
-			expect(load_slide(path).duration).to be == 30
+			duration = load_slide(path).duration
+			expect(duration).to be_a(Float)
+			expect(duration).to be == 30.0
+		end
+		
+		it "preserves zero durations" do
+			File.write(path, "---\nduration: 0\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 0.0
+		end
+		
+		it "clamps negative durations to zero" do
+			File.write(path, "---\nduration: -5\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 0.0
+		end
+		
+		it "preserves fractional durations" do
+			File.write(path, "---\nduration: 2.5\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 2.5
+		end
+		
+		it "accepts numeric strings" do
+			File.write(path, "---\nduration: '2.5'\n---\n# Slide\n")
+			
+			expect(load_slide(path).duration).to be == 2.5
+		end
+		
+		["invalid", "30 seconds", "true", "false", "[]", "{}", ".nan", ".inf", "-.inf"].each do |value|
+			it "returns zero for an invalid duration of #{value}" do
+				File.write(path, "---\nduration: #{value}\n---\n# Slide\n")
+				
+				duration = load_slide(path).duration
+				expect(duration).to be_a(Float)
+				expect(duration).to be == 0.0
+			end
+		end
+		
+		it "uses the default for a null duration" do
+			File.write(path, "---\nduration: null\n---\n# Slide\n")
+			
+			duration = load_slide(path).duration
+			expect(duration).to be_a(Float)
+			expect(duration).to be == 0.0
+		end
+		
+		it "defaults to zero when duration is omitted from front matter" do
+			File.write(path, "---\ntemplate: title\n---\n# Slide\n")
+			
+			duration = load_slide(path).duration
+			expect(duration).to be_a(Float)
+			expect(duration).to be == 0.0
+		end
+	end
+	
+	with "#timer" do
+		it "reads the timer action from front matter" do
+			path = File.join(root, "slide.md")
+			File.write(path, "---\ntimer: start\n---\n# Waiting\n")
+			
+			expect(load_slide(path).timer).to be == "start"
+		end
+		
+		it "has no action when omitted from front matter" do
+			expect(slide.timer).to be_nil
 		end
 	end
 	
@@ -200,7 +266,12 @@ describe Presently::Slide do
 		end
 		
 		it "uses default duration" do
-			expect(slide.duration).to be == 60
+			expect(slide.duration).to be_a(Float)
+			expect(slide.duration).to be == 0.0
+		end
+		
+		it "has no timer action" do
+			expect(slide.timer).to be_nil
 		end
 		
 		it "has no notes" do

@@ -349,9 +349,23 @@ module Presently
 		end
 		
 		# The expected duration of this slide in seconds.
-		# @returns [Integer] The duration from front_matter, or `60`.
+		# Negative, invalid, or non-finite values are treated as zero.
+		# @returns [Float] A finite duration of at least `0.0`, defaulting to `0.0` when unspecified or null.
 		def duration
-			@front_matter&.fetch("duration", 60) || 60
+			if value = @front_matter&.fetch("duration", nil)
+				duration = Float(value, exception: false)
+				if duration&.finite?
+					return duration.clamp(0.0, nil)
+				end
+			end
+			
+			return 0.0
+		end
+		
+		# The timer action to apply when advancing from this slide.
+		# @returns [String | Nil] `"start"`, `"pause"`, `"resume"`, or `nil` when unspecified.
+		def timer
+			@front_matter&.fetch("timer", nil)
 		end
 		
 		# Update the expected duration in the slide's YAML front matter.

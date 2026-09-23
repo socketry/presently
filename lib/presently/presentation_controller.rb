@@ -89,6 +89,7 @@ module Presently
 		end
 		
 		# The progress through the current slide's allocated time.
+		# Slides with durations of zero or less are complete once their expected start time is reached.
 		# @returns [Float] A value between 0.0 and 1.0.
 		def slide_progress
 			return 0.0 unless @clock.started?
@@ -97,7 +98,11 @@ module Presently
 			return 0.0 unless slide
 			
 			time_into_slide = @clock.elapsed - @presentation.expected_time_at(@current_index)
-			(time_into_slide / slide.duration).clamp(0.0, 1.0)
+			if slide.duration <= 0
+				time_into_slide.negative? ? 0.0 : 1.0
+			else
+				(time_into_slide / slide.duration).clamp(0.0, 1.0)
+			end
 		end
 		
 		# Reset the timer so that elapsed time matches the expected time for the current slide.
@@ -107,8 +112,9 @@ module Presently
 		end
 		
 		# The current pacing status relative to the slide timing.
-		# @returns [Symbol] One of `:on_time`, `:ahead`, or `:behind`.
+		# @returns [Symbol | Nil] One of `:on_time`, `:ahead`, or `:behind`, or `nil` when no presentation time is allocated.
 		def pacing
+			return unless total_duration.positive?
 			return :on_time unless @clock.started?
 			
 			elapsed = @clock.elapsed
@@ -137,19 +143,27 @@ module Presently
 		# Navigate to a specific slide by index.
 		# Ignores out-of-bounds indices. Notifies listeners on change.
 		# @parameter index [Integer] The slide index to navigate to.
-		def go_to(index)
-			return if index < 0 || index >= slide_count
+		# @parameter timer [Boolean] Whether to apply the outgoing slide's timer action before notifying listeners.
+		# @returns [Boolean] Whether the destination index was valid.
+		def go_to(index, timer: false)
+			return false if index < 0 || index >= slide_count
 			
+			advance_timer! if timer
 			@current_index = index
 			notify_listeners!
+			return true
 		end
 		
-		# Advance to the next slide.
-		def advance!
-			go_to(@current_index + 1)
+		# Advance to the next slide, applying the current slide's timer action.
+		# Timer actions only run when there is a next slide.
+		# @parameter timer [Boolean] Whether to apply the outgoing slide's timer action.
+		# @returns [Boolean] Whether the presentation advanced to the next slide.
+		def advance!(timer: true)
+			go_to(@current_index + 1, timer: timer)
 		end
 		
 		# Go back to the previous slide.
+		# @returns [Boolean] Whether the presentation moved to the previous slide.
 		def retreat!
 			go_to(@current_index - 1)
 		end
@@ -179,6 +193,18 @@ module Presently
 		end
 		
 		private
+		
+		# Apply the outgoing slide's timer action without resetting elapsed time.
+		def advance_timer!
+			case current_slide.timer
+			when "start"
+				@clock.start! unless @clock.started?
+			when "pause"
+				@clock.pause!
+			when "resume"
+				@clock.resume! if @clock.started?
+			end
+		end
 		
 		# Notify all registered listeners that the slide has changed, and persist state.
 		def notify_listeners!

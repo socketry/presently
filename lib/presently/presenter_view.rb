@@ -100,14 +100,14 @@ module Presently
 		# @parameter builder [XRB::Builder] The HTML builder.
 		# @parameter slide [Slide | Nil] The current slide.
 		def render_timing(builder, slide)
-			progress = (@controller.slide_progress * 100).round(1)
+			pacing = @controller.pacing
+			progress = pacing ? (@controller.slide_progress * 100).round(1) : 0.0
 			next_slide = @controller.next_slide
 			builder.tag(:div, class: "timing", style: "--slide-progress: #{progress}%") do
-				pacing = @controller.pacing
 				pacing_class = case pacing
 				when :behind then "behind"
 				when :ahead then "ahead"
-				else "on-time"
+				when :on_time then "on-time"
 				end
 				
 				builder.tag(:div, class: "toolbar timing-info #{pacing_class}") do
@@ -136,17 +136,19 @@ module Presently
 						builder.text("Elapsed: #{format_duration(@controller.clock.elapsed)}")
 					end
 					
-					builder.tag(:span, class: "remaining") do
-						builder.text("Remaining: #{format_duration(@controller.time_remaining)}")
-					end
-					
-					builder.tag(:span, class: "pacing-indicator") do
-						indicator = case pacing
-						when :behind then "⏩ Speed up"
-						when :ahead then "⏪ Slow down"
-						else "✓ On time"
+					if pacing
+						builder.tag(:span, class: "remaining") do
+							builder.text("Remaining: #{format_duration(@controller.time_remaining)}")
 						end
-						builder.text(indicator)
+						
+						builder.tag(:span, class: "pacing-indicator") do
+							indicator = case pacing
+							when :behind then "⏩ Speed up"
+							when :ahead then "⏪ Slow down"
+							else "✓ On time"
+							end
+							builder.text(indicator)
+						end
 					end
 					
 					if slide

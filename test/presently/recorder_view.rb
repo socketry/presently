@@ -46,7 +46,7 @@ describe Presently::RecorderView do
 		expect(html).to be(:include?, 'data-class="Presently::RecordingControlsView"')
 		expect(html).to be(:include?, 'data-slide-index="0"')
 		expect(html).to be(:include?, 'data-recording-url="/recordings?index=0"')
-		expect(html).to be(:include?, 'data-slide-duration="60"')
+		expect(html).to be(:include?, 'data-slide-duration="0.0"')
 		expect(html).to be(:include?, 'data-recording-state="missing"')
 		expect(html).to be(:match?, /<presently-recording-controls\b[^>]*><\/presently-recording-controls>/)
 		expect(html).not.to be(:include?, "data-playback-state")
@@ -93,6 +93,15 @@ describe Presently::RecorderView do
 		
 		view.handle(detail: {action: "next"})
 		expect(controller.current_index).to be == 1
+	end
+	
+	it "does not run timer actions when navigating while recording" do
+		File.write(path, "---\ntimer: start\n---\nWaiting slide\n")
+		File.write(File.join(root, "020-next.md"), "Next slide\n")
+		
+		view.handle(detail: {action: "next"})
+		expect(controller.current_index).to be == 1
+		expect(controller.clock).not.to be(:started?)
 	end
 	
 	it "binds, updates, and closes cleanly" do
