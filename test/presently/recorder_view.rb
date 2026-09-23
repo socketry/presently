@@ -46,7 +46,7 @@ describe Presently::RecorderView do
 		expect(html).to be(:include?, 'data-class="Presently::RecordingControlsView"')
 		expect(html).to be(:include?, 'data-slide-index="0"')
 		expect(html).to be(:include?, 'data-recording-url="/recordings?index=0"')
-		expect(html).to be(:include?, 'data-slide-duration="60"')
+		expect(html).to be(:include?, 'data-slide-duration="60.0"')
 		expect(html).to be(:include?, 'data-recording-state="missing"')
 		expect(html).to be(:match?, /<presently-recording-controls\b[^>]*><\/presently-recording-controls>/)
 		expect(html).not.to be(:include?, "data-playback-state")

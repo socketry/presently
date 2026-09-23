@@ -258,6 +258,12 @@ describe Presently::PresentationController do
 			expect(observed).to be == [[1, true]]
 		end
 		
+		it "preserves fractional progress with integer elapsed time" do
+			controller.go_to(1)
+			controller.clock.restore!(30, running: false)
+			expect(controller.slide_progress).to be == 0.5
+		end
+		
 		it "returns zero progress for a zero-duration slide before the timer starts" do
 			expect(controller.slide_progress).to be == 0.0
 		end
