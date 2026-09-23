@@ -276,8 +276,8 @@ For advanced customization, create an `application.rb` and run with `presently a
 #!/usr/bin/env presently
 
 class Application < Presently::Application
-  def title
-    "My Conference Talk"
-  end
+	def title
+		"My Conference Talk"
+	end
 end
 ```

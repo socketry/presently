@@ -181,11 +181,11 @@ To search additional directories, configure `templates_roots`, which returns an 
 ``` ruby
 # In your environment configuration:
 service "presently" do
-  include Presently::Environment::Application
-
-  def templates_roots
-    [File.expand_path("shared-templates", self.root)] + super
-  end
+	include Presently::Environment::Application
+	
+	def templates_roots
+		[File.expand_path("shared-templates", self.root)] + super
+	end
 end
 ```
 
