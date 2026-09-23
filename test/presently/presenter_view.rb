@@ -126,6 +126,18 @@ describe Presently::PresenterView do
 		expect(controller.slide_count).to be == 2
 	end
 	
+	it "starts timing when advancing from a waiting slide" do
+		File.write(File.join(root, "010-first.md"), "---\ntimer: start\nduration: 0\n---\nWaiting slide\n")
+		
+		expect(view.to_html.to_s).to be(:include?, "▶ Start")
+		view.handle(detail: {action: "next"})
+		expect(controller.current_index).to be == 1
+		expect(view.to_html.to_s).to be(:include?, "⏸ Pause")
+		
+		view.handle(detail: {action: "previous"})
+		expect(view.to_html.to_s).to be(:include?, "Waiting slide")
+	end
+	
 	it "renders an empty presentation" do
 		empty = File.join(root, "empty")
 		Dir.mkdir(empty)

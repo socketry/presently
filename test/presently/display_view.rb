@@ -55,6 +55,18 @@ describe Presently::DisplayView do
 		expect(controller.current_index).to be == 0
 	end
 	
+	it "starts timing on advance but not when connecting to the waiting slide" do
+		File.write(File.join(root, "010-first.md"), "---\ntimer: start\nduration: 0\n---\nWaiting slide\n")
+		view.bind(page)
+		expect(controller.clock).not.to be(:started?)
+		
+		view.handle(detail: {action: "next"})
+		expect(controller.current_index).to be == 1
+		expect(controller.clock).to be(:running?)
+	ensure
+		view.close
+	end
+	
 	it "renders nothing when the presentation is empty" do
 		empty = File.join(root, "empty")
 		Dir.mkdir(empty)

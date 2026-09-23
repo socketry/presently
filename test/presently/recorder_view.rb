@@ -95,6 +95,15 @@ describe Presently::RecorderView do
 		expect(controller.current_index).to be == 1
 	end
 	
+	it "does not run timer actions when navigating while recording" do
+		File.write(path, "---\ntimer: start\n---\nWaiting slide\n")
+		File.write(File.join(root, "020-next.md"), "Next slide\n")
+		
+		view.handle(detail: {action: "next"})
+		expect(controller.current_index).to be == 1
+		expect(controller.clock).not.to be(:started?)
+	end
+	
 	it "binds, updates, and closes cleanly" do
 		view.bind(page)
 		view.slide_changed!

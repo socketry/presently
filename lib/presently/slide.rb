@@ -354,6 +354,12 @@ module Presently
 			@front_matter&.fetch("duration", 60) || 60
 		end
 		
+		# The timer action to apply when advancing from this slide.
+		# @returns [String | Nil] `"start"`, `"pause"`, `"resume"`, or `nil` when unspecified.
+		def timer
+			@front_matter&.fetch("timer", nil)
+		end
+		
 		# Update the expected duration in the slide's YAML front matter.
 		# Preserves the remainder of the source file rather than reserializing it.
 		# @parameter duration [Integer] The new positive duration in seconds.

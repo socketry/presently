@@ -94,7 +94,7 @@ module Presently
 			return 0.0 unless @clock.started?
 			
 			slide = current_slide
-			return 0.0 unless slide
+			return 0.0 unless slide && slide.duration.positive?
 			
 			time_into_slide = @clock.elapsed - @presentation.expected_time_at(@current_index)
 			(time_into_slide / slide.duration).clamp(0.0, 1.0)
@@ -144,8 +144,12 @@ module Presently
 			notify_listeners!
 		end
 		
-		# Advance to the next slide.
+		# Advance to the next slide, applying the current slide's timer action.
+		# Timer actions only run when there is a next slide.
 		def advance!
+			return unless next_slide
+			
+			advance_timer!
 			go_to(@current_index + 1)
 		end
 		
@@ -179,6 +183,18 @@ module Presently
 		end
 		
 		private
+		
+		# Apply the outgoing slide's timer action without resetting elapsed time.
+		def advance_timer!
+			case current_slide.timer
+			when "start"
+				@clock.start! unless @clock.started?
+			when "pause"
+				@clock.pause!
+			when "resume"
+				@clock.resume! if @clock.started?
+			end
+		end
 		
 		# Notify all registered listeners that the slide has changed, and persist state.
 		def notify_listeners!

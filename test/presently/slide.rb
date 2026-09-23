@@ -40,6 +40,19 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "#timer" do
+		it "reads the timer action from front matter" do
+			path = File.join(root, "slide.md")
+			File.write(path, "---\ntimer: start\n---\n# Waiting\n")
+			
+			expect(load_slide(path).timer).to be == "start"
+		end
+		
+		it "has no action when omitted from front matter" do
+			expect(slide.timer).to be_nil
+		end
+	end
+	
 	with "#update_duration!" do
 		let(:path) {File.join(root, "test.md")}
 		
@@ -201,6 +214,10 @@ describe Presently::Slide do
 		
 		it "uses default duration" do
 			expect(slide.duration).to be == 60
+		end
+		
+		it "has no timer action" do
+			expect(slide.timer).to be_nil
 		end
 		
 		it "has no notes" do
