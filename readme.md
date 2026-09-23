@@ -26,6 +26,8 @@ Please see the [project documentation](https://socketry.github.io/presently/) fo
 
   - [Getting Started](https://socketry.github.io/presently/guides/getting-started/index) - This guide explains how to use `presently` to create and deliver web-based presentations using Markdown slides.
 
+  - [Templates](https://socketry.github.io/presently/guides/templates/index) - This guide explains how to choose slide templates and create custom layouts in Presently.
+
   - [Animating Slides](https://socketry.github.io/presently/guides/animating-slides/index) - This guide explains how to animate content within slides using the slide scripting system.
 
   - [Animated Diagrams](https://socketry.github.io/presently/guides/animated-diagrams/index) - This guide explains how to design responsive, lifecycle-safe animated diagrams in Presently using semantic markup, slide-specific CSS, and Anime.js choreography.
