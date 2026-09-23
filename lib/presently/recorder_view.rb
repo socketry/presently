@@ -49,8 +49,7 @@ module Presently
 		def handle(event)
 			case event.dig(:detail, :action)
 			when "next"
-				# Recording navigation does not perform live presentation timer actions:
-				@controller.go_to(@controller.current_index + 1)
+				@controller.advance!(timer: false)
 			when "previous"
 				@controller.retreat!
 			when "reload"

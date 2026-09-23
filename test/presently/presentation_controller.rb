@@ -115,6 +115,24 @@ describe Presently::PresentationController do
 			expect(controller.total_duration).to be == 120
 		end
 		
+		it "can advance without starting, pausing, or resuming the timer" do
+			controller.advance!(timer: false)
+			expect(controller.current_index).to be == 1
+			expect(controller.clock).not.to be(:started?)
+			
+			controller.clock.start!
+			controller.advance!(timer: false)
+			expect(controller.current_index).to be == 2
+			expect(controller.clock).to be(:running?)
+			
+			controller.clock.pause!
+			elapsed = controller.clock.elapsed
+			controller.advance!(timer: false)
+			expect(controller.current_index).to be == 3
+			expect(controller.clock).to be(:paused?)
+			expect(controller.clock.elapsed).to be == elapsed
+		end
+		
 		it "pauses before the break and resumes afterwards without resetting elapsed time" do
 			controller.advance!
 			controller.clock.restore!(42, running: true)

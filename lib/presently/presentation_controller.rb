@@ -151,10 +151,11 @@ module Presently
 		
 		# Advance to the next slide, applying the current slide's timer action.
 		# Timer actions only run when there is a next slide.
-		def advance!
+		# @parameter timer [Boolean] Whether to apply the outgoing slide's timer action.
+		def advance!(timer: true)
 			return unless next_slide
 			
-			advance_timer!
+			advance_timer! if timer
 			go_to(@current_index + 1)
 		end
 		
