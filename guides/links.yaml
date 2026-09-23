@@ -1,6 +1,8 @@
 getting-started:
   order: 1
-animating-slides:
+templates:
   order: 2
-animated-diagrams:
+animating-slides:
   order: 3
+animated-diagrams:
+  order: 4

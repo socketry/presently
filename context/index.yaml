@@ -10,6 +10,10 @@ files:
   title: Getting Started
   description: This guide explains how to use `presently` to create and deliver web-based
     presentations using Markdown slides.
+- path: templates.md
+  title: Templates
+  description: This guide explains how to choose slide templates and create custom
+    layouts in Presently.
 - path: animating-slides.md
   title: Animating Slides
   description: This guide explains how to animate content within slides using the
