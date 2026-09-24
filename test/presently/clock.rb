@@ -131,4 +131,26 @@ describe Presently::Clock do
 			expect(clock.elapsed).to be == 10
 		end
 	end
+	
+	with "#stop!" do
+		it "returns to the initial state" do
+			clock.start!
+			sleep 0.05
+			clock.stop!
+			
+			expect(clock).not.to be(:started?)
+			expect(clock).not.to be(:running?)
+			expect(clock).not.to be(:paused?)
+			expect(clock.elapsed).to be == 0
+		end
+		
+		it "can be started again" do
+			clock.start!
+			clock.stop!
+			clock.start!
+			
+			expect(clock).to be(:running?)
+			expect(clock.elapsed).to be_within(0.1).of(0)
+		end
+	end
 end

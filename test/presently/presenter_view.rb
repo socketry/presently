@@ -155,6 +155,21 @@ describe Presently::PresenterView do
 		expect(view.to_html.to_s).to be(:include?, "Waiting slide")
 	end
 	
+	it "can start timing again after resetting on the waiting slide" do
+		File.write(File.join(root, "010-first.md"), "---\ntimer: start\nduration: 0\n---\nWaiting slide\n")
+		
+		view.handle(detail: {action: "next"})
+		view.handle(detail: {action: "previous"})
+		expect(view.to_html.to_s).to be(:include?, "⏸ Pause")
+		
+		view.handle(detail: {action: "reset"})
+		expect(view.to_html.to_s).to be(:include?, "▶ Start")
+		
+		view.handle(detail: {action: "next"})
+		expect(controller.clock).to be(:running?)
+		expect(controller.clock.elapsed).to be_within(0.1).of(0)
+	end
+	
 	it "renders an empty presentation" do
 		empty = File.join(root, "empty")
 		Dir.mkdir(empty)

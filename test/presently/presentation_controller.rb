@@ -170,6 +170,22 @@ describe Presently::PresentationController do
 			expect(controller.clock.elapsed).to be >= elapsed
 		end
 		
+		it "starts again from the title after resetting on the first slide" do
+			controller.advance!
+			controller.retreat!
+			controller.reset_timer!
+			
+			expect(controller.clock).not.to be(:started?)
+			expect(JSON.parse(File.read(state.path))).to have_keys("started" => be == false)
+			
+			restored = subject.new(presentation, state: state)
+			expect(restored.clock).not.to be(:started?)
+			
+			controller.advance!
+			expect(controller.clock).to be(:running?)
+			expect(controller.clock.elapsed).to be_within(0.1).of(0)
+		end
+		
 		it "does not restart a running timer when revisiting the title" do
 			controller.advance!
 			controller.clock.restore!(42, running: true)
@@ -361,6 +377,15 @@ describe Presently::PresentationController do
 			
 			expected = presentation.slides[0..1].sum(&:duration)
 			expect(controller.clock.elapsed).to be_within(0.1).of(expected)
+		end
+		
+		it "stops the timer on the first slide" do
+			controller.clock.start!
+			sleep 0.05
+			controller.reset_timer!
+			
+			expect(controller.clock).not.to be(:started?)
+			expect(controller.clock.elapsed).to be == 0
 		end
 	end
 	
