@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Reset the timer to its initial, stopped state when pressing **Reset** on the first slide, so that a `timer: start` title slide starts the timer again after a rehearsal.
+
 ## v0.26.0
 
   - Add `timer: start`, `timer: pause`, and `timer: resume` slide metadata, applied when advancing away from a slide in the presenter or display.

@@ -85,5 +85,13 @@ module Presently
 			@elapsed = elapsed
 			@last_tick = Time.now if @running
 		end
+		
+		# Stop the clock and return it to its initial, never-started state.
+		def stop!
+			@elapsed = 0
+			@started = false
+			@running = false
+			@last_tick = nil
+		end
 	end
 end

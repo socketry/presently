@@ -232,6 +232,7 @@ The presenter view at `/presenter` provides:
 - **Current and next slide previews** — see what's coming without switching windows.
 - **Presenter notes** — notes from the slide's `---` separator section.
 - **Timer controls** — Start, Pause, Resume, and Reset buttons.
+  **Reset** re-aligns elapsed time with the expected time for the current slide. On the first slide it stops the timer entirely, so that it can be started again, e.g. by `timer: start`.
 - **Pacing indicator** — shows whether you're on time, ahead, or behind based on per-slide `duration` metadata.
 - **Progress bar** — visual indicator of time consumed for the current slide.
 - **Reload button** — reload slides from disk without restarting the server.
@@ -260,7 +261,7 @@ The `timer` field supports these actions:
 
 | Value | Effect when advancing from this slide |
 |---|---|
-| `start` | Starts the timer only if it has never started. Revisiting the slide does not reset elapsed time or resume a manually paused timer. |
+| `start` | Starts the timer only if it has never started. Revisiting the slide does not reset elapsed time or resume a manually paused timer. Press **Reset** on the first slide to stop the timer so it starts again. |
 | `pause` | Pauses the timer, preserving elapsed time. Has no effect before the timer starts. |
 | `resume` | Resumes a started timer, preserving elapsed time. Has no effect before the timer starts or while it is already running. |
 

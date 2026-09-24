@@ -106,8 +106,14 @@ module Presently
 		end
 		
 		# Reset the timer so that elapsed time matches the expected time for the current slide.
+		# On the first slide, stop the timer entirely so that it can be started again, e.g. by a `timer: start` action.
 		def reset_timer!
-			@clock.reset!(@presentation.expected_time_at(@current_index))
+			if @current_index.zero?
+				@clock.stop!
+			else
+				@clock.reset!(@presentation.expected_time_at(@current_index))
+			end
+			
 			notify_listeners!
 		end
 		
