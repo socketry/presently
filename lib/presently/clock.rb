@@ -80,10 +80,12 @@ module Presently
 		
 		# Reset the clock to its initial, stopped state, or set its elapsed time.
 		# A numeric value preserves whether the clock is running; a stopped clock becomes paused.
+		# Pass `started: false` to wait to start from the given elapsed time.
 		# @parameter elapsed [Numeric | Nil] The elapsed time in seconds, or `nil` to clear the clock.
-		def reset!(elapsed = nil)
+		# @parameter started [Boolean] Whether the clock has started at the reset position.
+		def reset!(elapsed = nil, started: !elapsed.nil?)
 			@elapsed = elapsed || 0
-			@started = !elapsed.nil?
+			@started = started
 			@running = @started && @running
 			@last_tick = @running ? Time.now : nil
 		end

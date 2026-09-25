@@ -209,23 +209,26 @@ describe Presently::PresenterView do
 		expect(view.to_html.to_s).to be(:include?, "Waiting slide")
 	end
 	
-	it "can start timing again after resetting on the waiting slide" do
+	it "can start from a later waiting slide's timestamp after resetting" do
+		File.write(File.join(root, "005-introduction.md"), "---\nduration: 30\n---\nIntroduction\n")
 		File.write(File.join(root, "010-first.md"), "---\ntimer: start\nduration: 0\n---\nWaiting slide\n")
 		
+		controller.go_to(1)
 		view.handle(detail: {action: "next"})
 		view.handle(detail: {action: "previous"})
 		expect(view.to_html.to_s).to be(:include?, "⏸ Pause")
 		
 		view.handle(detail: {action: "pause"})
 		expect(view.to_html.to_s).to be(:include?, "Timer is paused. Advancing will leave it paused.")
-		expect(view.to_html.to_s).to be(:include?, "Clear the timer to its initial state")
+		expect(view.to_html.to_s).to be(:include?, "Reset to this slide's timestamp and wait to start")
 		view.handle(detail: {action: "reset"})
 		expect(view.to_html.to_s).to be(:include?, "Auto-start")
 		expect(view.to_html.to_s).to be(:include?, "Advancing will start the timer.")
+		expect(view.to_html.to_s).to be(:include?, "Elapsed: 0:30")
 		
 		view.handle(detail: {action: "next"})
 		expect(controller.clock).to be(:running?)
-		expect(controller.clock.elapsed).to be_within(0.1).of(0)
+		expect(controller.clock.elapsed).to be_within(0.1).of(30)
 	end
 	
 	it "ignores stale reset events while running" do

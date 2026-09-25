@@ -246,9 +246,9 @@ Pause the timer before changing its elapsed time, whether you are rehearsing a s
 | Running | **Pause** freezes elapsed time. |
 | Paused | **Resume** continues timing, and **Reset** prepares the current slide to begin again. |
 
-**Reset** normally sets elapsed time to the sum of durations before the current slide and leaves the timer paused. Press **Resume** when ready to continue. On a slide with `timer: start`, Reset instead clears elapsed time to zero and returns the timer to its initial, not-started state. Reset leaves the current slide unchanged and is only available while paused.
+**Reset** always sets elapsed time to the sum of durations before the current slide. It normally leaves the timer paused; press **Resume** when ready to continue. On a slide with `timer: start`, Reset returns the timer to the not-started state at that same timestamp, so advancing starts from the slide's expected time. Reset leaves the current slide unchanged and is only available while paused.
 
-After a rehearsal, return to your waiting slide, pause, and press **Reset**. Advancing from that `timer: start` slide starts a fresh timer, regardless of its position in the deck.
+After a rehearsal, return to your waiting slide, pause, and press **Reset**. Advancing from that `timer: start` slide starts timing from its expected timestamp, regardless of its position in the deck. For example, a waiting slide after five minutes of allocated content resets to `5:00`, waits, and starts from `5:00` when you advance. The timestamp and not-started state are also preserved when saving and restoring the presentation.
 
 For slides with recognized timer metadata and a following slide, the **Next** tooltip describes what advancing will actually do. For example, a manually paused `timer: start` slide shows “Timer is paused. Advancing will leave it paused.” After Reset, the tooltip changes to “Advancing will start the timer.” The tooltip also reflects pause and resume actions, including when they would leave the clock unchanged.
 

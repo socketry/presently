@@ -191,7 +191,7 @@ module Presently
 					
 					if @controller.clock.paused? && slide
 						title = if slide.timer == "start"
-							"Clear the timer to its initial state"
+							"Reset to this slide's timestamp and wait to start"
 						else
 							"Reset to this slide's timestamp and stay paused"
 						end

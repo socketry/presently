@@ -160,6 +160,20 @@ describe Presently::Clock do
 			expect(clock.elapsed).to be == 42
 		end
 		
+		it "prepares an unstarted clock at a nonzero elapsed time" do
+			clock.restore!(100, running: true)
+			clock.reset!(42, started: false)
+			
+			expect(clock).not.to be(:started?)
+			expect(clock).not.to be(:running?)
+			expect(clock).not.to be(:paused?)
+			expect(clock.elapsed).to be == 42
+			
+			clock.start!
+			expect(clock).to be(:running?)
+			expect(clock.elapsed).to be_within(0.1).of(42)
+		end
+		
 		it "preserves a running clock when resetting to zero" do
 			clock.restore!(100, running: true)
 			clock.reset!(0)

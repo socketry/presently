@@ -106,16 +106,12 @@ module Presently
 		end
 		
 		# Reset a paused timer to begin the current slide again.
-		# A `timer: start` slide clears the clock, ready to start when advancing.
-		# Other slides reset to their expected start time and remain paused.
+		# All slides reset to their expected start time. A `timer: start` slide waits
+		# to start when advancing; other slides remain paused.
 		def reset_timer!
 			return unless @clock.paused? && current_slide
 			
-			if current_slide.timer == "start"
-				@clock.reset!
-			else
-				@clock.reset!(@presentation.expected_time_at(@current_index))
-			end
+			@clock.reset!(@presentation.expected_time_at(@current_index), started: current_slide.timer != "start")
 			
 			notify_listeners!
 		end
@@ -142,8 +138,6 @@ module Presently
 		# The estimated time remaining in the presentation.
 		# @returns [Numeric] The remaining time in seconds.
 		def time_remaining
-			return total_duration unless @clock.started?
-			
 			expected_remaining = @presentation.expected_time_at(slide_count) - @clock.elapsed
 			
 			[expected_remaining, 0].max

@@ -54,6 +54,8 @@ module Presently
 			# Restore clock state:
 			if data[:started]
 				controller.clock.restore!(data[:elapsed].to_f, running: data[:running])
+			else
+				controller.clock.reset!(data[:elapsed].to_f, started: false)
 			end
 		rescue => error
 			Console.warn(self, "Failed to restore state", exception: error)

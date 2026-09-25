@@ -382,19 +382,26 @@ describe Presently::PresentationController do
 			File.write(File.join(root, "030-content.md"), "---\nduration: 60\n---\n# Content\n")
 		end
 		
-		it "clears a paused timer on a later start slide and persists the stopped state" do
+		it "resets a later start slide to its timestamp and persists the unstarted clock" do
 			controller.go_to(1)
 			controller.clock.restore!(42, running: false)
 			controller.reset_timer!
 			
 			expect(controller.clock).not.to be(:started?)
-			expect(controller.clock.elapsed).to be == 0
+			expect(controller.clock.elapsed).to be == 30
 			expect(controller.current_index).to be == 1
+			expect(controller.time_remaining).to be == 60
 			
 			restored = subject.new(presentation, state: state)
 			expect(restored.current_index).to be == 1
 			expect(restored.clock).not.to be(:started?)
-			expect(restored.clock.elapsed).to be == 0
+			expect(restored.clock.elapsed).to be == 30
+			expect(restored.time_remaining).to be == 60
+			
+			restored.advance!
+			expect(restored.clock).to be(:running?)
+			expect(restored.clock.elapsed).to be_within(0.1).of(30)
+			expect(restored.pacing).to be == :on_time
 		end
 		
 		it "prepares a later waiting slide to start timing again" do
@@ -405,9 +412,10 @@ describe Presently::PresentationController do
 			controller.reset_timer!
 			
 			expect(controller.clock).not.to be(:started?)
+			expect(controller.clock.elapsed).to be == 30
 			controller.advance!
 			expect(controller.clock).to be(:running?)
-			expect(controller.clock.elapsed).to be_within(0.1).of(0)
+			expect(controller.clock.elapsed).to be_within(0.1).of(30)
 		end
 		
 		it "resets ordinary slides to their expected start and persists the paused timer" do
