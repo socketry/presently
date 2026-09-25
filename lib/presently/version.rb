@@ -5,5 +5,5 @@
 
 # @namespace
 module Presently
-	VERSION = "0.26.1"
+	VERSION = "0.27.0"
 end

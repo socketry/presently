@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.27.0
 
   - Show **Reset** only while paused. Reset always sets elapsed time to the current slide's expected start. It stays paused on ordinary slides, or becomes ready at that timestamp on a `timer: start` slide. Advancing starts from the preserved timestamp, which also survives saving and restoring the presentation.
   - Describe the effect of slide timer metadata in the **Next** tooltip. Show an animated **Auto-start** indicator when advancing from the current slide will start the timer, with a tooltip explaining how to begin.

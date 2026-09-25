@@ -69,6 +69,12 @@ The task records the presentation at 1920×1080 and 30 frames per second by defa
 
 Please see the [project releases](https://socketry.github.io/presently/releases/index) for all releases.
 
+### v0.27.0
+
+  - Show **Reset** only while paused. Reset always sets elapsed time to the current slide's expected start. It stays paused on ordinary slides, or becomes ready at that timestamp on a `timer: start` slide. Advancing starts from the preserved timestamp, which also survives saving and restoring the presentation.
+  - Describe the effect of slide timer metadata in the **Next** tooltip. Show an animated **Auto-start** indicator when advancing from the current slide will start the timer, with a tooltip explaining how to begin.
+  - Make `Clock#reset!` (or `reset!(nil)`) clear the clock to its initial, ready state. Passing a numeric elapsed time preserves whether it is running, or puts a ready clock into the paused state. Pass `started: false` to make the clock ready at a nonzero elapsed time.
+
 ### v0.26.0
 
   - Add `timer: start`, `timer: pause`, and `timer: resume` slide metadata, applied when advancing away from a slide in the presenter or display.
@@ -121,10 +127,6 @@ Please see the [project releases](https://socketry.github.io/presently/releases/
   - Add lifecycle-managed Anime.js animation scopes, reusable diagram setup scripts, and guidance for authoring animated diagrams.
   - Truncate long slide paths responsively while preserving their filenames in presenter controls.
   - Preserve the complete saved presentation state when restoring the controller.
-
-### v0.17.2
-
-  - Fix slide rendering events for generated view identifiers that begin with a digit.
 
 ## See Also
 
