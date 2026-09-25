@@ -6,9 +6,10 @@
 module Presently
 	# A simple clock that tracks elapsed time with start, pause, resume, and reset.
 	#
-	# The clock accumulates elapsed time while running and freezes it when paused.
+	# A ready clock waits to start at its current elapsed time. It accumulates time
+	# while running and freezes it when paused.
 	class Clock
-		# Initialize a new clock in the stopped state.
+		# Initialize a new clock in the ready state at zero.
 		def initialize
 			@elapsed = 0
 			@started = false
@@ -16,7 +17,7 @@ module Presently
 			@last_tick = nil
 		end
 		
-		# Whether the clock has been started at least once.
+		# Whether the clock is running or paused; false when ready.
 		# @returns [Boolean]
 		def started?
 			@started
@@ -35,7 +36,7 @@ module Presently
 		end
 		
 		# The total elapsed time in seconds.
-		# Includes time accumulated up to now if running, or frozen time if paused.
+		# Includes time accumulated up to now if running, or frozen time if paused or ready.
 		# @returns [Numeric] The elapsed time in seconds.
 		def elapsed
 			if @running
@@ -78,11 +79,11 @@ module Presently
 			@last_tick = Time.now
 		end
 		
-		# Reset the clock to its initial, stopped state, or set its elapsed time.
-		# A numeric value preserves whether the clock is running; a stopped clock becomes paused.
-		# Pass `started: false` to wait to start from the given elapsed time.
+		# Reset the clock to its initial, ready state, or set its elapsed time.
+		# A numeric value preserves whether the clock is running; a ready clock becomes paused.
+		# Pass `started: false` to make the clock ready at the given elapsed time.
 		# @parameter elapsed [Numeric | Nil] The elapsed time in seconds, or `nil` to clear the clock.
-		# @parameter started [Boolean] Whether the clock has started at the reset position.
+		# @parameter started [Boolean] Whether the clock is running or paused at the reset position; false makes it ready.
 		def reset!(elapsed = nil, started: !elapsed.nil?)
 			@elapsed = elapsed || 0
 			@started = started

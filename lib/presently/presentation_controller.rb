@@ -106,8 +106,8 @@ module Presently
 		end
 		
 		# Reset a paused timer to begin the current slide again.
-		# All slides reset to their expected start time. A `timer: start` slide waits
-		# to start when advancing; other slides remain paused.
+		# All slides reset to their expected start time. A `timer: start` slide becomes
+		# ready to start when advancing; other slides remain paused.
 		def reset_timer!
 			return unless @clock.paused? && current_slide
 			

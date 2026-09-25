@@ -9,7 +9,7 @@ require "json"
 module Presently
 	# Persists and restores presentation controller state to/from a JSON file.
 	#
-	# Tracks the current slide index, clock elapsed time, and clock running state.
+	# Tracks the current slide index, clock elapsed time, and whether it is ready, running, or paused.
 	# This allows the presentation to survive server restarts without losing position.
 	class State
 		# The default state file path.

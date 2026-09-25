@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-  - Show **Reset** only while paused. Reset always sets elapsed time to the current slide's expected start. It stays paused on ordinary slides, or returns to not started at that timestamp on a `timer: start` slide. Advancing starts from the preserved timestamp, which also survives saving and restoring the presentation.
+  - Show **Reset** only while paused. Reset always sets elapsed time to the current slide's expected start. It stays paused on ordinary slides, or becomes ready at that timestamp on a `timer: start` slide. Advancing starts from the preserved timestamp, which also survives saving and restoring the presentation.
   - Describe the effect of slide timer metadata in the **Next** tooltip. Show an animated **Auto-start** indicator when advancing from the current slide will start the timer, with a tooltip explaining how to begin.
-  - Make `Clock#reset!` (or `reset!(nil)`) clear the clock to its initial, stopped state. Passing a numeric elapsed time preserves whether it is running, or puts a stopped clock into the paused state. Pass `started: false` to wait to start from a nonzero elapsed time.
+  - Make `Clock#reset!` (or `reset!(nil)`) clear the clock to its initial, ready state. Passing a numeric elapsed time preserves whether it is running, or puts a ready clock into the paused state. Pass `started: false` to make the clock ready at a nonzero elapsed time.
 
 ## v0.26.0
 
