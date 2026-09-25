@@ -110,33 +110,33 @@ describe Presently::Clock do
 	end
 	
 	with "#reset!" do
-		it "resets elapsed to the given value" do
-			clock.start!
-			sleep 0.05
+		it "sets elapsed time and keeps a running clock running" do
+			clock.restore!(100, running: true)
 			clock.reset!(42)
+			expect(clock).to be(:running?)
 			expect(clock.elapsed).to be_within(0.1).of(42)
 		end
 		
-		it "resets elapsed to zero by default" do
-			clock.start!
-			sleep 0.05
+		it "clears a running clock by default" do
+			clock.restore!(100, running: true)
 			clock.reset!
-			expect(clock.elapsed).to be_within(0.1).of(0)
+			
+			expect(clock).not.to be(:started?)
+			expect(clock).not.to be(:running?)
+			expect(clock).not.to be(:paused?)
+			expect(clock.elapsed).to be == 0
 		end
 		
-		it "works when paused" do
-			clock.start!
-			clock.pause!
+		it "sets elapsed time and keeps a paused clock paused" do
+			clock.restore!(100, running: false)
 			clock.reset!(10)
+			expect(clock).to be(:paused?)
 			expect(clock.elapsed).to be == 10
 		end
-	end
-	
-	with "#stop!" do
-		it "returns to the initial state" do
-			clock.start!
-			sleep 0.05
-			clock.stop!
+		
+		it "clears a paused clock with nil" do
+			clock.restore!(100, running: false)
+			clock.reset!(nil)
 			
 			expect(clock).not.to be(:started?)
 			expect(clock).not.to be(:running?)
@@ -146,11 +146,38 @@ describe Presently::Clock do
 		
 		it "can be started again" do
 			clock.start!
-			clock.stop!
+			clock.reset!
 			clock.start!
 			
 			expect(clock).to be(:running?)
 			expect(clock.elapsed).to be_within(0.1).of(0)
+		end
+		
+		it "sets a stopped clock to a paused position" do
+			clock.reset!(42)
+			expect(clock).to be(:started?)
+			expect(clock).to be(:paused?)
+			expect(clock.elapsed).to be == 42
+		end
+		
+		it "preserves a running clock when resetting to zero" do
+			clock.restore!(100, running: true)
+			clock.reset!(0)
+			expect(clock).to be(:started?)
+			expect(clock).to be(:running?)
+			expect(clock.elapsed).to be_within(0.1).of(0)
+		end
+		
+		it "distinguishes a paused clock at zero from a cleared clock" do
+			clock.reset!(0)
+			expect(clock).to be(:paused?)
+			expect(clock.elapsed).to be == 0
+			
+			clock.reset!
+			clock.reset!
+			expect(clock).not.to be(:started?)
+			expect(clock).not.to be(:running?)
+			expect(clock.elapsed).to be == 0
 		end
 	end
 end

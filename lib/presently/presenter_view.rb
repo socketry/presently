@@ -21,6 +21,7 @@ module Presently
 			super(id, data)
 			@controller = controller
 			@clock_task = nil
+			@timing_state = nil
 			@preview_renderer = SlideRenderer.new(css_class: "slide preview-slide", templates: controller.templates)
 		end
 		
@@ -51,10 +52,21 @@ module Presently
 			self.render_slide!
 		end
 		
-		# Push an update to just the timing section.
+		# Update the timing section and the Next tooltip when the clock state changes.
+		# Leave unchanged, paused controls in place to preserve keyboard focus.
 		def update_timing!
+			clock = @controller.clock
+			state_changed = @timing_state != [clock.started?, clock.running?]
+			return unless clock.running? || state_changed
+			
 			replace(".timing") do |builder|
 				render_timing(builder, @controller.current_slide)
+			end
+			
+			if state_changed
+				replace(".next-button") do |builder|
+					render_next_button(builder)
+				end
 			end
 		end
 		
@@ -77,6 +89,7 @@ module Presently
 					@controller.clock.pause!
 				end
 				@controller.save_state!
+				update_timing! if @page
 			when "reset"
 				@controller.reset_timer!
 			when "reload"
@@ -96,13 +109,53 @@ module Presently
 			Editor.url_for(path, line)
 		end
 		
+		# Describe the actual effect of the outgoing slide's timer metadata.
+		# @returns [String | Nil] The hint, or `nil` when there is no timer action or next slide.
+		def timer_action_hint
+			return unless @controller.next_slide
+			
+			clock = @controller.clock
+			case @controller.current_slide.timer
+			when "start"
+				return "Advancing will start the timer." unless clock.started?
+			when "pause"
+				return "Advancing will pause the timer." if clock.running?
+			when "resume"
+				return "Advancing will resume the timer." if clock.paused?
+			else
+				return
+			end
+			
+			if clock.running?
+				"Advancing will leave the timer running."
+			elsif clock.paused?
+				"Timer is paused. Advancing will leave it paused."
+			else
+				"Advancing will leave the timer stopped."
+			end
+		end
+		
+		# Render the Next button with a tooltip describing its timer action.
+		# @parameter builder [XRB::Builder] The HTML builder.
+		def render_next_button(builder)
+			builder.tag(:button,
+				class: "next-button",
+				title: timer_action_hint,
+				onClick: forward_event(action: "next")
+			) do
+				builder.text("Next →")
+			end
+		end
+		
 		# Render the timing bar with controls, elapsed/remaining time, and pacing.
 		# @parameter builder [XRB::Builder] The HTML builder.
 		# @parameter slide [Slide | Nil] The current slide.
 		def render_timing(builder, slide)
+			@timing_state = [@controller.clock.started?, @controller.clock.running?]
 			pacing = @controller.pacing
 			progress = pacing ? (@controller.slide_progress * 100).round(1) : 0.0
 			next_slide = @controller.next_slide
+			wait_for_advance = !@controller.clock.started? && slide&.timer == "start" && !!next_slide
 			builder.tag(:div, class: "timing", style: "--slide-progress: #{progress}%") do
 				pacing_class = case pacing
 				when :behind then "behind"
@@ -111,25 +164,45 @@ module Presently
 				end
 				
 				builder.tag(:div, class: "toolbar timing-info #{pacing_class}") do
-					builder.tag(:button,
-						class: "pause-button",
-						onClick: forward_event(action: "pause")
-					) do
-						label = if !@controller.clock.started?
-							"▶ Start"
-						elsif @controller.clock.paused?
-							"▶ Resume"
-						else
-							"⏸ Pause"
+					if wait_for_advance
+						builder.tag(:span,
+							class: "auto-start",
+							role: "status",
+							title: "Advancing will start the timer."
+						) do
+							builder.tag(:span, class: "auto-start-icon", "aria-hidden": "true"){builder.text("▶")}
+							builder.text("Auto-start")
 						end
-						builder.text(label)
+					else
+						builder.tag(:button,
+							class: "pause-button",
+							onClick: forward_event(action: "pause")
+						) do
+							label = if !@controller.clock.started?
+								"▶ Start"
+							elsif @controller.clock.paused?
+								"▶ Resume"
+							else
+								"⏸ Pause"
+							end
+							builder.text(label)
+						end
 					end
 					
-					builder.tag(:button,
-						class: "pause-button",
-						onClick: forward_event(action: "reset")
-					) do
-						builder.text("↺ Reset")
+					if @controller.clock.paused? && slide
+						title = if slide.timer == "start"
+							"Clear the timer to its initial state"
+						else
+							"Reset to this slide's timestamp and stay paused"
+						end
+						
+						builder.tag(:button,
+							class: "pause-button",
+							title: title,
+							onClick: forward_event(action: "reset")
+						) do
+							builder.text("↺ Reset")
+						end
 					end
 					
 					builder.tag(:span, class: "elapsed") do
@@ -200,11 +273,7 @@ module Presently
 						builder.text("← Previous")
 					end
 					
-					builder.tag(:button,
-						onClick: forward_event(action: "next")
-					) do
-						builder.text("Next →")
-					end
+					render_next_button(builder)
 					
 					builder.tag(:span, class: "slide-info") do
 						builder.tag(:span, class: "slide-position") do

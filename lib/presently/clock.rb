@@ -78,20 +78,14 @@ module Presently
 			@last_tick = Time.now
 		end
 		
-		# Reset the elapsed time to the given value.
-		# If running, continues from the new value. If paused, sets the frozen value.
-		# @parameter elapsed [Numeric] The new elapsed time in seconds.
-		def reset!(elapsed = 0)
-			@elapsed = elapsed
-			@last_tick = Time.now if @running
-		end
-		
-		# Stop the clock and return it to its initial, never-started state.
-		def stop!
-			@elapsed = 0
-			@started = false
-			@running = false
-			@last_tick = nil
+		# Reset the clock to its initial, stopped state, or set its elapsed time.
+		# A numeric value preserves whether the clock is running; a stopped clock becomes paused.
+		# @parameter elapsed [Numeric | Nil] The elapsed time in seconds, or `nil` to clear the clock.
+		def reset!(elapsed = nil)
+			@elapsed = elapsed || 0
+			@started = !elapsed.nil?
+			@running = @started && @running
+			@last_tick = @running ? Time.now : nil
 		end
 	end
 end

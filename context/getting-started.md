@@ -231,10 +231,28 @@ The presenter view at `/presenter` provides:
 
 - **Current and next slide previews** — see what's coming without switching windows.
 - **Presenter notes** — notes from the slide's `---` separator section.
-- **Timer controls** — Start, Pause, Resume, and Reset buttons.
+- **Timer controls** — Start when not started, Pause while running, and Resume or Reset while paused.
 - **Pacing indicator** — shows whether you're on time, ahead, or behind based on per-slide `duration` metadata.
 - **Progress bar** — visual indicator of time consumed for the current slide.
 - **Reload button** — reload slides from disk without restarting the server.
+
+### Timer Controls
+
+Pause the timer before changing its elapsed time, whether you are rehearsing a section or preparing for another presentation.
+
+| Timer state | Available controls |
+|---|---|
+| Not started | **Start** begins timing. |
+| Running | **Pause** freezes elapsed time. |
+| Paused | **Resume** continues timing, and **Reset** prepares the current slide to begin again. |
+
+**Reset** normally sets elapsed time to the sum of durations before the current slide and leaves the timer paused. Press **Resume** when ready to continue. On a slide with `timer: start`, Reset instead clears elapsed time to zero and returns the timer to its initial, not-started state. Reset leaves the current slide unchanged and is only available while paused.
+
+After a rehearsal, return to your waiting slide, pause, and press **Reset**. Advancing from that `timer: start` slide starts a fresh timer, regardless of its position in the deck.
+
+For slides with recognized timer metadata and a following slide, the **Next** tooltip describes what advancing will actually do. For example, a manually paused `timer: start` slide shows “Timer is paused. Advancing will leave it paused.” After Reset, the tooltip changes to “Advancing will start the timer.” The tooltip also reflects pause and resume actions, including when they would leave the clock unchanged.
+
+Before the timer starts, an **Auto-start** indicator replaces **Start** on a `timer: start` slide with a following slide. Its play icon gently pulses, and its tooltip says “Advancing will start the timer.” Advance to begin timing; **Pause** and **Resume** remain available once the timer has started. The animation respects reduced-motion preferences.
 
 ### Starting the Timer from a Title Slide
 
@@ -260,7 +278,7 @@ The `timer` field supports these actions:
 
 | Value | Effect when advancing from this slide |
 |---|---|
-| `start` | Starts the timer only if it has never started. Revisiting the slide does not reset elapsed time or resume a manually paused timer. |
+| `start` | Starts the timer only if it is in the not-started state. Revisiting the slide does not reset elapsed time or resume a manually paused timer. |
 | `pause` | Pauses the timer, preserving elapsed time. Has no effect before the timer starts. |
 | `resume` | Resumes a started timer, preserving elapsed time. Has no effect before the timer starts or while it is already running. |
 

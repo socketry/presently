@@ -48,6 +48,16 @@ describe Presently::State do
 			expect(restored.clock).to be(:paused?)
 		end
 		
+		it "persists an elapsed time set before starting" do
+			controller = Presently::PresentationController.new(presentation)
+			controller.clock.reset!(42)
+			state.save(controller)
+			
+			restored = Presently::PresentationController.new(presentation, state: state)
+			expect(restored.clock).to be(:paused?)
+			expect(restored.clock.elapsed).to be == 42
+		end
+		
 		it "persists a running clock" do
 			controller = Presently::PresentationController.new(presentation)
 			controller.clock.start!

@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-  - Reset the timer to its initial, stopped state when pressing **Reset** on the first slide, so that a `timer: start` title slide starts the timer again after a rehearsal.
+  - Show **Reset** only while paused. Reset sets elapsed time to the current slide's expected start and stays paused, or clears the timer on a `timer: start` slide so advancing can start it again, regardless of its position in the deck.
+  - Describe the effect of slide timer metadata in the **Next** tooltip. Show an animated **Auto-start** indicator when advancing from the current slide will start the timer, with a tooltip explaining how to begin.
+  - Make `Clock#reset!` (or `reset!(nil)`) clear the clock to its initial, stopped state. Passing a numeric elapsed time preserves whether it is running, or puts a stopped clock into the paused state.
 
 ## v0.26.0
 

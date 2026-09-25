@@ -66,10 +66,10 @@ describe Presently::PresentationController do
 	end
 	
 	with "#advance!" do
-		it "moves to the next slide" do
+		it "moves from the sample waiting slide to the next slide and starts timing" do
 			expect(controller.advance!).to be == true
 			expect(controller.current_index).to be == 1
-			expect(controller.clock).not.to be(:started?)
+			expect(controller.clock).to be(:running?)
 		end
 		
 		it "does not advance past the last slide" do
@@ -173,6 +173,7 @@ describe Presently::PresentationController do
 		it "starts again from the title after resetting on the first slide" do
 			controller.advance!
 			controller.retreat!
+			controller.clock.pause!
 			controller.reset_timer!
 			
 			expect(controller.clock).not.to be(:started?)
@@ -333,7 +334,7 @@ describe Presently::PresentationController do
 		end
 		
 		it "returns on_time when within the slide window" do
-			controller.clock.start!
+			controller.advance!
 			expect(controller.pacing).to be == :on_time
 		end
 		
@@ -357,7 +358,7 @@ describe Presently::PresentationController do
 		end
 		
 		it "returns 0.0 at the start of a slide" do
-			controller.clock.start!
+			controller.advance!
 			expect(controller.slide_progress).to be_within(0.1).of(0.0)
 		end
 	end
@@ -368,24 +369,105 @@ describe Presently::PresentationController do
 		end
 	end
 	
-	with "#reset_timer!" do
-		it "resets elapsed to expected time for current slide" do
-			controller.clock.start!
-			sleep 0.05
-			controller.go_to(2)
-			controller.reset_timer!
-			
-			expected = presentation.slides[0..1].sum(&:duration)
-			expect(controller.clock.elapsed).to be_within(0.1).of(expected)
+	with "timer controls" do
+		include Sus::Fixtures::TemporaryDirectoryContext
+		
+		let(:presentation) {Presently::Presentation.load(root)}
+		let(:state) {Presently::State.new(File.join(root, "state.json"))}
+		let(:controller) {subject.new(presentation, state: state)}
+		
+		before do
+			File.write(File.join(root, "010-introduction.md"), "---\nduration: 30\n---\n# Introduction\n")
+			File.write(File.join(root, "020-title.md"), "---\ntimer: start\nduration: 0\n---\n# Waiting\n")
+			File.write(File.join(root, "030-content.md"), "---\nduration: 60\n---\n# Content\n")
 		end
 		
-		it "stops the timer on the first slide" do
-			controller.clock.start!
-			sleep 0.05
+		it "clears a paused timer on a later start slide and persists the stopped state" do
+			controller.go_to(1)
+			controller.clock.restore!(42, running: false)
 			controller.reset_timer!
 			
 			expect(controller.clock).not.to be(:started?)
 			expect(controller.clock.elapsed).to be == 0
+			expect(controller.current_index).to be == 1
+			
+			restored = subject.new(presentation, state: state)
+			expect(restored.current_index).to be == 1
+			expect(restored.clock).not.to be(:started?)
+			expect(restored.clock.elapsed).to be == 0
+		end
+		
+		it "prepares a later waiting slide to start timing again" do
+			controller.go_to(1)
+			controller.advance!
+			controller.clock.pause!
+			controller.retreat!
+			controller.reset_timer!
+			
+			expect(controller.clock).not.to be(:started?)
+			controller.advance!
+			expect(controller.clock).to be(:running?)
+			expect(controller.clock.elapsed).to be_within(0.1).of(0)
+		end
+		
+		it "resets ordinary slides to their expected start and persists the paused timer" do
+			[0, 2].each do |index|
+				controller.go_to(index)
+				controller.clock.restore!(150, running: false)
+				controller.reset_timer!
+				
+				expected = presentation.expected_time_at(index)
+				expect(controller.clock).to be(:paused?)
+				expect(controller.clock.elapsed).to be == expected
+				expect(controller.current_index).to be == index
+				
+				restored = subject.new(presentation, state: state)
+				expect(restored.current_index).to be == index
+				expect(restored.clock).to be(:paused?)
+				expect(restored.clock.elapsed).to be == expected
+			end
+		end
+		
+		it "notifies listeners after resetting" do
+			observed = []
+			controller = self.controller
+			listener = Object.new
+			listener.define_singleton_method(:slide_changed!) do
+				observed << [controller.clock.started?, controller.clock.running?]
+			end
+			controller.add_listener(listener)
+			
+			controller.clock.restore!(42, running: false)
+			controller.reset_timer!
+			
+			expect(observed).to be == [[true, false]]
+		end
+		
+		it "ignores reset controls unless paused" do
+			notified = false
+			listener = Object.new
+			listener.define_singleton_method(:slide_changed!){notified = true}
+			controller.add_listener(listener)
+			
+			controller.reset_timer!
+			expect(controller.clock).not.to be(:started?)
+			
+			controller.clock.restore!(42, running: true)
+			controller.reset_timer!
+			expect(controller.clock).to be(:running?)
+			expect(controller.clock.elapsed).to be >= 42
+			expect(notified).to be == false
+			expect(File).not.to be(:exist?, state.path)
+		end
+		
+		it "does not reset without a current slide" do
+			empty = File.join(root, "empty")
+			Dir.mkdir(empty)
+			controller = subject.new(Presently::Presentation.load(empty))
+			controller.clock.restore!(42, running: false)
+			controller.reset_timer!
+			expect(controller.clock).to be(:paused?)
+			expect(controller.clock.elapsed).to be == 42
 		end
 	end
 	
