@@ -9,7 +9,7 @@ require "json"
 module Presently
 	# Persists and restores presentation controller state to/from a JSON file.
 	#
-	# Tracks the current slide index, clock elapsed time, and clock running state.
+	# Tracks the current slide index, clock elapsed time, and whether it is ready, running, or paused.
 	# This allows the presentation to survive server restarts without losing position.
 	class State
 		# The default state file path.
@@ -54,6 +54,8 @@ module Presently
 			# Restore clock state:
 			if data[:started]
 				controller.clock.restore!(data[:elapsed].to_f, running: data[:running])
+			else
+				controller.clock.reset!(data[:elapsed].to_f, started: false)
 			end
 		rescue => error
 			Console.warn(self, "Failed to restore state", exception: error)

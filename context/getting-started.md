@@ -231,10 +231,30 @@ The presenter view at `/presenter` provides:
 
 - **Current and next slide previews** — see what's coming without switching windows.
 - **Presenter notes** — notes from the slide's `---` separator section.
-- **Timer controls** — Start, Pause, Resume, and Reset buttons.
+- **Timer controls** — Start when ready, Pause while running, and Resume or Reset while paused.
 - **Pacing indicator** — shows whether you're on time, ahead, or behind based on per-slide `duration` metadata.
 - **Progress bar** — visual indicator of time consumed for the current slide.
 - **Reload button** — reload slides from disk without restarting the server.
+
+### Timer Controls
+
+Pause the timer before changing its elapsed time, whether you are rehearsing a section or preparing for another presentation.
+
+A **ready** timer is waiting to start from its current timestamp. It can be ready at `0:00` or at a later position after Reset.
+
+| Timer state | Available controls |
+|---|---|
+| Ready | **Start** begins timing, or **Auto-start** indicates that advancing will begin timing. |
+| Running | **Pause** freezes elapsed time. |
+| Paused | **Resume** continues timing, and **Reset** prepares the current slide to begin again. |
+
+**Reset** always sets elapsed time to the sum of durations before the current slide. It normally leaves the timer paused; press **Resume** when ready to continue. On a slide with `timer: start`, Reset returns the timer to the ready state at that same timestamp, so advancing starts from the slide's expected time. Reset leaves the current slide unchanged and is only available while paused.
+
+After a rehearsal, return to your waiting slide, pause, and press **Reset**. Advancing from that `timer: start` slide starts timing from its expected timestamp, regardless of its position in the deck. For example, a waiting slide after five minutes of allocated content resets to `5:00`, waits, and starts from `5:00` when you advance. The timestamp and ready state are also preserved when saving and restoring the presentation.
+
+For slides with recognized timer metadata and a following slide, the **Next** tooltip describes what advancing will actually do. For example, a manually paused `timer: start` slide shows “Timer is paused. Advancing will leave it paused.” After Reset, the tooltip changes to “Advancing will start the timer.” The tooltip also reflects pause and resume actions, including when they would leave the clock unchanged.
+
+While the timer is ready, an **Auto-start** indicator replaces **Start** on a `timer: start` slide with a following slide. Its play icon gently pulses, and its tooltip says “Advancing will start the timer.” Advance to begin timing; **Pause** and **Resume** are available while running and paused respectively. The animation respects reduced-motion preferences.
 
 ### Starting the Timer from a Title Slide
 
@@ -252,7 +272,7 @@ timer: start
 We'll begin shortly.
 ```
 
-The timer stays stopped while the title is displayed. Advancing from it in `/presenter` or `/display` starts the timer before showing the next slide. Setting `duration: 0` excludes the waiting slide from the expected presentation duration and pacing calculations. The `title` template itself does not control the timer.
+The timer stays ready while the title is displayed. Advancing from it in `/presenter` or `/display` starts the timer before showing the next slide. Setting `duration: 0` excludes the waiting slide from the expected presentation duration and pacing calculations. The `title` template itself does not control the timer.
 
 Durations are read as floating-point seconds, including numeric strings. Negative, invalid, or non-finite values are treated as `0.0`. An unspecified or null duration defaults to `0.0` seconds, meaning no time has been allocated to that slide. Set explicit durations, or apply recorded narration durations, to establish a pacing schedule. When the total allocated duration is zero, the presenter shows elapsed time without pacing indicators, a progress bar, or a remaining-time estimate.
 
@@ -260,9 +280,9 @@ The `timer` field supports these actions:
 
 | Value | Effect when advancing from this slide |
 |---|---|
-| `start` | Starts the timer only if it has never started. Revisiting the slide does not reset elapsed time or resume a manually paused timer. |
-| `pause` | Pauses the timer, preserving elapsed time. Has no effect before the timer starts. |
-| `resume` | Resumes a started timer, preserving elapsed time. Has no effect before the timer starts or while it is already running. |
+| `start` | Starts a ready timer from its current timestamp. Revisiting the slide does not reset elapsed time or resume a manually paused timer. |
+| `pause` | Pauses the timer, preserving elapsed time. Has no effect while ready. |
+| `resume` | Resumes a paused timer, preserving elapsed time. Has no effect while ready or already running. |
 
 For a break, put `timer: pause` on the slide immediately before the break slide, and `timer: resume` on the break slide itself. Give the break slide `duration: 0` to exclude the break from pacing calculations. Advancing into the break pauses timing; advancing out resumes it.
 
