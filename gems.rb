@@ -13,7 +13,7 @@ gem "async-webdriver"
 
 group :maintenance, optional: true do
 	gem "bake-modernize"
-	gem "bake-gem"
+	gem "bake-gem-github"
 	gem "bake-releases"
 	
 	gem "agent-context"
