@@ -31,6 +31,65 @@ describe Presently::Slide do
 		end
 	end
 	
+	with "#background" do
+		let(:path) {File.join(root, "010-section", "010-background.md")}
+		let(:presentation) {Presently::Presentation.new(root)}
+		
+		before do
+			FileUtils.mkdir_p(File.dirname(path))
+		end
+		
+		{
+			"images/mountains.jpg" => "/_slides/010-section/images/mountains.jpg",
+			"../shared/mountains.jpg?size=large#preview" => "/_slides/shared/mountains.jpg?size=large#preview",
+			"/images/mountains.jpg" => "/images/mountains.jpg",
+			"https://example.com/mountains.jpg" => "https://example.com/mountains.jpg",
+			"//example.com/mountains.jpg" => "//example.com/mountains.jpg",
+		}.each do |source, expected|
+			it "resolves #{source}" do
+				File.write(path, {"background" => source}.to_yaml + "---\n# Slide\n")
+				
+				expect(presentation.slides.first.background).to be == expected
+			end
+		end
+		
+		[nil, "", "  ", false, 42, {}].each do |value|
+			it "ignores a background of #{value.inspect}" do
+				File.write(path, {"background" => value}.to_yaml + "---\n# Slide\n")
+				
+				expect(presentation.slides.first.background).to be_nil
+			end
+		end
+		
+		it "has no background by default" do
+			expect(slide.background).to be_nil
+		end
+	end
+	
+	with "#background_size" do
+		let(:path) {File.join(root, "slide.md")}
+		
+		["cover", "contain", "auto"].each do |size|
+			it "accepts #{size}" do
+				File.write(path, {"background-size" => size}.to_yaml + "---\n# Slide\n")
+				
+				expect(load_slide(path).background_size).to be == size
+			end
+		end
+		
+		[nil, "", "stretch", "cover; color: red", false, 42, []].each do |value|
+			it "defaults to cover for #{value.inspect}" do
+				File.write(path, {"background-size" => value}.to_yaml + "---\n# Slide\n")
+				
+				expect(load_slide(path).background_size).to be == "cover"
+			end
+		end
+		
+		it "defaults to cover when omitted" do
+			expect(slide.background_size).to be == "cover"
+		end
+	end
+	
 	with "#duration" do
 		let(:path) {File.join(root, "slide.md")}
 		

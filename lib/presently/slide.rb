@@ -272,24 +272,31 @@ module Presently
 			# @parameter source_path [String] The Markdown source path.
 			# @parameter root [String] The presentation asset root.
 			def rewrite_image_urls!(document, source_path, root)
+				document.walk do |node|
+					node.url = resolve_image_url(node.url, source_path, root) if node.type == :image
+				end
+			end
+			
+			# Resolve an image URL relative to its source file within the presentation.
+			# @parameter url [String] The image URL.
+			# @parameter source_path [String] The source file path.
+			# @parameter root [String] The presentation asset root.
+			# @returns [String] The resolved URL, preserving absolute URLs.
+			def resolve_image_url(url, source_path, root)
+				reference = Protocol::URL[url]
+				return url unless reference.is_a?(Protocol::URL::Relative)
+				return url if reference.path.empty? || reference.path.absolute?
+				
 				directory = File.dirname(File.expand_path(source_path))
 				root = File.expand_path(root)
-				return unless directory == root || directory.start_with?(root + File::SEPARATOR)
+				return url unless directory == root || directory.start_with?(root + File::SEPARATOR)
 				
 				relative_directory = directory.delete_prefix(root).delete_prefix(File::SEPARATOR)
 				base_path = Stylesheet::PREFIX
 				base_path += Stylesheet.encode_path(relative_directory) + "/" unless relative_directory.empty?
 				base_url = Protocol::URL::Relative.new(base_path)
 				
-				document.walk do |node|
-					next unless node.type == :image
-					
-					url = Protocol::URL[node.url]
-					next unless url.is_a?(Protocol::URL::Relative)
-					next if url.path.empty? || url.path.absolute?
-					
-					node.url = (base_url + url).to_s
-				end
+				(base_url + reference).to_s
 			end
 			
 		end
@@ -346,6 +353,22 @@ module Presently
 		# @returns [String] The template name from front_matter, or `"default"`.
 		def template
 			@front_matter&.fetch("template", "default") || "default"
+		end
+		
+		# The background image URL, resolved relative to this slide's source file.
+		# @returns [String | Nil] The URL, or `nil` when no image is specified.
+		def background
+			value = @front_matter&.fetch("background", nil)
+			return unless value.is_a?(String) && !value.strip.empty?
+			
+			Parser.resolve_image_url(value, source_path, @presentation.root)
+		end
+		
+		# How the background image is sized within the full slide surface.
+		# @returns [String] `"cover"`, `"contain"`, or `"auto"`, defaulting to `"cover"`.
+		def background_size
+			value = @front_matter&.fetch("background-size", nil)
+			["cover", "contain", "auto"].include?(value) ? value : "cover"
 		end
 		
 		# The expected duration of this slide in seconds.

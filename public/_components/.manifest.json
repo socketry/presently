@@ -11,11 +11,11 @@
       "version": null,
       "source": ".",
       "files": {
-        "Presently.js": "552a41737db0e67cde2f4555cf686ddb6a5de8da28c64d0404b8d7b2c10152c9",
+        "Presently.js": "1dc1a68b5a16bf0032d6f57bfb405dff47147fee605ce23172986926475fdd4d",
         "Presently/CodeFocus.js": "05fb95308f012cab92655671050279149fc4aa683450932e27fc77bd51f8ce29",
         "Presently/Scripts.js": "c2a005e2dc7e938a5ca32b7a2177331ad0cea6aa9e7496ffe2810b9561291726",
         "Presently/Slide.js": "0d67e83eff558aee8ae829a2e526dc4d583f9c0753db156c531b57e32d271ead",
-        "Presently/SlideRendering.js": "935ce8ceb65800146cfdc734d93d764268d6077821199721b6d1bcd31b596113"
+        "Presently/SlideRendering.js": "4a5e20393795fea7ebb198c7e10e074ec8f4c98fba6f53a96a67f1891723fc85"
       }
     },
     "@socketry/syntax": {
@@ -126,5 +126,5 @@
       }
     }
   },
-  "digest": "b12ebf93a8c386fdd2b7861c43c602a1313b48decab5521775abc03c6e8ff2a4"
+  "digest": "2d6f6dd1fb5ef406a10a631dcd3f52899d13ff0daef0452b207b83184eab7194"
 }

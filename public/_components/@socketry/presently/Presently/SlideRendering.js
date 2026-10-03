@@ -4,8 +4,19 @@ import {runScript} from './Scripts.js';
 
 const SLIDE_CHANGE_EVENT = 'presently:slide:change';
 
-async function prepareSlides() {
-	await Syntax.highlight();
+// Wait for background images to decode before capturing a transition or export.
+// A missing or invalid image must not prevent the slides from becoming ready.
+export async function prepareSlideBackgrounds(root = document) {
+	const urls = new Set(Array.from(root.querySelectorAll('.slide-surface[data-background]'), surface => surface.dataset.background));
+	await Promise.all(Array.from(urls, async url => {
+		const image = new Image();
+		image.src = url;
+		await image.decode().catch(() => {});
+	}));
+}
+
+async function prepareSlides(view) {
+	await Promise.all([Syntax.highlight(), prepareSlideBackgrounds(view)]);
 	await applyCodeFocus();
 }
 
@@ -42,7 +53,7 @@ export class SlideRendering {
 			if (slide) this.#slides.push(slide);
 		});
 
-		await prepareSlides();
+		await prepareSlides(this.#view);
 		return !this.#disposed;
 	}
 
