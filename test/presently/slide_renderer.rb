@@ -185,6 +185,36 @@ describe Presently::SlideRenderer do
 		html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
 		
 		expect(html).to be(:include?, 'class="slide-surface"')
+		expect(html).not.to be(:include?, "background-image:")
+		expect(html).not.to be(:include?, "data-background=")
+	end
+	
+	["default", "section"].each do |template|
+		it "renders a full-surface background for the #{template} template" do
+			File.write(path, {"template" => template, "background" => "images/mountains.jpg"}.to_yaml + "---\n# Slide\n")
+			presentation = Presently::Presentation.load(root)
+			html = subject.new(templates: presentation.templates).render_to_html(presentation.slides.first)
+			
+			expect(html).to be(:include?, 'data-background="/_slides/images/mountains.jpg"')
+			expect(html).to be(:include?, "background-image: url(&quot;/_slides/images/mountains.jpg&quot;); background-size: cover;")
+		end
+	end
+	
+	it "renders the requested background size" do
+		File.write(path, {"background" => "image.jpg", "background-size" => "contain"}.to_yaml + "---\n# Slide\n")
+		presentation = Presently::Presentation.load(root)
+		html = subject.new.render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, "background-size: contain;")
+	end
+	
+	it "escapes background URLs as both CSS strings and HTML attributes" do
+		url = "/images/a\"b\\c.jpg?x=1&y=2"
+		File.write(path, {"background" => url}.to_yaml + "---\n# Slide\n")
+		presentation = Presently::Presentation.load(root)
+		html = subject.new.render_to_html(presentation.slides.first)
+		
+		expect(html).to be(:include?, 'background-image: url(&quot;/images/a\22 b\5c c.jpg?x=1&amp;y=2&quot;); background-size: cover;')
 	end
 	
 	it "renders an H1 as the diagram title" do

@@ -50,7 +50,14 @@ module Presently
 			classes = classes.compact.join(" ")
 			path = Stylesheet.encode_path(slide.path)
 			
-			builder.tag(:div, class: "slide-surface", data: {template: slide.template}) do
+			background = slide.background
+			if background
+				# Escape the CSS string independently of the builder's HTML escaping:
+				url = background.gsub(/["\\\x00-\x1f\x7f]/){|character| "\\#{character.ord.to_s(16)} "}
+				style = %(background-image: url("#{url}"); background-size: #{slide.background_size};)
+			end
+			
+			builder.tag(:div, class: "slide-surface", data: {template: slide.template, background: background}, style: style) do
 				builder.tag(:div, class: classes, data: {template: slide.template}, "data-slide-path": path) do
 					builder.raw(html)
 					

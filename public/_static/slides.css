@@ -17,6 +17,9 @@
 	place-items: center;
 	container-type: size;
 	background: var(--slide-background);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .slide {
@@ -159,7 +162,7 @@
 
 /* Section template */
 .slide-surface[data-template="section"] {
-	background: linear-gradient(135deg, var(--accent), var(--surface-light));
+	background-image: linear-gradient(135deg, var(--accent), var(--surface-light));
 }
 
 .section-template {

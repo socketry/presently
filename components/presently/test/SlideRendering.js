@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import Syntax from '@socketry/syntax';
-import {SlideRendering} from '../Presently/SlideRendering.js';
+import {SlideRendering, prepareSlideBackgrounds} from '../Presently/SlideRendering.js';
 
 globalThis.window = globalThis;
 
@@ -29,13 +29,92 @@ class View extends EventTarget {
 		super();
 		this.id = id;
 		this.slides = slides;
+		this.backgrounds = [];
 	}
 
 	querySelectorAll(selector) {
+		if (selector === '.slide-surface[data-background]') return this.backgrounds;
 		assert.equal(selector, '.slide');
 		return this.slides;
 	}
 }
+
+test('background preparation waits for decoding, deduplicates URLs, and tolerates missing images', async () => {
+	const images = [];
+	const originalImage = globalThis.Image;
+	globalThis.Image = class {
+		constructor() {
+			images.push(this);
+		}
+		decode() {
+			return new Promise((resolve, reject) => {
+				this.resolve = resolve;
+				this.reject = reject;
+			});
+		}
+	};
+
+	try {
+		const view = new View('backgrounds', []);
+		view.backgrounds = ['image.jpg', 'missing.jpg', 'image.jpg'].map(background => ({dataset: {background}}));
+		let ready = false;
+		const prepared = prepareSlideBackgrounds(view).then(() => ready = true);
+		assert.deepEqual(images.map(image => image.src), ['image.jpg', 'missing.jpg']);
+		images[0].resolve();
+		await Promise.resolve();
+		assert.equal(ready, false);
+		images[1].reject(new Error('Missing image'));
+		await prepared;
+		assert.equal(ready, true);
+	} finally {
+		globalThis.Image = originalImage;
+	}
+});
+
+test('a transition waits for its background before capturing the incoming slide', async () => {
+	const originalHighlight = Syntax.highlight;
+	const originalImage = globalThis.Image;
+	Syntax.highlight = async () => {};
+	let decoded;
+	globalThis.Image = class {
+		decode() {
+			return new Promise(resolve => decoded = resolve);
+		}
+	};
+	let transition;
+	globalThis.document = {
+		documentElement: {dataset: {}},
+		querySelectorAll: () => [],
+		startViewTransition: callback => transition = pendingTransition(callback),
+	};
+
+	try {
+		const view = new View('background', []);
+		const rendering = new SlideRendering(view, {transition: 'fade'});
+		let changes = 0;
+		view.addEventListener('presently:slide:change', () => changes += 1);
+		const rendered = rendering.render(() => {
+			view.backgrounds = [{dataset: {background: 'image.jpg'}}];
+		});
+		transition.update();
+		let captured = false;
+		transition.updateCallbackDone.then(() => captured = true);
+		await Promise.resolve();
+		assert.equal(captured, false);
+		assert.equal(changes, 0);
+		decoded();
+		await transition.updateCallbackDone;
+		assert.equal(captured, true);
+		transition.finish();
+		assert.equal(await rendered, true);
+		assert.equal(changes, 1);
+		rendering.dispose();
+	} finally {
+		Syntax.highlight = originalHighlight;
+		globalThis.Image = originalImage;
+		delete globalThis.document;
+	}
+});
 
 function animatedSlide() {
 	const slide = new SlideElement(`

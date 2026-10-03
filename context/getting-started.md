@@ -112,6 +112,36 @@ Relative images embedded in Markdown resolve from the Markdown file's directory,
 
 Presently loads each discovered stylesheet once in deterministic presentation order. Directory styles are loaded from parent to child before the matching slide sidecar, so more specific styles naturally appear later in the cascade. The same stylesheets are used by the display, presenter, recorder, playback, and export interfaces.
 
+### Background Images
+
+Add a background image behind any slide template using frontmatter:
+
+``` markdown
+---
+template: title
+background: images/mountains.jpg
+background-size: cover
+---
+
+# Welcome
+```
+
+The background fills the available slide surface, including space outside the 16:9 content area. Content keeps its 16:9 layout. Images are centred and do not repeat.
+
+Relative image paths resolve from the slide file's directory, just like Markdown images. Root-relative paths and external URLs are also supported.
+
+`background-size` accepts:
+
+| Value | Behaviour |
+|---|---|
+| `cover` (default) | Preserves proportions and fills the surface, cropping the image when necessary. |
+| `contain` | Preserves proportions and shows the whole image, potentially leaving uncovered space. |
+| `auto` | Uses the image's natural size. |
+
+Missing or unrecognised sizes use `cover`. An explicit background image replaces the template's background image or gradient; uncovered space shows the underlying slide background colour. Slides without a background image retain their template's appearance.
+
+Backgrounds appear in the display, presenter previews, recorder, playback, and PDF export. A preview or export with a different aspect ratio can crop the image differently from the audience display.
+
 ### Running the Presentation
 
 Start the server from your presentation directory:

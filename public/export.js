@@ -1,4 +1,4 @@
-import {applyCodeFocus, runAllSlideScripts} from '@socketry/presently';
+import {applyCodeFocus, runAllSlideScripts, prepareSlideBackgrounds} from '@socketry/presently';
 import Syntax from '@socketry/syntax';
 
 // Wait for two animation frames, ensuring the browser has processed all pending
@@ -9,15 +9,16 @@ function waitForRender() {
 }
 
 async function main() {
-	// 1. Kick off syntax highlighting and font loading concurrently.
+	// 1. Kick off syntax highlighting, background decoding, and font loading concurrently.
 	//    Slide scripts are synchronous and don't depend on either, so run them now.
 	const syntaxDone = Syntax.highlight();
+	const backgroundsDone = prepareSlideBackgrounds();
 
 	// 2. Run slide scripts (synchronous in export mode — sets visibility instantly).
 	runAllSlideScripts({animated: false});
 
-	// 3. Wait for syntax and fonts to finish before applying focus.
-	await Promise.all([syntaxDone, document.fonts.ready]);
+	// 3. Wait for syntax, backgrounds, and fonts to finish before applying focus.
+	await Promise.all([syntaxDone, backgroundsDone, document.fonts.ready]);
 
 	// 4. Apply code focus now that syntax-code elements are ready.
 	await applyCodeFocus();
