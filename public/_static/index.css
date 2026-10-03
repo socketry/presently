@@ -8,6 +8,7 @@
 	--slide-text: #eee;
 	--accent: #e94560;
 	--accent-light: #ff6b81;
+	--text-emphasis: #6bb8ff;
 	--surface: #16213e;
 	--surface-light: #0f3460;
 	--font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
@@ -189,7 +190,7 @@ a {
    ======================== */
 
 strong, b {
-	color: var(--accent-light);
+	color: var(--text-emphasis);
 }
 
 code {
